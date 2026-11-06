@@ -31,6 +31,19 @@ Next.js（本 repo）
  └─ 後端 API  src/app/api/**/route.ts ──► 開放資料（data.taipei、TDX…）
 ```
 
+### 開放資料代理
+
+data.taipei 多數資料沒有開放 CORS，且部分為 Big5 編碼、TWD97 座標，因此由後端代理：
+
+```
+GET /api/opendata                                    列出可用來源
+GET /api/opendata/<id>?near=緯度,經度&radius=500&limit=20&q=關鍵字
+```
+
+- 只代理 `src/lib/opendata/sources.ts` 登記的來源（白名單），不接受任意網址
+- 統一轉成 JSON，TWD97 座標換算為 WGS84，並可依位置篩選附近的點（附 `distance` 公尺）
+- 依來源更新頻率設定 CDN 快取（`s-maxage`），上游暫時失敗時回傳最近一次的資料（`stale: true`）
+
 TODO：如果有自訂 App Handler，在這裡說明它的 name、輸入與輸出。
 
 ## 4. 執行方式

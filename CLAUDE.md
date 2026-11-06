@@ -33,6 +33,7 @@
 npm run dev     # http://localhost:3000
 npm run build   # 會產生 .next/standalone
 npm run lint
+npm test        # 單元測試（解析、座標轉換、查詢參數）
 docker build -t townpass2026-peakqi . && docker run -p 8080:8080 townpass2026-peakqi
 ```
 
@@ -44,12 +45,22 @@ src/
 │  ├─ layout.tsx        metadata.title = App AppBar 顯示的服務名稱
 │  ├─ page.tsx          首頁（目前是連線測試的示範頁）
 │  ├─ globals.css       城市通設計 token（Tailwind v4 @theme）
-│  └─ api/**/route.ts   後端 API
+│  └─ api/
+│     ├─ health/              健康檢查
+│     └─ opendata/[source]/   開放資料代理
 ├─ components/
-└─ lib/townpass/
-   ├─ bridge.ts         與 App 雙向溝通（getUserInfo、getLocation、notify、openLink…）
-   ├─ types.ts          App 回傳資料的型別
-   └─ mock.ts           一般瀏覽器開發時使用的假資料
+└─ lib/
+   ├─ townpass/
+   │  ├─ bridge.ts      與 App 雙向溝通（getUserInfo、getLocation、notify、openLink…）
+   │  ├─ types.ts       App 回傳資料的型別
+   │  └─ mock.ts        一般瀏覽器開發時使用的假資料
+   └─ opendata/
+      ├─ sources.ts     資料來源白名單（21 個，已驗證）
+      ├─ client.ts      網頁端呼叫：getOpenData()
+      ├─ parse.ts       Big5／CSV／XML 解析
+      ├─ geo.ts         TWD97 → WGS84、距離計算
+      ├─ query.ts       near／radius／limit／q 篩選
+      └─ cache.ts       程序內快取
 ```
 
 ## 3. 和城市通 App 溝通
@@ -60,6 +71,15 @@ src/
 - `cacheComponents` 開啟時，Next.js 會用 `<Activity>` 保留已離開的頁面。effect 會被清除再重建，所以監聽器一定要在 cleanup 移除（`callApp` 已經處理好）。
 - 不要用 `window.open`、`target="_blank"`、`alert`、`confirm`：App 的 WebView 不支援。要開連結改用 `openLink()`，提示訊息用自己做的 Dialog。
 - 雙向溝通只能在 App 內驗證，一般瀏覽器會自動改用 `mock.ts`。
+
+## 3.5 開放資料（一律走代理）
+
+- 網頁**不要直接 fetch data.taipei**：多數來源沒開 CORS、有的是 Big5、有的是 TWD97 座標。一律用 `src/lib/opendata/client.ts` 的 `getOpenData(id, { near, radius, limit, q })`，它會呼叫 `/api/opendata/<id>`。
+- 可用來源：`GET /api/opendata` 會列出全部；定義在 `src/lib/opendata/sources.ts`（白名單）。
+- CSV 來源保留**原始中文欄位名**（例如 `r["公廁名稱"]`），另外加上 `lat`／`lng`；用 `near` 查詢時還會附上 `distance`（公尺）。youbike、parking、construction 已經整理成英文欄位。
+- **新增來源**：先實際下載確認格式、編碼、座標欄位，再加進 `sources.ts`（大多數 CSV 只要 `csvSource({...})` 一行），並在 README §5 補上出處。**不要把代理改成接受任意網址**（會變成 SSRF 跳板）。
+- 各資料集的欄位、編碼、已知問題：TownPass repo 的 `docs/townpass/open-data.md`。
+- 測試：`npm test`（Node 內建 test runner，`src/**/*.test.ts`）。座標轉換用河濱租借站資料當基準。
 
 ## 4. UI 規範
 
