@@ -1,0 +1,113 @@
+@import "tailwindcss";
+
+/*
+ * 城市通設計 token
+ * 來源：TownPass lib/util/tp_colors.dart、tp_text_styles.dart（與 Figma Town Pass UI Kit 對應）
+ * 規則：只能使用這裡定義的顏色與字級，禁止寫死色碼。
+ *
+ * `--color-*: initial` 會清掉 Tailwind 內建色盤，所以 bg-blue-500 這類
+ * 城市通沒有的顏色會直接失效，確保整個網頁都使用 TP 色票。
+ */
+@theme {
+  --color-*: initial;
+
+  --color-primary-50: #edf8fa;
+  --color-primary-100: #dbf1f5;
+  --color-primary-200: #b4e2ea;
+  --color-primary-300: #93d4df;
+  --color-primary-400: #71c5d5;
+  --color-primary-500: #5ab4c5;
+  --color-primary-600: #468d9b;
+  --color-primary-700: #356c77;
+  --color-primary-800: #22474e;
+  --color-primary-900: #112629;
+  --color-primary-950: #081315;
+
+  --color-secondary-50: #fdf8ed;
+  --color-secondary-100: #fcf2df;
+  --color-secondary-200: #f8e3bc;
+  --color-secondary-300: #f4d69e;
+  --color-secondary-400: #f0c87c;
+  --color-secondary-500: #f5ba4b;
+  --color-secondary-600: #e7a43c;
+  --color-secondary-700: #ad7b2b;
+  --color-secondary-800: #74521b;
+  --color-secondary-900: #3c2b0b;
+  --color-secondary-950: #1c1304;
+
+  --color-grayscale-50: #f1f3f4;
+  --color-grayscale-100: #e3e7e9;
+  --color-grayscale-200: #cad1d5;
+  --color-grayscale-300: #adb8be;
+  --color-grayscale-400: #91a0a8;
+  --color-grayscale-500: #738995;
+  --color-grayscale-600: #5e6d76;
+  --color-grayscale-700: #475259;
+  --color-grayscale-800: #30383d;
+  --color-grayscale-900: #171b1d;
+  --color-grayscale-950: #0b0d0e;
+
+  /* red400 與 red500 在 TownPass 原始碼中相同，待 Figma 確認 */
+  --color-red-50: #faeeee;
+  --color-red-100: #f5dcdd;
+  --color-red-200: #ebb6b6;
+  --color-red-300: #e29494;
+  --color-red-400: #d45251;
+  --color-red-500: #d45251;
+  --color-red-600: #c2332f;
+  --color-red-700: #912522;
+  --color-red-800: #5f1715;
+  --color-red-900: #310b0b;
+  --color-red-950: #180505;
+
+  --color-orange-50: #fdf3ec;
+  --color-orange-100: #fbe7d9;
+  --color-orange-200: #f7cfb2;
+  --color-orange-300: #f4b992;
+  --color-orange-400: #f1a26d;
+  --color-orange-500: #fd853a;
+  --color-orange-600: #e6692c;
+  --color-orange-700: #ae501f;
+  --color-orange-800: #713311;
+  --color-orange-900: #391a06;
+  --color-orange-950: #1c0c02;
+
+  --color-white: #ffffff;
+  --color-black: #000000;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+  /* 字體：中文 PingFang TC、英數 Roboto；只用系統字型，不打包字型檔 */
+  --font-sans: "PingFang TC", "Roboto", system-ui, -apple-system, "Noto Sans CJK TC", sans-serif;
+
+  /* 字級（TPTextStyles，換算成 rem，使用者放大文字時會跟著縮放） */
+  --text-h1: 2.25rem; /* 36 */
+  --text-h2: 1.5rem; /* 24 */
+  --text-title: 1.125rem; /* 18 */
+  --text-h3: 1rem; /* 16 */
+  --text-body: 0.875rem; /* 14 */
+  --text-caption: 0.75rem; /* 12 */
+}
+
+html {
+  /* 不鎖字級，讓系統放大到 200% 時仍可閱讀（無障礙 DT） */
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--color-white);
+  color: var(--color-grayscale-900);
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  line-height: 1.5;
+}
+
+/* 尊重使用者的「減少動態效果」設定（無障礙 DC） */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
