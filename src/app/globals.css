@@ -77,15 +77,35 @@
   --color-transparent: transparent;
   --color-current: currentColor;
 
+  /*
+   * 語意色（Figma 3:390 Semantic colors）——寫 UI 時優先使用這組
+   * class 範例：text-text-primary、bg-bg-dark、bg-alarm、border-divider
+   */
+  --color-text-primary: #30383d; /* text-color/primary = grayscale-800 */
+  --color-text-second: #475259; /* text-color/second = grayscale-700 */
+  --color-text-description: #91a0a8; /* text-color/derection = grayscale-400 */
+  --color-bg-light: #ffffff; /* background-color/light */
+  --color-bg-dark: #f1f3f4; /* background-color/dark = grayscale-50 */
+  --color-disable: #e3e7e9; /* disable-color = grayscale-100 */
+  --color-alarm: #d45251; /* alarm-color/default */
+  --color-alarm-hover: #e29494; /* alarm-color/hover */
+  --color-reminder: #fd853a; /* reminder-color/default */
+  --color-reminder-hover: #f4b992; /* reminder-color/hover */
+  --color-divider: #cad1d5; /* Grey/200 */
+
   /* 字體：中文 PingFang TC、英數 Roboto；只用系統字型，不打包字型檔 */
   --font-sans: "PingFang TC", "Roboto", system-ui, -apple-system, "Noto Sans CJK TC", sans-serif;
 
-  /* 字級（TPTextStyles，換算成 rem，使用者放大文字時會跟著縮放） */
+  /* 字級（TPTextStyles，換算成 rem，使用者放大文字時會跟著縮放）
+   * 行高取自 Figma（H1 48、H2 32、Body 20）；title、h3、caption 的行高尚未從 Figma 讀取 */
   --text-h1: 2.25rem; /* 36 */
+  --text-h1--line-height: 3rem; /* 48 */
   --text-h2: 1.5rem; /* 24 */
+  --text-h2--line-height: 2rem; /* 32 */
   --text-title: 1.125rem; /* 18 */
   --text-h3: 1rem; /* 16 */
   --text-body: 0.875rem; /* 14 */
+  --text-body--line-height: 1.25rem; /* 20 */
   --text-caption: 0.75rem; /* 12 */
 }
 
@@ -95,8 +115,8 @@ html {
 }
 
 body {
-  background: var(--color-white);
-  color: var(--color-grayscale-900);
+  background: var(--color-bg-light);
+  color: var(--color-text-primary);
   font-family: var(--font-sans);
   font-size: var(--text-body);
   line-height: 1.5;

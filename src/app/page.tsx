@@ -4,7 +4,7 @@ import { BridgeDemo } from "@/components/BridgeDemo";
 export default function Home() {
   return (
     <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-6 p-4">
-      <p className="text-body text-grayscale-700">
+      <p className="text-body text-text-second">
         這是專案骨架的示範頁。確認雙向溝通與後端 API 都正常之後，換成正式的服務畫面。
       </p>
       <BridgeDemo />

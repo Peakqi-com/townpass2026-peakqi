@@ -28,7 +28,7 @@ export function BridgeDemo() {
   return (
     <section aria-labelledby="bridge-demo-heading" className="flex flex-col gap-4">
       <div className="flex items-center justify-between gap-2">
-        <h2 id="bridge-demo-heading" className="text-h3 font-semibold text-grayscale-900">
+        <h2 id="bridge-demo-heading" className="text-h3 font-semibold text-text-primary">
           城市通連線測試
         </h2>
         <span
@@ -66,7 +66,7 @@ export function BridgeDemo() {
 
       <pre
         aria-live="polite"
-        className="min-h-24 overflow-x-auto whitespace-pre-wrap break-all rounded-md bg-grayscale-50 p-3 text-caption text-grayscale-800"
+        className="min-h-24 overflow-x-auto whitespace-pre-wrap break-all rounded-md bg-bg-dark p-3 text-caption text-text-primary"
       >
         {result}
       </pre>
@@ -89,7 +89,7 @@ function DemoButton({
       disabled={disabled}
       onClick={onClick}
       // 觸控目標至少 48×48（無障礙 TS）
-      className="min-h-12 rounded-md bg-primary-500 px-3 text-body font-semibold text-white active:bg-primary-600 disabled:bg-grayscale-200 disabled:text-grayscale-500"
+      className="min-h-12 rounded-md bg-primary-500 px-3 text-body font-semibold text-white active:bg-primary-600 disabled:bg-disable disabled:text-text-description"
     >
       {children}
     </button>

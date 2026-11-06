@@ -63,9 +63,10 @@ src/
 
 ## 4. UI 規範
 
-- 視覺照 Figma「Town Pass UI Kit」。
-- 顏色只能用 `globals.css` 定義的 token（`primary`、`secondary`、`grayscale`、`red`、`orange` 的 50～950，加上 `white`、`black`）。Tailwind 內建色盤已經清空，`bg-blue-500` 之類的 class 不會生效。
-- 字級使用 `text-h1`／`text-h2`／`text-title`／`text-h3`／`text-body`／`text-caption`。
+- 視覺照 Figma「Town Pass UI Kit」，設計基準寬度 375px。**元件的 node id 先查 TownPass repo 的 `docs/townpass/figma/inventory.md`**，不要直接呼叫 Figma MCP（Starter 方案每月只有約 6 次）。真的需要讀元件細節時，先問使用者，讀到的結果存回 `docs/townpass/figma/`。
+- 顏色**優先用語意色**：`text-text-primary`／`text-text-second`／`text-text-description`、`bg-bg-light`／`bg-bg-dark`、`bg-disable`、`bg-alarm`（警示）、`bg-reminder`（提醒）、`border-divider`。沒有合適的語意色時，才用色階（`primary`、`secondary`、`grayscale`、`red`、`orange` 的 50～950）。Tailwind 內建色盤已經清空，`bg-blue-500` 之類的 class 不會生效。不要用 `red-400`（值待確認）。
+- 按鈕照 UI Kit 的 5 種狀態：Primary（`bg-primary-500`）、Second、Alarm（`bg-alarm`）、Reminder（`bg-reminder`）、Disable（`bg-disable`）。尺寸 M 是 175×48，L 是 366×56。
+- 字級使用 `text-h1`／`text-h2`／`text-title`／`text-h3`／`text-body`／`text-caption`。h1、h2、body 已經內建 Figma 的行高。
 - App 已經有 AppBar（顯示 `<title>`），頁面內**不要再做重複的標題列**。
 - 無障礙：觸控目標至少 48×48（`min-h-12`）、圖示要有 `aria-label`、字級用 rem、不禁止縮放、不使用閃爍效果。
 - 以手機寬度 360～430px 為主，版面寬度上限 `max-w-md`。
