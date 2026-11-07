@@ -131,7 +131,7 @@
     "speak": "我的權益，看看您可以領什麼",
     "description": "依您的年齡，列出敬老卡、重陽禮金、補助等可以用的權益。",
     "category": "benefit",
-    "phrases": ["福利", "權益", "補助", "津貼", "可以領什麼", "領錢", "補貼"],
+    "phrases": ["福利", "權益", "補助", "津貼", "可以領什麼", "領錢", "補貼", "假牙", "裝假牙"],
     "audience": ["elder", "vision", "hearing"],
     "action": { "type": "page", "target": "/benefits" },
     "owner": "臺北市政府社會局",
@@ -368,6 +368,45 @@
     "action": { "type": "page", "target": "/vision" },
     "owner": "臺北大眾捷運股份有限公司、臺北市交通管制工程處",
     "source": "https://data.taipei/dataset/detail?id=3c799405-4e44-40dd-b747-daed09e88cdb",
+    "verified": "2026-11-07"
+  },
+  {
+    "id": "page-shelter",
+    "title": "避難的地方",
+    "speak": "颱風、地震時去哪裡避難",
+    "description": "依您住的里，找出颱風、淹水或地震時可以去的避難收容處所。",
+    "category": "help",
+    "phrases": ["颱風", "地震", "淹水", "避難", "避難所", "收容所", "疏散", "去哪裡躲"],
+    "audience": ["elder", "vision", "hearing"],
+    "action": { "type": "page", "target": "/shelter" },
+    "owner": "臺北市政府教育局",
+    "source": "https://data.taipei/dataset/detail?id=aaf97773-3631-40e2-b3cc-da87bf2ce1d5",
+    "verified": "2026-11-07"
+  },
+  {
+    "id": "page-care",
+    "title": "照顧家人",
+    "speak": "照顧家人，失智症篩檢和喘息服務",
+    "description": "給照顧長輩的家人：失智症篩檢醫院、喘息服務單位、家庭照顧者服務中心。",
+    "category": "family",
+    "phrases": ["照顧家人", "照顧者", "喘息", "照顧好累", "失智篩檢", "看護", "長照單位"],
+    "audience": ["elder", "vision", "hearing"],
+    "action": { "type": "page", "target": "/care" },
+    "owner": "臺北市政府衛生局、社會局",
+    "source": "https://data.taipei/dataset/detail?id=959c34b2-9698-4d99-8987-d389efe18c04",
+    "verified": "2026-11-07"
+  },
+  {
+    "id": "page-health-places",
+    "title": "打疫苗做篩檢",
+    "speak": "附近哪裡可以打疫苗、做篩檢",
+    "description": "依您住的區，列出公費流感疫苗、肺炎鏈球菌疫苗、癌症篩檢的合約院所，還有假牙補助要先去的醫院。",
+    "category": "health",
+    "phrases": ["哪裡打疫苗", "肺炎鏈球菌", "癌症篩檢", "大腸癌", "篩檢", "合約院所", "衛生所", "健康服務中心", "假牙"],
+    "audience": ["elder", "vision", "hearing"],
+    "action": { "type": "page", "target": "/health/places" },
+    "owner": "臺北市政府衛生局",
+    "source": "https://data.taipei/dataset/detail?id=0db13d34-51e3-497a-a023-286d5ef692ea",
     "verified": "2026-11-07"
   }
 ]

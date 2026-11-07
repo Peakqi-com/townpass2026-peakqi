@@ -21,6 +21,9 @@ export const PAGE_ROUTES = [
   "/card/clinic",
   "/community",
   "/vision",
+  "/shelter",
+  "/care",
+  "/health/places",
 ] as const;
 
 /**

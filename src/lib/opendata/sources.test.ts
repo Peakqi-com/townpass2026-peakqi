@@ -103,3 +103,89 @@ test("M9、M10 的來源都登記在白名單，而且出處是 data.taipei 資�
     assert.match(source.datasetUrl, /^https:\/\/data\.taipei\/dataset\/detail\?id=[0-9a-f-]{36}$/, id);
   }
 });
+
+/* ---------- 避難所、照顧家人、打疫苗做篩檢（2026-11-07 新增） ---------- */
+
+test("shelters：.ods 解析成 419 處，拿掉個人姓名與電話，補上 district", async () => {
+  mockFetch({ "4c92dbd4-d259-495a-8390-52628119a4dd": fixture("shelters.ods") });
+  const { records } = await getSource("shelters")!.load();
+  assert.equal(records.length, 419);
+  const first = records[0];
+  assert.equal(first["名稱(學校機關全銜)"], "臺北市立螢橋國民中學");
+  assert.equal(first.district, "中正區");
+  assert.match(String(first["服務里別"]), /林興里/);
+  for (const key of ["聯絡人姓名", "聯絡人連絡電話", "管理人姓名", "管理人連絡電話"]) {
+    assert.ok(records.every((r) => !(key in r)), `${key} 不能傳給前端`);
+  }
+  // 台北通測試帳號住中山區正得里，要找得到負責正得里的避難所
+  const mine = records.filter((r) => r.district === "中山區" && String(r["服務里別"]).split("、").includes("正得里"));
+  assert.ok(mine.length > 0);
+});
+
+test("dementia-screening：只取醫院欄位（並排的健康服務中心欄位不對應），行政區用醫院地址", async () => {
+  mockFetch({ "7da0648c-bfd9-469b-85ad-ca32023266b9": fixture("dementia-screening.utf8.csv") });
+  const { records } = await getSource("dementia-screening")!.load();
+  assert.equal(records.length, 11, "北投區那列沒有醫院，不收");
+  assert.ok(records.every((r) => !("12區健康服務中心" in r)));
+  const guandu = records.find((r) => String(r["醫院名稱"]).includes("關渡醫院"));
+  assert.equal(guandu?.district, "北投區", "關渡醫院在北投區（同一列左邊寫的是萬華區，不能採用）");
+});
+
+test("ltc-respite-providers：合併巷弄式、社區式、居家式，標上 kind 與 district", async () => {
+  const requested = mockFetch({
+    "af6888b3-db7a-4ab0-b01a-b88451f0b5b7": fixture("respite-lane.big5.csv"),
+    "35e14e55-97b5-4357-9175-2867864691f4": fixture("respite-community.big5.csv"),
+    "cf41693d-b35e-4744-8c37-d6505c54c13a": fixture("respite-home.big5.csv"),
+  });
+  const { records } = await getSource("ltc-respite-providers")!.load();
+  assert.equal(requested.length, 3);
+  assert.deepEqual([...new Set(records.map((r) => r.kind))], ["巷弄長照站", "社區式", "居家式"]);
+  const lane = records.find((r) => r.kind === "巷弄長照站")!;
+  assert.equal(lane.district, "中正區", "行政區域代碼 63000050");
+  assert.equal(lane["服務區別"], "全區");
+});
+
+test("打疫苗、做篩檢、健康服務中心：行政區代碼換成 district", async () => {
+  mockFetch({
+    "4c6c37f9-ebb5-4672-b33c-6812b853e8e0": fixture("flu-vaccine-adult.utf8.csv"),
+    "29384bd5-e15e-4420-bb8e-c79e2ae46e68": fixture("pneumococcal-vaccine.utf8.csv"),
+    "c01f280f-7f99-496c-a047-abb47c8e2719": fixture("cancer-screening.utf8.csv"),
+    "1e57f3cb-7063-4db7-a263-106ab9bdf6d1": fixture("health-centers.big5.csv"),
+    "efed6694-9700-4b45-a7bd-3000918d59b0": fixture("caregiver-centers.utf8.csv"),
+  });
+  for (const id of ["flu-vaccine-adult", "pneumococcal-vaccine", "cancer-screening"]) {
+    const { records } = await getSource(id)!.load();
+    assert.ok(records.length > 0, id);
+    assert.equal(records[0].district, "松山區", `${id}：63000010 是松山區`);
+  }
+  const centers = (await getSource("health-centers")!.load()).records;
+  assert.equal(centers.length, 12);
+  assert.equal(centers.find((r) => r["健康服務中心名稱"] === "中山區健康服務中心")?.district, "中山區");
+  const caregivers = (await getSource("caregiver-centers")!.load()).records;
+  assert.equal(caregivers.length, 4);
+});
+
+test("新增的來源都登記在白名單，而且出處是 data.taipei 資料集頁面", () => {
+  for (const id of [
+    "shelters",
+    "dementia-screening",
+    "ltc-respite-providers",
+    "caregiver-centers",
+    "health-centers",
+    "flu-vaccine-adult",
+    "pneumococcal-vaccine",
+    "cancer-screening",
+  ]) {
+    const source = getSource(id);
+    assert.ok(source, `${id} 沒有登記`);
+    assert.match(source.datasetUrl, /^https:\/\/data\.taipei\/dataset\/detail\?id=[0-9a-f-]{36}$/, id);
+  }
+});
+
+test("denture-clinics：6 處聯醫院區，Big5，用地址補上 district", async () => {
+  mockFetch({ "d6522c9f-2026-4ab0-9642-65df9218a9bc": fixture("denture-clinics.big5.csv") });
+  const { records } = await getSource("denture-clinics")!.load();
+  assert.equal(records.length, 6);
+  assert.equal(records[0]["院所名稱"], "臺北市立聯合醫院中興院區");
+  assert.equal(records[0].district, "大同區");
+});

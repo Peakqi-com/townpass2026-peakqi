@@ -11,7 +11,8 @@
  */
 import { decodeBody, parseCsv, parseXmlRecords, toNumber, xmlText, type Encoding, type RawRecord } from "./parse.ts";
 import { isInTaipeiArea, twd97ToWgs84 } from "./geo.ts";
-import { mergeLohas, normalizeElderRecord } from "./normalize.ts";
+import { cleanCell, isTaipeiDistrict, mergeLohas, normalizeElderRecord } from "./normalize.ts";
+import { odsToRecords } from "./ods.ts";
 
 export type OpenDataRecord = Record<string, unknown> & { lat?: number; lng?: number };
 
@@ -50,6 +51,17 @@ export async function fetchText(url: string, encoding: Encoding = "utf-8", timeo
   });
   if (!res.ok) throw new Error(`上游回應 ${res.status}：${url}`);
   return decodeBody(await res.arrayBuffer(), encoding);
+}
+
+/** 抓二進位檔（例如 .ods 試算表） */
+export async function fetchBuffer(url: string, timeoutMs = 20_000): Promise<Uint8Array> {
+  const res = await fetch(url, {
+    signal: AbortSignal.timeout(timeoutMs),
+    headers: { "User-Agent": "townpass2026-peakqi (+https://github.com/Peakqi-com/townpass2026-peakqi)" },
+    cache: "no-store",
+  });
+  if (!res.ok) throw new Error(`上游回應 ${res.status}：${url}`);
+  return new Uint8Array(await res.arrayBuffer());
 }
 
 /** 由兩個欄位取得經緯度；座標不合理時不附上 */
@@ -338,6 +350,101 @@ register({
     return { records: mergeLohas(schools, centers) };
   },
 });
+
+/* 避難收容處所（颱風、地震時去哪裡）。2026-11-07 實際下載確認 */
+
+register({
+  // 目錄標 CSV，實際下載是 .ods（115 年版，419 處）。第一張工作表「清冊」是清單，檔尾有 2 列加總（沒有編號）。
+  // 「服務里別」列出這一處負責哪些里，用台北通帳號的里就能找到；聯絡人、管理人的姓名與電話不傳給前端。
+  id: "shelters",
+  title: "臺北市可供避難收容處所一覽表",
+  datasetUrl: DATASET + "aaf97773-3631-40e2-b3cc-da87bf2ce1d5",
+  ttl: DAY,
+  hasGeo: false,
+  load: async () => ({ records: toShelterRecords(odsToRecords(await fetchBuffer(DOWNLOAD + "4c92dbd4-d259-495a-8390-52628119a4dd"))) }),
+});
+
+/** 避難收容處所：只留有編號的列，拿掉個人姓名與電話，補上 district */
+export function toShelterRecords(rows: RawRecord[]): OpenDataRecord[] {
+  const PRIVATE = ["聯絡人姓名", "聯絡人連絡電話", "管理人姓名", "管理人連絡電話"];
+  return rows
+    .filter((r) => (r["收容所編號"] ?? "").trim() !== "")
+    .map((r) => {
+      const record: OpenDataRecord = {};
+      for (const [key, value] of Object.entries(r)) if (!PRIVATE.includes(key)) record[key] = cleanCell(value);
+      const district = [record["鄉鎮"]].find(isTaipeiDistrict);
+      if (district) record.district = district;
+      return record;
+    });
+}
+
+/* 照顧家人：失智篩檢、喘息服務、家庭照顧者服務中心、健康服務中心。2026-11-07 實際下載確認 */
+
+register({
+  // ⚠️ 這個檔案是兩份並排的清單：左邊「12區健康服務中心」＋電話是 12 區的健康服務中心，
+  // 右邊「醫院名稱」以下是 11 家合約醫院，同一列的兩邊沒有對應關係
+  // （例如「萬華區」那列是北投的關渡醫院，「北投區」那列醫院是空的）。
+  // 所以只取醫院欄位，行政區用醫院地址判斷；健康服務中心改用〈臺北市健康服務中心〉資料集。
+  id: "dementia-screening",
+  title: "臺北市失智症篩檢、確診評估及關懷服務計畫合約醫院",
+  datasetUrl: DATASET + "1417e9ae-4c86-4f74-88a2-d7031712db44",
+  ttl: DAY,
+  hasGeo: false,
+  load: async () => ({
+    records: toDementiaHospitals(parseCsv(await fetchText(DOWNLOAD + "7da0648c-bfd9-469b-85ad-ca32023266b9"))),
+  }),
+});
+
+/** 失智症篩檢合約醫院：只留醫院欄位（去掉並排的健康服務中心欄位），沒有醫院名稱的列不收 */
+export function toDementiaHospitals(rows: RawRecord[]): OpenDataRecord[] {
+  return rows
+    .map((r) => {
+      const hospital = Object.fromEntries(Object.entries(r).filter(([key]) => !key.startsWith("12區健康服務中心")));
+      return normalizeElderRecord(hospital, { address: "醫院地址" });
+    })
+    .filter((r) => (r["醫院名稱"] ?? "") !== "");
+}
+
+register({
+  // 同一個資料集有 4 個資源：巷弄式 26、社區式 56、居家式 165、住宿式 65（住宿式含新北市機構，不收）。
+  // 「服務區別」大多是「全區」，所以前端要抓全部再依服務範圍篩，不能用 q=行政區。
+  id: "ltc-respite-providers",
+  title: "臺北市長照喘息服務特約單位",
+  datasetUrl: DATASET + "959c34b2-9698-4d99-8987-d389efe18c04",
+  ttl: DAY,
+  hasGeo: false,
+  load: async () => {
+    const kinds = [
+      { kind: "巷弄長照站", rid: "af6888b3-db7a-4ab0-b01a-b88451f0b5b7" },
+      { kind: "社區式", rid: "35e14e55-97b5-4357-9175-2867864691f4" },
+      { kind: "居家式", rid: "cf41693d-b35e-4744-8c37-d6505c54c13a" },
+    ];
+    const lists = await Promise.all(
+      kinds.map(async ({ kind, rid }) =>
+        parseCsv(await fetchText(DOWNLOAD + rid, "big5")).map((r) => ({
+          ...normalizeElderRecord(r, { address: "機構（服務）地址" }),
+          kind,
+        })),
+      ),
+    );
+    return { records: lists.flat() };
+  },
+});
+
+/* 打疫苗、做篩檢：合約院所。都有「行政區域代碼」或「行政區」代碼，2026-11-07 實際下載確認 */
+
+const careAndHealthPlaces: (Omit<Parameters<typeof csvSource>[0], "ttl" | "transform"> & { address: string })[] = [
+  { id: "caregiver-centers", title: "臺北市銀髮族服務_家庭照顧者服務中心", datasetId: "e3cec007-4212-4944-989e-5078e4f5f3bb", rid: "efed6694-9700-4b45-a7bd-3000918d59b0", encoding: "utf-8", address: "地址" },
+  { id: "health-centers", title: "臺北市健康服務中心", datasetId: "d4c6d4e0-c2b4-48e3-99b4-f670d820326b", rid: "1e57f3cb-7063-4db7-a263-106ab9bdf6d1", encoding: "big5", address: "地址" },
+  { id: "flu-vaccine-adult", title: "臺北市流感疫苗合約醫療院所(成人)", datasetId: "0db13d34-51e3-497a-a023-286d5ef692ea", rid: "4c6c37f9-ebb5-4672-b33c-6812b853e8e0", encoding: "utf-8", address: "地址" },
+  { id: "pneumococcal-vaccine", title: "臺北市公費肺炎鏈球菌疫苗合約醫療院所名單", datasetId: "92934ab2-3509-4a6b-9cee-9ac556ca2f65", rid: "29384bd5-e15e-4420-bb8e-c79e2ae46e68", encoding: "utf-8", address: "地址" },
+  { id: "cancer-screening", title: "臺北市五癌篩檢醫療院所", datasetId: "ae20d75c-dffb-4d4f-85e1-9c512189005c", rid: "c01f280f-7f99-496c-a047-abb47c8e2719", encoding: "utf-8", address: "地址" },
+  // 6 處聯醫院區，「區域」欄位是院區所在的行政區（M12 假牙補助：先到這裡做口腔檢查，由醫院送件）
+  { id: "denture-clinics", title: "臺北市假牙補助醫療院所名單", datasetId: "76b8b514-e793-4cca-8dcf-065d5af4b760", rid: "d6522c9f-2026-4ab0-9642-65df9218a9bc", encoding: "big5", address: "地址" },
+];
+careAndHealthPlaces.forEach(({ address, ...p }) =>
+  register(csvSource({ ...p, ttl: DAY, transform: (r) => normalizeElderRecord(r, { address }) })),
+);
 
 export function getSource(id: string): OpenDataSource | undefined {
   return Object.hasOwn(SOURCES, id) ? SOURCES[id] : undefined;

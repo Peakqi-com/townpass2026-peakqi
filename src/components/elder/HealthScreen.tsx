@@ -47,6 +47,10 @@ export function HealthScreen() {
         </div>
       ))}
 
+      {/* 依行政區列出合約院所（data.taipei） */}
+      <ServiceLink href="/health/places" label="附近打疫苗、做篩檢" speak="附近哪裡可以打疫苗、做篩檢" icon="health" row className="bg-elder-health text-on-elder-health" />
+      <ServiceLink href="/care" label="照顧家人：失智、喘息" speak="照顧家人，失智症篩檢和喘息服務" icon="family" row className="bg-elder-family text-on-elder-family" />
+
       {hearing && (
         <section aria-labelledby="health-hearing-heading" className="flex flex-col gap-4">
           <h2 id="health-hearing-heading" className="text-elder-button font-bold text-text-primary">

@@ -243,3 +243,22 @@ test("townOf：優先用標記為主要的地址，沒有就用第一筆", () =>
   assert.equal(townOf([]), null);
   assert.equal(townOf(undefined), null);
 });
+
+/* ---------- 假牙補助（taipei-subsidies.md A.12，2026-11-07 查證） ---------- */
+
+test("假牙補助：55 歲以上列出，未滿 55 不列；不是臺北市民不列", () => {
+  const age55: SubsidyPerson = { age: 55, nativePeople: false, citizen: true };
+  const age54: SubsidyPerson = { age: 54, nativePeople: false, citizen: true };
+  assert.ok(applyIds(age55, none).includes("denture"));
+  assert.ok(!applyIds(age54, none).includes("denture"));
+  assert.ok(!applyIds({ ...elder, citizen: false }, none).includes("denture"));
+});
+
+test("假牙補助：沒有低收、中低收證明時標「要看家裡收入」；申請管道是 1999 轉 1576，不是區公所", () => {
+  const noCert = findSubsidies(elder, { ...none, income: "notCertified" }, TODAY).apply.find((m) => m.subsidy.id === "denture");
+  assert.ok(noCert && noCert.caveats.length > 0);
+  const denture = SUBSIDIES.find((s) => s.id === "denture")!;
+  assert.equal(denture.apply.call1999, "1576");
+  assert.equal(denture.apply.counter, undefined);
+  assert.equal(denture.proxy.allowed, null, "官方沒寫代辦規定");
+});

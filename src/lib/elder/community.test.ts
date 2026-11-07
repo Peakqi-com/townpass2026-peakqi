@@ -1,16 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import {
-  COMMUNITY_CATEGORIES,
-  formatPhoneDigits,
-  mapSearchAddress,
-  osmSearchUrl,
-  parsePhones,
-  placesInDistrict,
-  toCommunityPlace,
-  userHome,
-  type CommunityPlace,
-} from "./community.ts";
+import { CARE_CATEGORIES, COMMUNITY_CATEGORIES, formatPhoneDigits, mapSearchAddress, osmSearchUrl, parsePhones, placesInDistrict, resultSummary, toCommunityPlace, userHome, userStreet, type CommunityPlace, parseServiceArea } from "./community.ts";
 import type { TownPassAccount } from "../townpass/types.ts";
 
 // M9 附近吃飯上課：把四個開放資料集整理成同一種「地點」，給長輩大字顯示、撥號、查路線。
@@ -164,4 +154,84 @@ test("userHome：用台北通帳號的地址找行政區（優先 priority），
   assert.equal(userHome(account([{ city: "新北市", town: "板橋區", priority: true }])), null);
   assert.deepEqual(userHome(account([], "臺北市文山區木柵路一段 1 號")), { district: "文山區", village: undefined });
   assert.equal(userHome(null), null);
+});
+
+test("userStreet：主要地址的街道；不是臺北市或沒有資料回 undefined", () => {
+  assert.equal(userStreet(account([{ city: "臺北市", town: "中山區", village: "正得里", street: "吉林路", priority: true }])), "吉林路");
+  assert.equal(userStreet(account([{ city: "新北市", town: "板橋區", street: "文化路", priority: true }])), undefined);
+  assert.equal(userStreet(account([{ city: "臺北市", town: "中山區", priority: true }])), undefined);
+  assert.equal(userStreet(null), undefined);
+});
+
+/* ---------- 照顧家人、打疫苗做篩檢（2026-11-07 新增） ---------- */
+
+test("resultSummary：依篩選方式說清楚範圍（全市的不能說成這一區的）", () => {
+  const [dementia, respite] = CARE_CATEGORIES;
+  assert.equal(resultSummary(COMMUNITY_CATEGORIES[0], "中山區", 12), "中山區有 12 個共餐");
+  assert.equal(resultSummary(dementia, "中山區", 11), "失智篩檢全市有 11 個，在中山區的排前面");
+  assert.equal(resultSummary(respite, "中山區", 180), "可以服務中山區的喘息服務有 180 個");
+});
+
+test("parseServiceArea：全區、列出的行政區、看不懂", () => {
+  assert.equal(parseServiceArea("全區"), "all");
+  assert.deepEqual(parseServiceArea("士林區、北投區"), ["士林區", "北投區"]);
+  assert.equal(parseServiceArea("新北市"), undefined);
+  assert.equal(parseServiceArea(""), undefined);
+});
+
+test("toCommunityPlace：喘息服務的電話接上分機，標出類型與服務範圍", () => {
+  const place = toCommunityPlace("respite", {
+    序號: "1",
+    機構名稱: "社團法人臺北市臻佶祥社會服務協會",
+    "機構（服務）地址": "臺北市中正區中華路二段315巷16、 18號",
+    市話: "(02)23036281",
+    分機: "17",
+    服務區別: "全區",
+    kind: "巷弄長照站",
+    district: "中正區",
+  });
+  assert.deepEqual(place.phones, [{ dial: "0223036281", display: "(02)2303-6281", ext: "17" }]);
+  assert.equal(place.note, "巷弄長照站。服務範圍：全區");
+  assert.equal(place.serves, "all");
+});
+
+test("toCommunityPlace：不在臺北市的喘息單位即使寫「全區」也不算服務臺北", () => {
+  const place = toCommunityPlace("respite", { 序號: "9", 機構名稱: "新北某居家長照機構", 服務區別: "全區", kind: "居家式" });
+  assert.equal(place.serves, undefined);
+  assert.equal(place.note, "居家式（到家裡服務）。服務範圍：全區");
+});
+
+test("toCommunityPlace：癌症篩檢列出可以做的項目", () => {
+  const place = toCommunityPlace("cancer", {
+    醫事機構代碼: "501010019",
+    院所名稱: "三軍總醫院松山分院附設民眾診療服務處",
+    地址: "臺北市松山區健康路１３１號",
+    聯絡電話: "(02)27642151",
+    子宮頸癌篩檢: "Y",
+    口腔癌篩檢: "Y",
+    大腸癌篩檢: "Y",
+    乳癌篩檢: "",
+    肺癌篩檢: "Y",
+    district: "松山區",
+  });
+  assert.equal(place.note, "可以做：子宮頸癌、口腔癌、大腸癌、肺癌篩檢");
+  assert.equal(place.key, "cancer-501010019-三軍總醫院松山分院附設民眾診療服務處");
+});
+
+test("placesInDistrict：服務範圍包含這一區的也列出，在這一區的排前面", () => {
+  const base = { address: "", phones: [] };
+  const places = [
+    { ...base, key: "a", name: "全區、在別區", district: "大安區" as const, serves: "all" as const },
+    { ...base, key: "b", name: "只服務士林北投", district: "士林區" as const, serves: ["士林區" as const, "北投區" as const] },
+    { ...base, key: "c", name: "在中山區", district: "中山區" as const },
+    { ...base, key: "d", name: "在別區、不服務中山", district: "文山區" as const, serves: ["文山區" as const] },
+  ];
+  assert.deepEqual(
+    placesInDistrict(places, "中山區").map((p) => p.key),
+    ["c", "a"],
+  );
+  assert.deepEqual(
+    placesInDistrict(places, "北投區").map((p) => p.key),
+    ["a", "b"],
+  );
 });

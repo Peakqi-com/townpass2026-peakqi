@@ -47,7 +47,7 @@
 | M0 | （App 端） | App 端橋接：朗讀、震動、無障礙狀態、開啟外部 App、裝置端語音辨識 | ✅ |
 | M1 | `/`、`/mode` | 首頁與模式：6 個大按鈕、重陽禮金提醒、固定的 1999／1966／求助；「都還好／看不清楚／聽不清楚」三種模式，可調整唸的速度 | ✅ |
 | M2 | `/find` | 找服務：打字、點選分類、說話（點一下開始、再點一下停止），用關鍵字比對（頁面打開後斷網也能用，見下方「斷網」） | ✅ |
-| M3 | `src/data/services.json` | 服務清單：跨局處的開源 JSON（`phrases`、`alt_channels`、`audience`、`source`、`verified`），目前 27 筆 | ✅ |
+| M3 | `src/data/services.json` | 服務清單：跨局處的開源 JSON（`phrases`、`alt_channels`、`audience`、`source`、`verified`），目前 30 筆 | ✅ |
 | M4 | `/health` | 我要看醫生：聯醫掛號、叫車、1966 一次列出；聽不清楚模式加看診溝通卡、手語翻譯 | ✅ |
 | M5 | `/ride` | 我要叫車：最多兩題，分流到復康巴士、長照交通接送、敬老計程車 | ✅ |
 | M6 | `/benefits` | 我的權益：重陽禮金、敬老卡、公費疫苗、老人健檢，依生日與戶籍自動判斷；重陽禮金可以「提醒我申請」（排程手機通知） | ✅ |
@@ -56,7 +56,10 @@
 | M9 | `/community` | 附近吃飯、上課：依行政區列出共餐、關懷據點、長青學苑、樂齡學習 | ✅ |
 | M10 | `/vision` | 視障出門：用一句話說出最近捷運站的電梯位置、異常公告與附近有聲號誌 | ✅ |
 | M11 | `/antifraud` | 防詐先問一下：點選或打出（也可以說）對方說了什麼，在手機裡比對 6 種常見詐騙說法，說「這很像〇〇詐騙」＋165 全民防騙網的官方提醒，再一鍵打給家人或 165；比對不到時只說「不確定，先停下來」，絕不說「安全」 | ✅ |
-| M12 | `/benefits/subsidy` | 補助小幫手：三題篩出「可能可以申請」的補助，附應備文件、戶籍地社會課與家人代辦準備單 | ✅ |
+| M12 | `/benefits/subsidy` | 補助小幫手：三題篩出「可能可以申請」的補助，附應備文件、戶籍地社會課與家人代辦準備單；含假牙補助（先到聯醫做口腔檢查，由醫院送件） | ✅ |
+| M13 | `/shelter` | 颱風、地震時去哪裡：用台北通帳號的「里」找出負責的避難收容處所，不用輸入地址；可選颱風淹水或地震，有無障礙設施、和家同一條路的排前面 | ✅ |
+| M14 | `/care` | 照顧家人：失智症篩檢合約醫院、喘息服務特約單位（依服務範圍）、家庭照顧者服務中心、健康服務中心 | ✅ |
+| M15 | `/health/places` | 打疫苗、做篩檢：依行政區列出公費流感、肺炎鏈球菌疫苗、五癌篩檢的合約院所，以及假牙補助院所 | ✅ |
 
 各頁都已用瀏覽器在三種模式下檢查報讀（見下方「無障礙」）；⚠️ 尚未用實機開 VoiceOver／TalkBack 完整實測。
 
@@ -90,9 +93,9 @@
         │ HTTPS 載入網頁
 ② 「用得了」微服務（本 repo・Next.js 16・React 19・Tailwind 4・Vercel 東京）
    前端頁面 M1～M12
-   ├ services.json：M3 服務清單 27 筆（打包在前端，斷網可用）
+   ├ services.json：M3 服務清單 30 筆（打包在前端，斷網可用）
    ├ bridge.ts・elder.ts：呼叫 App 能力；一般瀏覽器改用 mock
-   └ 後端 /api/opendata：白名單代理、Big5 轉碼、TWD97 換算、CDN 快取 ──HTTPS──► data.taipei（28 個來源）
+   └ 後端 /api/opendata：白名單代理、Big5 轉碼、ODS 解析、TWD97 換算、CDN 快取 ──HTTPS──► data.taipei（37 個來源）
         │ postMessage 雙向溝通
 ③ App 原生能力：flutterObject ⇄ TPWebMessageListener，依訊息名稱分派
    內建（官方）：userinfo・location・phone_call・1999agree・open_link・launch_map・notify・qr_code_scan
@@ -133,7 +136,7 @@ GET /api/opendata/<id>?near=緯度,經度&radius=500&limit=20&q=關鍵字
 ```
 
 - 只代理 `src/lib/opendata/sources.ts` 登記的來源（白名單），不接受任意網址
-- 統一轉成 JSON，TWD97 座標換算為 WGS84，可依位置篩選附近的點（附 `distance` 公尺），或用 `q` 依行政區等文字篩選
+- 統一轉成 JSON（含 .ods 試算表，用 Node 內建 zlib 解壓，不需要套件），TWD97 座標換算為 WGS84，可依位置篩選附近的點（附 `distance` 公尺），或用 `q` 依行政區等文字篩選
 - 依來源更新頻率設定 CDN 快取（`s-maxage`），上游暫時失敗時回傳最近一次的資料（`stale: true`）
 
 ### 無障礙與報讀軟體
@@ -150,7 +153,7 @@ GET /api/opendata/<id>?near=緯度,經度&radius=500&limit=20&q=關鍵字
 
 評審可能關掉網路測試。目前的做法與限制（`src/components/elder/OfflineSupport.tsx`）：
 
-- 一打開服務、有網路時，就預載全部 36 個頁面（`src/lib/elder/routes.ts`），預載內容保留 1 天（`next.config.ts` 的 `staleTimes`）。
+- 一打開服務、有網路時，就預載全部 40 個頁面（`src/lib/elder/routes.ts`），預載內容保留 1 天（`next.config.ts` 的 `staleTimes`）。
 - 開啟 Next.js 的 `experimental.useOffline`：斷網時點到沒預載的頁面，不會跳到瀏覽器錯誤頁，網路恢復後自動重試。
 - 斷網時頁首顯示「現在沒有網路。附近的據點和捷運資料暫時查不到，其他功能照常可以用」。
 - 斷網後能用：首頁、找服務（打字比對）、看醫生、叫車、我的權益、補助小幫手、家人、文字聯絡、求助卡、看診溝通卡、撥號確認頁。撥號、震動、朗讀由 App 處理，不需要網路。
@@ -389,6 +392,15 @@ docker build -t townpass2026-peakqi . && docker run -p 8080:8080 --env-file .env
 | 交工處無障礙設施設置資料（有聲號誌） | 交通局 | [baf32b58…](https://data.taipei/dataset/detail?id=baf32b58-b194-448d-96a0-ba04013d164f) | M10 | 使用中 |
 | 臺北捷運車站無障礙設施異常公告 | 捷運公司 | [d884a9c6…](https://data.taipei/dataset/detail?id=d884a9c6-f86c-4854-8da7-e6516ddbe612) | M10 | 使用中 |
 | 臺北市老人服務中心 | 社會局 | [78dfc9a2…](https://data.taipei/dataset/detail?id=78dfc9a2-36e2-4ef5-beaa-a74633ba3d26) | M9（預留） | 代理已登記 |
+| 臺北市可供避難收容處所一覽表 | 教育局 | [aaf97773…](https://data.taipei/dataset/detail?id=aaf97773-3631-40e2-b3cc-da87bf2ce1d5) | M13 避難所（.ods，419 處；不傳個人姓名與電話） | 使用中 |
+| 臺北市失智症篩檢、確診評估及關懷服務計畫合約醫院 | 衛生局 | [1417e9ae…](https://data.taipei/dataset/detail?id=1417e9ae-4c86-4f74-88a2-d7031712db44) | M14 失智篩檢（全市 11 家） | 使用中 |
+| 臺北市長照喘息服務特約單位 | 衛生局 | [959c34b2…](https://data.taipei/dataset/detail?id=959c34b2-9698-4d99-8987-d389efe18c04) | M14 喘息服務（巷弄式、社區式、居家式） | 使用中 |
+| 臺北市銀髮族服務_家庭照顧者服務中心 | 社會局 | [e3cec007…](https://data.taipei/dataset/detail?id=e3cec007-4212-4944-989e-5078e4f5f3bb) | M14 照顧者支持 | 使用中 |
+| 臺北市健康服務中心 | 衛生局 | [d4c6d4e0…](https://data.taipei/dataset/detail?id=d4c6d4e0-c2b4-48e3-99b4-f670d820326b) | M14、M15 | 使用中 |
+| 臺北市流感疫苗合約醫療院所(成人) | 衛生局 | [0db13d34…](https://data.taipei/dataset/detail?id=0db13d34-51e3-497a-a023-286d5ef692ea) | M15 流感疫苗 | 使用中 |
+| 臺北市公費肺炎鏈球菌疫苗合約醫療院所名單 | 衛生局 | [92934ab2…](https://data.taipei/dataset/detail?id=92934ab2-3509-4a6b-9cee-9ac556ca2f65) | M15 肺炎鏈球菌疫苗 | 使用中 |
+| 臺北市五癌篩檢醫療院所 | 衛生局 | [ae20d75c…](https://data.taipei/dataset/detail?id=ae20d75c-dffb-4d4f-85e1-9c512189005c) | M15 癌症篩檢 | 使用中 |
+| 臺北市假牙補助醫療院所名單 | 社會局 | [76b8b514…](https://data.taipei/dataset/detail?id=76b8b514-e793-4cca-8dcf-065d5af4b760) | M15、M12 假牙補助 | 使用中 |
 
 服務清單（M3）裡的電話、網址、補助資格與金額，是隊員從市府官網整理後寫入的，每筆都附 `source` 與 `verified`（查證日期）。
 
@@ -464,6 +476,9 @@ docker build -t townpass2026-peakqi . && docker run -p 8080:8080 --env-file .env
 | 尚未用實機開 VoiceOver／TalkBack 完整實測 | 已用瀏覽器在三種模式下檢查報讀；決選前要實機測 |
 | 斷網後重新打開服務會打不開 | iOS WebView 的 Service Worker 限制，見「斷網」 |
 | 敬老卡餘額、看診進度、訂車狀態沒有開放 API | 第一版引導打 1999；需要市府介接 |
+| 〈失智症篩檢合約醫院〉資料集左右兩份清單並排、同一列沒有對應 | 只當全市 11 家醫院的清單用，不說「負責您這一區」；行政區用醫院地址判斷 |
+| 避難收容處所實際開設哪幾處，要看災害當時市府的公告 | 畫面寫明「請以市政府當時的公告為準」 |
+| 假牙補助能不能由家人代辦，官方沒寫；1999 分機在不同官方頁面互相矛盾 | 代辦寫「請先打電話問」；分機用社會局洽辦資訊頁的 1576（`taipei-subsidies.md` A.12） |
 | 手語翻譯的承辦單位委託到 2026-12-31 | 服務清單的 `verified` 日期會顯示在畫面上，到期要重新查證 |
 | 系統的裝置端語音辨識是否算「裝置端模型推論」 | 已依規則確保不送雲端（見「AI 使用聲明」）；如主辦認定不符，關掉語音、保留打字和點選即可 |
 

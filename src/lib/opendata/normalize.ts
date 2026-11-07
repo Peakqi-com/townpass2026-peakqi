@@ -85,7 +85,13 @@ export type ElderRecord = RawRecord & { district?: TaipeiDistrict };
 export function normalizeElderRecord(record: RawRecord, opts: { address: string }): ElderRecord {
   const cleaned: ElderRecord = {};
   for (const [key, value] of Object.entries(record)) cleaned[key] = cleanCell(value);
-  const district = [cleaned["行政區"]].find(isTaipeiDistrict) ?? districtFromCode(cleaned["行政區代碼"]) ?? districtFromAddress(cleaned[opts.address]);
+  const district =
+    [cleaned["行政區"]].find(isTaipeiDistrict) ??
+    districtFromCode(cleaned["行政區代碼"]) ??
+    // 衛生局的資料集把代碼放在「行政區域代碼」，或直接放在「行政區」欄位（63000040）
+    districtFromCode(cleaned["行政區域代碼"]) ??
+    districtFromCode(cleaned["行政區"]) ??
+    districtFromAddress(cleaned[opts.address]);
   if (district) cleaned.district = district;
   return cleaned;
 }

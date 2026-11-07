@@ -116,6 +116,7 @@ export function HelpScreen() {
       {/* 原則 4：打電話與用文字兩個按鈕一樣大、並排；聽不清楚模式文字排前面 */}
       <div className="flex flex-col gap-3">{hearing ? [sms119, call119] : [call119, sms119]}</div>
       <p className="text-h3 text-text-second">按「撥 119」會先出現大字確認，不會直接撥出。</p>
+      <ServiceLink href="/shelter" label="颱風、地震時去哪裡" speak="颱風、地震時去哪裡避難" icon="home" row className="border-4 border-grayscale-800 bg-white text-text-primary" />
 
       <section aria-labelledby="cards-heading" className="flex flex-col gap-3">
         <h2 id="cards-heading" className="text-elder-button font-bold text-text-primary">
