@@ -1020,7 +1020,8 @@ def flow_followup(d):
     st.toast(tp + 0.5, "好了，11 月 19 日（星期四）晚上 7 點會跳出通知提醒您。", dur=1.7)
     # ⑥ 前一天晚上 7 點的通知
     st.frame(t[5], ui.lock_screen("19:00", "11月19日 星期四"), hero=True)
-    st.over.append(f'<g{HID} class="{m.slide(t[5] + 0.4, t[6] - 0.1)}">'
+    # 這一格是靜止畫面（hero），通知不先藏起來，減少動態效果時才看得到
+    st.over.append(f'<g class="{m.slide(t[5] + 0.4, t[6] - 0.1)}">'
                    f'{ui.notification("明天要回診", "11 月 20 日（星期五）要回診，記得帶健保卡和藥袋。", 240)}</g>')
     st.buzz(t[5] + 0.5)
     # ⑦ 傳給家人知道（ShareToFamily.tsx；家人是 flow-5 設定的「大女兒」）
