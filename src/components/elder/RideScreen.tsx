@@ -29,7 +29,7 @@ const SECONDARY =
  * 頁面只有一個「回首頁」（PageShell）；「回上一題」是頁內的按鈕，不是另一層導覽。
  */
 export function RideScreen() {
-  const { mode, announce, say } = useElder();
+  const { mode, announce, say, a11y } = useElder();
   const hearing = mode === "hearing";
   const [state, setState] = useState<RideState>(RIDE_START);
   const heading = useRef<HTMLHeadingElement>(null);
@@ -50,7 +50,8 @@ export function RideScreen() {
   const go = (next: RideState, spoken: string) => {
     moved.current = true;
     setState(next);
-    say(spoken);
+    // 焦點會移到新的標題，報讀軟體會唸它；報讀軟體開著時再 say 會唸兩次
+    if (!a11y.screenReader) say(spoken);
   };
 
   const answer = (value: RideAnswer, label: string) => {
