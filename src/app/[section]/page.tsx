@@ -7,7 +7,6 @@ import { PageShell } from "@/components/elder/PageShell";
  * 再把該項目從這裡刪掉。
  */
 const SECTIONS: Record<string, string> = {
-  benefits: "我的權益",
   community: "附近吃飯、上課",
 };
 
