@@ -157,3 +157,24 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/*
+ * iOS WebKit 的日期、時間欄（<input type="date">、type="time" 等）用原生外觀時不吃 width: 100%，
+ * 會把 padding 和邊框再加在外面（實測 iPhone 17 模擬器：容器 370px，日期欄 410px），
+ * 整頁因此往右超出、可以左右滑。去掉原生外觀後寬度就正常；點下去一樣會開系統的日期選擇器。
+ */
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"],
+input[type="month"] {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* 去掉原生外觀後，iOS 會把日期文字置中；改成靠左，和其他輸入欄一致 */
+input[type="date"]::-webkit-date-and-time-value,
+input[type="time"]::-webkit-date-and-time-value,
+input[type="datetime-local"]::-webkit-date-and-time-value,
+input[type="month"]::-webkit-date-and-time-value {
+  text-align: left;
+}
