@@ -1,6 +1,6 @@
 import { test, beforeEach, afterEach } from "node:test";
 import assert from "node:assert/strict";
-import { getA11yState, openExternal, rootFontSizePercent, speak, startListening } from "./elder.ts";
+import { cancelReminder, getA11yState, openExternal, rootFontSizePercent, setReminder, speak, startListening } from "./elder.ts";
 
 /** 模擬城市通 App 的 flutterObject：記錄網頁送出的訊息，並可以從 App 端回覆。 */
 class FakeFlutterObject {
@@ -152,4 +152,30 @@ test("rootFontSizePercent：依系統字級設定根字級，限制在 100%～30
   assert.equal(rootFontSizePercent(0.8), 100);
   assert.equal(rootFontSizePercent(5), 300);
   assert.equal(rootFontSizePercent(Number.NaN), 100);
+});
+
+test("setReminder：送出 set 與提醒內容，App 排好時回傳 scheduled", async () => {
+  const reminder = { id: "double-ninth-2026", title: "重陽禮金明天截止", body: "可以線上申請匯款。", at: "2026-11-12T09:00:00+08:00" };
+  const pending = setReminder(reminder);
+  assert.deepEqual(fo.sent, [{ name: "reminder", data: { action: "set", ...reminder } }]);
+  fo.reply("reminder", { status: "scheduled", at: "2026-11-12T01:00:00.000Z" });
+  assert.deepEqual(await pending, { ok: true });
+});
+
+test("setReminder：App 回覆錯誤（例如沒有通知權限）時回傳錯誤代碼", async () => {
+  const pending = setReminder({ id: "x", title: "t", body: "b", at: "2026-11-12T09:00:00+08:00" });
+  fo.reply("reminder", { error: "permission_denied" });
+  assert.deepEqual(await pending, { ok: false, error: "permission_denied" });
+});
+
+test("setReminder：不在城市通 App 內時回傳 not_in_app，不送出訊息", async () => {
+  delete g.window;
+  assert.deepEqual(await setReminder({ id: "x", title: "t", body: "b", at: "2026-11-12T09:00:00+08:00" }), { ok: false, error: "not_in_app" });
+});
+
+test("cancelReminder：送出 cancel", async () => {
+  const pending = cancelReminder("double-ninth-2026");
+  assert.deepEqual(fo.sent, [{ name: "reminder", data: { action: "cancel", id: "double-ninth-2026" } }]);
+  fo.reply("reminder", { status: "cancelled" });
+  assert.equal(await pending, true);
 });

@@ -19,7 +19,8 @@ export type IconName =
   | "eye"
   | "ear"
   | "smile"
-  | "switch";
+  | "switch"
+  | "bell";
 
 export interface HomeButton {
   id: string;

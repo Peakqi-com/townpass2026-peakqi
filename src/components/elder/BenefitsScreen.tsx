@@ -2,11 +2,13 @@
 
 import { elderBenefits, type ElderBenefits } from "@/lib/elder/benefits";
 import type { GiftInfo } from "@/lib/elder/profile";
+import { giftReminder } from "@/lib/elder/reminders";
 import { getService, type Service } from "@/lib/elder/services";
 import { districtFor, townOf, type District } from "@/lib/elder/subsidy";
 import { ChannelButtons, type Channel } from "./ChannelButtons";
 import { useElder } from "./ElderProvider";
 import { PageShell } from "./PageShell";
+import { ReminderButton } from "./ReminderButton";
 import { ServiceCard } from "./ServiceCard";
 import { ServiceLink } from "./ServiceButton";
 
@@ -132,7 +134,10 @@ function districtChannel(d: District): Channel {
 }
 
 function GiftCard({ gift, district }: { gift: GiftInfo; district: District | null }) {
+  const { now } = useElder();
   const service = svc("double-ninth");
+  // 還在申請期內才提供「提醒我申請」（截止前一天或當天早上 9 點跳出手機通知）
+  const reminder = gift.phase === "apply" && now ? giftReminder(now) : null;
   const amount = gift.amount.toLocaleString("zh-TW");
   const deadline =
     gift.phase === "apply"
@@ -158,6 +163,7 @@ function GiftCard({ gift, district }: { gift: GiftInfo; district: District | nul
         </p>
       )}
       <ChannelButtons channels={channels} />
+      {reminder && <ReminderButton reminder={reminder} label="提醒我申請" />}
       <Source owner="臺北市政府社會局" links={[{ href: service?.source ?? GIFT_ONLINE, label: "官方說明" }]} />
     </Card>
   );

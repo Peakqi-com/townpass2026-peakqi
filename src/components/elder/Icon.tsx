@@ -103,4 +103,6 @@ const PATHS: Record<IconName, React.ReactNode> = {
   ),
   // 換模式：上下兩個方向相反的箭頭
   switch: <path d="M4 8h14l-4-4M20 16H6l4 4" />,
+  // 提醒：鈴鐺
+  bell: <path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4l2-2ZM10 21h4" />,
 };

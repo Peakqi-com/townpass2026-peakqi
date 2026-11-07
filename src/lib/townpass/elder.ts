@@ -94,6 +94,42 @@ export async function openExternal(url: string): Promise<boolean> {
   return callApp<boolean>("open_external", url);
 }
 
+/* ---------- reminder：排程本機通知 ---------- */
+
+export interface ReminderRequest {
+  id: string;
+  title: string;
+  body: string;
+  /** ISO 8601，一定要帶時區（例如 +08:00） */
+  at: string;
+}
+
+/** App 端錯誤代碼：forbidden、bad_request、past、too_far、permission_denied；網頁端另有 not_in_app、no_reply */
+export type ReminderResult = { ok: true } | { ok: false; error: string };
+
+/** 在指定時間跳出手機通知（App 關掉也會跳）。只有長輩模式的網域可以用 */
+export async function setReminder(reminder: ReminderRequest): Promise<ReminderResult> {
+  if (!isInTownPass()) return { ok: false, error: "not_in_app" };
+  try {
+    const reply = await callApp<{ status?: string; error?: string } | null>("reminder", { action: "set", ...reminder });
+    if (reply?.status === "scheduled") return { ok: true };
+    return { ok: false, error: reply?.error ?? "no_reply" };
+  } catch {
+    // App 沒有這個 Handler（舊版城市通）會逾時
+    return { ok: false, error: "no_reply" };
+  }
+}
+
+export async function cancelReminder(id: string): Promise<boolean> {
+  if (!isInTownPass()) return false;
+  try {
+    const reply = await callApp<{ status?: string } | null>("reminder", { action: "cancel", id });
+    return reply?.status === "cancelled";
+  } catch {
+    return false;
+  }
+}
+
 /* ---------- listen：裝置端語音辨識 ---------- */
 
 export interface ListenHandlers {

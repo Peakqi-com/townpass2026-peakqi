@@ -30,7 +30,7 @@
 | M3 | `src/data/services.json` | 服務清單：跨局處的開源 JSON（`phrases`、`alt_channels`、`audience`、`source`、`verified`），目前 26 筆 | ✅ |
 | M4 | `/health` | 我要看醫生：聯醫掛號、叫車、1966 一次列出；聽不清楚模式加看診溝通卡、手語翻譯 | ✅ |
 | M5 | `/ride` | 我要叫車：最多兩題，分流到復康巴士、長照交通接送、敬老計程車 | ✅ |
-| M6 | `/benefits` | 我的權益：重陽禮金、敬老卡、公費疫苗、老人健檢，依生日與戶籍自動判斷 | ✅ |
+| M6 | `/benefits` | 我的權益：重陽禮金、敬老卡、公費疫苗、老人健檢，依生日與戶籍自動判斷；重陽禮金可以「提醒我申請」（排程手機通知） | ✅ |
 | M7 | `/family`、`/family/setup` | 家人：家人用 QR code 幫長輩設定首頁按鈕與聯絡人（不經過伺服器）、打給家人 | ✅ |
 | M8 | `/text`、`/help`、`/card/clinic` | 聽不清楚：文字聯絡管道、全螢幕求助卡、119 簡訊範本、看診溝通卡與手語翻譯申請文字 | ✅ |
 | M9 | `/community` | 附近吃飯、上課：依行政區列出共餐、關懷據點、長青學苑、樂齡學習 | ✅ |
@@ -45,7 +45,7 @@
 城市通 App（Flutter，TownPass fork）
    │  flutterObject 雙向溝通
    │  內建：userinfo、location、phone_call、1999agree、open_link、notify、qr_code_scan…
-   │  新增：speak、a11y_state、haptic、open_external、listen
+   │  新增：speak、a11y_state、haptic、open_external、listen、reminder
    ▼
 Next.js 16（本 repo，部署在 Vercel 東京）
  ├─ 前端  src/app/**/page.tsx（React 19、Tailwind 4、城市通色票＋長輩模式色票）
@@ -64,6 +64,7 @@ App 端程式在 TownPass 的 `lib/util/web_message_handler/elder_mode_message_h
 | `haptic` | `'light'`／`'medium'` | `true` | 觸覺回饋（iOS WebView 不支援 `navigator.vibrate`） |
 | `open_external` | 網址字串 | `true`／`false` | 用外部 App 開啟（LINE、簡訊、撥號畫面）。只允許 https、tel、sms、mailto |
 | `listen` | `{ action: 'start'｜'stop'｜'cancel', locale? }` | 先回 `{ status: 'listening' }`，再回 `{ text }` 或 `{ error }` | 裝置端語音辨識。**只開放本服務網域**；手機不支援離線辨識時回 `offline_unavailable`，**不會改用雲端** |
+| `reminder` | `{ action: 'set', id, title, body, at }`／`{ action: 'cancel', id }` | `{ status: 'scheduled', at }`／`{ status: 'cancelled' }`／`{ error }` | 排程手機通知，App 關掉也會跳（flutter_local_notifications）。**只開放本服務網域**；`at` 要帶時區，限 1 分鐘後到 400 天內 |
 
 ### 開放資料代理
 
@@ -185,6 +186,7 @@ docker build -t townpass2026-peakqi . && docker run -p 8080:8080 --env-file .env
 |---|---|---|
 | flutter_tts 4.2.5 | MIT | `speak` |
 | speech_to_text 7.5.0 | BSD-3-Clause | `listen` |
+| timezone 0.11.1 | BSD-2-Clause | `reminder`（原本就是 flutter_local_notifications 的間接依賴，改為直接引用） |
 
 ## 7. AI 使用聲明
 
