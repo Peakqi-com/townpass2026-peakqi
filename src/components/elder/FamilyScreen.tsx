@@ -10,6 +10,7 @@ import { FailNote, useFailNote } from "./FailNote";
 import { PageShell } from "./PageShell";
 import { ServiceAction, ServiceLink } from "./ServiceButton";
 import { useFamilyConfig } from "./useFamilyConfig";
+import { useFocusAfterRender } from "./useFocusAfterRender";
 
 const LINK =
   "flex min-h-12 items-center self-center py-3 text-elder-body text-text-second underline underline-offset-4 " +
@@ -21,7 +22,8 @@ const LINK =
  * 大字顯示要打給誰 → 按「撥打」才撥；聽不清楚模式把「傳簡訊」排在最前面。
  */
 export function FamilyScreen() {
-  const { mode, say } = useElder();
+  const { mode, say, a11y } = useElder();
+  const { register, focusLater } = useFocusAfterRender();
   const note = useFailNote();
   const { config, save } = useFamilyConfig();
   const [calling, setCalling] = useState<number | null>(null);
@@ -54,8 +56,10 @@ export function FamilyScreen() {
       return;
     }
     save(next);
+    // 「設定好了」出現在頁面最上面，但按鈕在最下面：移焦點過去（會捲動到那裡），長輩才看得到有變化
+    focusLater("saved");
     setJustSaved(true);
-    say("設定好了，有事按這些按鈕");
+    if (!a11y.screenReader) say("設定好了，有事按這些按鈕");
   };
 
   // key 讓兩個畫面各自掛載，換畫面時焦點會移到新的 h1
@@ -65,7 +69,7 @@ export function FamilyScreen() {
     <PageShell key="family" title="家人">
       {justSaved && config && (
         <section aria-labelledby="saved-heading" className="flex flex-col gap-3 rounded-2xl border-4 border-elder-family bg-white p-4">
-          <h2 id="saved-heading" className="text-elder-button font-bold text-text-primary">
+          <h2 id="saved-heading" ref={register("saved")} tabIndex={-1} className="text-elder-button font-bold text-text-primary focus:outline-none">
             設定好了
           </h2>
           <p className="text-elder-body text-text-second">

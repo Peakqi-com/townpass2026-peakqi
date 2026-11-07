@@ -12,6 +12,8 @@ const FOCUS =
   "outline-offset-2 focus-visible:outline focus-visible:outline-[6px] focus-visible:outline-grayscale-900 active:outline active:outline-[6px] active:outline-grayscale-900";
 const OPTION = `flex min-h-[4.5rem] w-full items-center rounded-2xl border-4 border-grayscale-800 bg-white px-4 py-2 text-left text-elder-body font-bold text-text-primary ${FOCUS}`;
 const SMALL = `min-h-12 rounded-2xl border-4 border-grayscale-800 bg-white px-4 text-elder-body font-bold text-text-primary ${FOCUS}`;
+/** 深色的主要按鈕。不能用 SMALL 再加 bg-／text- 蓋過去：同一屬性的兩個 class 誰贏看 CSS 順序，iPhone 上變成白底白字 */
+const SMALL_DARK = `min-h-12 rounded-2xl border-4 border-grayscale-800 bg-grayscale-800 px-4 text-elder-body font-bold text-white ${FOCUS}`;
 
 type Step =
   | { step: "search" }
@@ -144,7 +146,7 @@ export function BusPicker({ buses, onChange }: { buses: FamilyBus[]; onChange: (
             autoComplete="off"
             className={INPUT}
           />
-          <button type="button" onClick={() => void search()} disabled={busy} className={`${SMALL} shrink-0 bg-grayscale-800 text-white`}>
+          <button type="button" onClick={() => void search()} disabled={busy} className={`${SMALL_DARK} shrink-0`}>
             {busy ? "找…" : "找路線"}
           </button>
         </div>
