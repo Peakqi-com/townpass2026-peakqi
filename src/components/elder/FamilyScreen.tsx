@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRef, useState } from "react";
-import { phoneCall, postToApp, scanQrCode } from "@/lib/townpass/bridge";
+import { phoneCall, scanQrCode } from "@/lib/townpass/bridge";
 import { openExternal } from "@/lib/townpass/elder";
 import { decodeFamilyConfig, familyButtons, formatMobile, type FamilyConfig, type FamilyContact } from "@/lib/elder/familyConfig";
 import { useElder } from "./ElderProvider";
@@ -44,15 +44,11 @@ export function FamilyScreen() {
     } finally {
       scanning.current = false;
     }
-    // DEBUG（暫時）
-    postToApp(`debug-scan:${typeof text}:${typeof text === "string" ? text.length : -1}`);
     if (!text) {
       note.fail("沒有掃到。可以再按一次「家人幫我設定」。");
       return;
     }
     const next = decodeFamilyConfig(text);
-    // DEBUG（暫時）
-    postToApp(`debug-decoded:${next ? "ok" : "null"}:${text.slice(0, 40)}`);
     if (!next) {
       note.fail("這不是「用得了」的設定碼。請家人重新做一張設定碼。");
       return;

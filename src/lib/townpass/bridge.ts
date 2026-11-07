@@ -38,6 +38,26 @@ export function postToApp(name: string, data: unknown = null): void {
   window.flutterObject?.postMessage(JSON.stringify({ name, data }));
 }
 
+/**
+ * 解析 App 的回覆 {"name": …, "data": …}。
+ *
+ * iOS 的 flutter_inappwebview 把回覆送進網頁時會吃掉反斜線（2026-11-07 iPhone 實機確認）：
+ * data 是含引號的字串時（例如掃到的設定碼 {"kind":…}），收到的是
+ *   {"name":"qr_code_scan","data":"{"kind":"elder-family",…}"}
+ * 不是合法的 JSON。官方城市通 App 用同一個套件，所以在網頁端處理：
+ * JSON.parse 失敗時，照固定格式拆出 name 和字串 data（原本的反斜線已經遺失，無法還原）。
+ */
+export function parseReply(raw: unknown): Reply<unknown> | null {
+  if (typeof raw !== "string") return null;
+  try {
+    const reply = JSON.parse(raw) as Reply<unknown>;
+    return reply && typeof reply.name === "string" ? reply : null;
+  } catch {
+    const m = /^\{"name":"([^"\\]+)","data":"([\s\S]*)"\}$/.exec(raw);
+    return m ? { name: m[1], data: m[2] } : null;
+  }
+}
+
 /** 送出並等待同名的回覆 */
 export function callApp<T>(name: string, data: unknown = null, timeoutMs = 10_000): Promise<T> {
   const fo = window.flutterObject;
@@ -45,19 +65,10 @@ export function callApp<T>(name: string, data: unknown = null, timeoutMs = 10_00
 
   return new Promise<T>((resolve, reject) => {
     const onMessage = (event: MessageEvent<string>) => {
-      let reply: Reply<T>;
-      try {
-        reply = JSON.parse(event.data);
-      } catch {
-        // DEBUG（暫時）：iOS 實機查掃碼問題用，查完移除
-        postToApp(`debug-reply-unparsed:${typeof event.data}:${String(event.data).slice(0, 60)}`);
-        return;
-      }
-      // DEBUG（暫時）
-      postToApp(`debug-reply:${reply.name}:${typeof reply.data}`);
-      if (reply.name !== name) return;
+      const reply = parseReply(event.data);
+      if (!reply || reply.name !== name) return;
       cleanup();
-      resolve(reply.data);
+      resolve(reply.data as T);
     };
     const timer = setTimeout(() => {
       cleanup();
