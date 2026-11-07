@@ -2,16 +2,19 @@
 
 import Link from "next/link";
 import { call1999 } from "@/lib/townpass/bridge";
-import { HOME_BUTTONS } from "@/lib/elder/home";
+import { familyButtons } from "@/lib/elder/familyConfig";
 import { doubleNinthGift, greetingFor, type GiftInfo } from "@/lib/elder/profile";
 import { useElder } from "./ElderProvider";
 import { ModePicker } from "./ModePicker";
 import { ServiceAction, ServiceLink } from "./ServiceButton";
+import { useFamilyConfig } from "./useFamilyConfig";
 import { useFocusOnMount } from "./useFocusOnMount";
 
 /** M1 首頁：問候、權益提醒、6 個大按鈕、找服務、固定的 1999／1966／求助 */
 export function HomeScreen() {
   const { mode, ready, now, user, textScale } = useElder();
+  // 家人代設定過（M7）就用家人挑的按鈕，沒有就用預設的 6 個
+  const { config: family } = useFamilyConfig();
 
   if (!ready || !now) return <p className="p-6 text-elder-body text-text-second">載入中…</p>;
   if (mode === null) return <ModePicker />;
@@ -32,7 +35,7 @@ export function HomeScreen() {
 
       <nav aria-label="常用服務">
         <ul className={`grid gap-4 ${large ? "grid-cols-1" : "grid-cols-2"}`}>
-          {HOME_BUTTONS.map((button) => (
+          {familyButtons(family).map((button) => (
             <li key={button.id} className="grid">
               <ServiceLink
                 href={button.href}
