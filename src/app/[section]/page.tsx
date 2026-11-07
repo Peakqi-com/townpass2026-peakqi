@@ -9,7 +9,6 @@ import { PageShell } from "@/components/elder/PageShell";
 const SECTIONS: Record<string, string> = {
   benefits: "我的權益",
   community: "附近吃飯、上課",
-  family: "打給家人",
   text: "用文字聯絡",
   help: "求助",
 };

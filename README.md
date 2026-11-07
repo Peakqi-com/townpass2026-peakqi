@@ -146,6 +146,8 @@ docker build -t townpass2026-peakqi . && docker run -p 8080:8080 --env-file .env
 | tailwindcss、@tailwindcss/turbopack | MIT |
 | typescript | Apache-2.0 |
 | eslint、eslint-config-next | MIT |
+| qrcode 1.5.4（M7 家人代設定產生 QR code） | MIT |
+| @types/qrcode | MIT |
 
 **TownPass fork 新增的 Flutter 套件**
 
