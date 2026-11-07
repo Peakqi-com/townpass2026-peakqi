@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { homeEntry, readEntryFlag, writeEntryFlag } from "@/lib/elder/entry";
 import { call1999 } from "@/lib/townpass/bridge";
 import { familyButtons } from "@/lib/elder/familyConfig";
+import { GIFT_TITLE, giftAmountLine } from "@/lib/elder/giftCopy";
 import { doubleNinthGift, greetingFor, MODE_NAME, type GiftInfo } from "@/lib/elder/profile";
 import { useElder } from "./ElderProvider";
 import { BusCard } from "./BusCard";
@@ -138,7 +139,6 @@ function Greeting({ text }: { text: string }) {
 }
 
 function GiftCard({ gift }: { gift: GiftInfo }) {
-  const amount = gift.amount.toLocaleString("zh-TW");
   const deadline =
     gift.phase === "apply"
       ? gift.daysLeft === 0
@@ -152,9 +152,12 @@ function GiftCard({ gift }: { gift: GiftInfo }) {
       className="flex flex-col gap-3 rounded-2xl border-4 border-elder-benefit bg-white p-4"
     >
       <h2 id="gift-heading" className="text-elder-button font-bold text-text-primary">
-        重陽禮金：您今年可能可以領 {amount} 元
+        {GIFT_TITLE}
       </h2>
-      <p className="text-elder-body text-text-second">{deadline}。最後以社會局審核為準。</p>
+      <p className="text-elder-body text-text-second">
+        {giftAmountLine(gift)}
+        {deadline}。最後以社會局審核為準。
+      </p>
       <ServiceLink
         href="/benefits"
         label="看怎麼申請"

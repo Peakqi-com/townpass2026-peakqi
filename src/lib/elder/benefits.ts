@@ -3,8 +3,13 @@
  * 規格見 TownPass docs/townpass/elder-mode-spec.md M6；事實出處見 taipei-elderly-services.md B.1、B.5、B.7。
  *
  * 只是幫長輩「先看看」，最後以主責機關審核為準。
+ *
+ * 排序：最上面放「很多人不知道的權益」（老人健保費補助、長照交通接送、照顧家人）；
+ * 重陽禮金、敬老卡幾乎每位長輩都知道，重陽禮金改成寫給「還沒收到」的人。
+ * 依據見 TownPass docs/townpass/research-basis.md §0.2（畫面上不放調查的百分比）。
  */
 import { ageOn, doubleNinthGift, type GiftInfo, type GiftPerson } from "./profile.ts";
+import { SUBSIDIES, type Subsidy } from "./subsidy.ts";
 
 export type BenefitPerson = GiftPerson;
 
@@ -22,6 +27,30 @@ export interface ElderBenefits {
   vaccine: boolean;
   /** 老人健檢：設籍臺北市、65 歲以上（原住民 55 歲以上），每年 1 月預約 */
   healthCheck: HealthCheckTiming | null;
+  /** 很多人不知道的權益：65 歲以上（原住民 55 歲以上）才列；未滿年齡是 null */
+  lesserKnown: LesserKnown | null;
+}
+
+export interface LesserKnown {
+  /** 老人健保費補助（subsidies.json 的 elder-nhi-premium）：設籍臺北市才列 */
+  nhiPremium: Subsidy | null;
+  /** 長照交通接送（services.json 的 ltc-ride）：臺北市社會局的服務，設籍臺北市才列 */
+  ltcRide: boolean;
+  /** 照顧家人（/care）：給照顧另一半或家人的人，都列 */
+  care: boolean;
+}
+
+export { GIFT_TITLE, giftAmountLine } from "./giftCopy.ts";
+
+const NHI_PREMIUM = SUBSIDIES.find((s) => s.id === "elder-nhi-premium") ?? null;
+
+/** 老人健保費補助的年齡門檻直接用 subsidies.json 的規則，不另外寫死 */
+function nhiPremiumFor(age: number, person: BenefitPerson): Subsidy | null {
+  if (!NHI_PREMIUM) return null;
+  const r = NHI_PREMIUM.rule;
+  if (r.cityOnly && !person.citizen) return null;
+  const min = person.nativePeople && r.ageMinNative !== undefined ? r.ageMinNative : (r.ageMin ?? 0);
+  return age >= min ? NHI_PREMIUM : null;
 }
 
 export interface HealthCheckTiming {
@@ -63,5 +92,9 @@ export function elderBenefits(person: BenefitPerson, today: Date): ElderBenefits
     seniorCard: isSenior && person.citizen,
     vaccine: isSenior,
     healthCheck: isSenior && person.citizen ? healthCheckTiming(today) : null,
+    lesserKnown:
+      isSenior && age !== null
+        ? { nhiPremium: nhiPremiumFor(age, person), ltcRide: person.citizen, care: true }
+        : null,
   };
 }

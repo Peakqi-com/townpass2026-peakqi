@@ -4,8 +4,10 @@
  *
  * 資料在 src/data/subsidies.json，只放研究文件裡標 ✅ 的項目。市府調整資格或金額時只改 JSON。
  * 規則：
- * - 年齡、原住民身分、是否為臺北市民從台北通帳號帶入，不問長輩。
- * - 最多問三題：身心障礙證明、家裡收入、家裡有沒有人需要照顧。每題都有「不知道」。
+ * - 先問「幫誰看」：幫自己看時，年齡、原住民身分、是否為臺北市民從台北通帳號帶入，不問長輩。
+ *   幫另一半或家人看時，改問對方的年紀（級距）；級距會影響結果時才問是不是原住民。
+ *   行政區、市民身分沿用使用者的（假設住在同一戶，畫面上會寫出來）。
+ * - 再問三題：身心障礙證明、家裡收入、家裡有沒有人需要照顧。每題都有「不知道」。
  * - 一律只說「可能可以申請」，最後由主責機關審核。答案只在手機的記憶體裡，不上傳。
  */
 import raw from "../../data/subsidies.json" with { type: "json" };
@@ -26,11 +28,32 @@ export interface SubsidyAnswers {
   care: CareAnswer;
 }
 
-/** 從台北通帳號帶入的資料 */
+/** 要看的人：幫自己看時從台北通帳號帶入；幫家人看時用 personForOther() 產生 */
 export interface SubsidyPerson {
   age: number | null;
   nativePeople: boolean;
   citizen: boolean;
+  /** 幫家人看、原住民題答「不知道」：結果會提示「如果是原住民，還可能有…」 */
+  nativeUnknown?: boolean;
+}
+
+/** 幫誰看 */
+export type Who = "self" | "other";
+/** 幫家人看時：是不是原住民 */
+export type NativeAnswer = "yes" | "no" | "unknown";
+
+/** 幫家人看時問的年紀範圍。min 含、max 不含；max 為 null 表示沒有上限 */
+export interface AgeBracket {
+  id: string;
+  label: string;
+  min: number;
+  max: number | null;
+}
+
+/** 幫家人看時的回答（年紀級距的 id 或「不知道」） */
+export interface OtherAnswers {
+  age: string;
+  native: NativeAnswer;
 }
 
 export interface SubsidyRule {
@@ -120,8 +143,9 @@ export interface SubsidyMatch {
  * 結果之外的提示：
  * - age：讀不到生日；notCitizen：不是臺北市民
  * - disability／care：這兩題答「不知道」，相關補助先不列，改用一句話說明
+ * - native：幫家人看、不確定是不是原住民，而原住民還可能多幾項（列在 nativeExtra）
  */
-export type SubsidyHint = "age" | "notCitizen" | "disability" | "care";
+export type SubsidyHint = "age" | "notCitizen" | "disability" | "care" | "native";
 
 export interface SubsidyResult {
   /** 要申請的（依符合程度排序） */
@@ -129,6 +153,8 @@ export interface SubsidyResult {
   /** 不用申請的 */
   auto: SubsidyMatch[];
   hints: SubsidyHint[];
+  /** 如果是原住民，還可能多出來的補助名稱（只有 nativeUnknown 時才有） */
+  nativeExtra: string[];
   /** services.json 裡相關的服務 id（例如看不清楚 → 視障生活重建） */
   related: string[];
 }
@@ -218,6 +244,15 @@ export function findSubsidies(person: SubsidyPerson, answers: SubsidyAnswers, to
   if (answers.disability === "unknown") hints.push("disability");
   if (answers.care === "unknown") hints.push("care");
 
+  // 不確定是不是原住民：算算看「如果是」會多哪幾項（不列進結果，只提示）
+  const nativeExtra =
+    person.nativeUnknown && !person.nativePeople
+      ? SUBSIDIES.filter(
+          (s) => check(s, { ...person, nativePeople: true }, answers, date) && !check(s, person, answers, date),
+        ).map((s) => s.title)
+      : [];
+  if (nativeExtra.length > 0) hints.push("native");
+
   const related: string[] = [];
   if (answers.disability === "vision" || answers.disability === "hearing") related.push(...RELATED[answers.disability]);
   if (answers.care === "yes") related.push(...RELATED.care);
@@ -226,8 +261,100 @@ export function findSubsidies(person: SubsidyPerson, answers: SubsidyAnswers, to
     apply: sorted.filter((m) => !m.auto),
     auto: sorted.filter((m) => m.auto),
     hints,
+    nativeExtra,
     related,
   };
+}
+
+/* ---------- 幫另一半或家人看 ---------- */
+
+/**
+ * 年紀級距：用資料裡所有的年齡門檻（ageMin、ageMinNative）切出來，例如 55、65 →
+ * 「未滿 55 歲」「55～64 歲」「65 歲以上」。級距的邊界就是門檻，同一個級距裡不會跨過任何門檻，
+ * 所以用級距的下限判斷，結果和知道確切歲數時一樣。市府調整門檻時只改 JSON，級距會跟著變。
+ */
+export function ageBrackets(subsidies: readonly Subsidy[] = SUBSIDIES): AgeBracket[] {
+  const thresholds = [
+    ...new Set(subsidies.flatMap((s) => [s.rule.ageMin, s.rule.ageMinNative]).filter((n): n is number => n !== undefined)),
+  ].sort((a, b) => a - b);
+  if (thresholds.length === 0) return [];
+  const brackets: AgeBracket[] = [{ id: `under-${thresholds[0]}`, label: `未滿 ${thresholds[0]} 歲`, min: 0, max: thresholds[0] }];
+  thresholds.forEach((t, i) => {
+    const next = thresholds[i + 1];
+    brackets.push(
+      next === undefined
+        ? { id: `${t}-up`, label: `${t} 歲以上`, min: t, max: null }
+        : { id: `${t}-${next - 1}`, label: `${t}～${next - 1} 歲`, min: t, max: next },
+    );
+  });
+  return brackets;
+}
+
+export const AGE_BRACKETS: readonly AgeBracket[] = ageBrackets();
+
+function bracketOf(id: string): AgeBracket | undefined {
+  return AGE_BRACKETS.find((b) => b.id === id);
+}
+
+/**
+ * 幫家人看時的「要看的人」：年紀用級距的下限，原住民用回答的；
+ * 是否為臺北市民沿用使用者的（假設住在同一戶）。
+ */
+export function personForOther(a: OtherAnswers, citizen: boolean): SubsidyPerson {
+  return {
+    age: bracketOf(a.age)?.min ?? null,
+    nativePeople: a.native === "yes",
+    citizen,
+    nativeUnknown: a.native === "unknown",
+  };
+}
+
+/** 這個年紀級距，是不是原住民會影響結果？會的話才問（少問一題就少一題） */
+export function nativeMatters(ageId: string): boolean {
+  const b = bracketOf(ageId);
+  if (!b) return false;
+  return SUBSIDIES.some(
+    ({ rule: r }) => r.ageMin !== undefined && r.ageMinNative !== undefined && (b.min >= r.ageMinNative) !== (b.min >= r.ageMin),
+  );
+}
+
+/* ---------- 打電話時的第一句話 ---------- */
+
+/** 在說誰：幫自己或幫家人；ageText 例如「72 歲」「65 歲以上」，不知道時 null */
+export interface SubsidySubject {
+  who: Who;
+  ageText: string | null;
+}
+
+export function selfSubject(age: number | null): SubsidySubject {
+  return { who: "self", ageText: age === null ? null : `${age} 歲` };
+}
+
+export function otherSubject(ageId: string): SubsidySubject {
+  return { who: "other", ageText: bracketOf(ageId)?.label ?? null };
+}
+
+/** 這項補助有沒有電話可以問（區公所、1999 分機、1966／1957、專線） */
+export function hasPhoneChannel(s: Subsidy): boolean {
+  const a = s.apply;
+  if (a.counter || a.call1999 || a.call1999ByDistrict || a.phone) return true;
+  const service = a.service ? getService(a.service) : undefined;
+  return Boolean(service && phoneOf(service));
+}
+
+/**
+ * 打電話（或用文字問）時的第一句話：補助名稱＋住哪一區＋幾歲。
+ * 幫家人問時一律說「我家人」，不猜是先生、太太還是爸媽。
+ * 例：「您好，我想問「老人生活津貼」怎麼申請。我住在中山區，今年 72 歲。」
+ */
+export function callScript(s: Subsidy, subject: SubsidySubject, district: District | null): string {
+  const ask =
+    subject.who === "self" ? `您好，我想問「${s.title}」怎麼申請。` : `您好，我想幫我家人問「${s.title}」怎麼申請。`;
+  const facts: string[] = [];
+  if (district) facts.push(`住在${district.name}`);
+  if (subject.ageText) facts.push(`今年${/^\d/.test(subject.ageText) ? " " : ""}${subject.ageText}`);
+  if (facts.length === 0) return ask;
+  return `${ask}${subject.who === "self" ? "我" : "我家人"}${facts.join("，")}。`;
 }
 
 /* ---------- 行政區與電話 ---------- */
@@ -323,16 +450,30 @@ function reviewerOf(owner: string): string {
  * 產生一段純文字的「申請準備單」：要帶什麼、去哪裡、注意事項。
  * 給長輩或家人複製後貼到 LINE；不假設任何分享網址格式。
  */
-export function prepSheet(match: SubsidyMatch, district: District | null): string {
+export function prepSheet(
+  match: SubsidyMatch,
+  district: District | null,
+  subject: SubsidySubject = { who: "self", ageText: null },
+): string {
   const s = match.subsidy;
-  const lines: string[] = [`【申請準備單】${s.title}`, s.summary, `大約金額：${s.amount}`, ""];
+  const other = subject.who === "other";
+  const lines: string[] = [`【申請準備單】${s.title}`];
+  if (other) lines.push(`幫家人看的（${subject.ageText ?? "年紀不確定"}，當作和您住在同一戶）`);
+  lines.push(s.summary, `大約金額：${s.amount}`, "");
 
   if (s.documents.length > 0) {
     lines.push("要帶的東西：", ...s.documents.map((d) => `□ ${d}`), "");
   }
 
   if (s.proxy.allowed === true) {
-    lines.push(s.proxy.bring.length > 0 ? "家人可以代辦，另外要帶：" : "家人可以代辦。", ...s.proxy.bring.map((d) => `□ ${d}`), "");
+    const intro = other
+      ? s.proxy.bring.length > 0
+        ? "可以幫家人代辦，代辦的人另外要帶："
+        : "可以幫家人代辦。"
+      : s.proxy.bring.length > 0
+        ? "家人可以代辦，另外要帶："
+        : "家人可以代辦。";
+    lines.push(intro, ...s.proxy.bring.map((d) => `□ ${d}`), "");
   } else if (s.proxy.allowed === null) {
     lines.push("家人能不能代辦：官方頁面沒寫，請先打電話問。", "");
   }
@@ -354,6 +495,7 @@ export function prepSheet(match: SubsidyMatch, district: District | null): strin
   if (service && servicePhone) lines.push(`${service.title}：${formatPhone(servicePhone.target)}`);
   if (s.apply.phone) lines.push(`${s.apply.phone.label}：${formatPhone(s.apply.phone.number)}`);
   if (s.apply.online) lines.push(`${s.apply.online.label}：${s.apply.online.url}`);
+  if (hasPhoneChannel(s)) lines.push(`打電話時可以先說：${callScript(s, subject, district)}`);
   lines.push("");
 
   const notes = [...match.caveats, ...s.notes];

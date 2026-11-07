@@ -1,10 +1,10 @@
 "use client";
 
-import { elderBenefits, type ElderBenefits } from "@/lib/elder/benefits";
+import { elderBenefits, GIFT_TITLE, giftAmountLine, type ElderBenefits, type LesserKnown } from "@/lib/elder/benefits";
 import type { GiftInfo } from "@/lib/elder/profile";
 import { giftReminder } from "@/lib/elder/reminders";
 import { getService, type Service } from "@/lib/elder/services";
-import { districtFor, townOf, type District } from "@/lib/elder/subsidy";
+import { districtFor, ext1999, townOf, type District, type Subsidy } from "@/lib/elder/subsidy";
 import { ChannelButtons, type Channel } from "./ChannelButtons";
 import { useElder } from "./ElderProvider";
 import { PageShell } from "./PageShell";
@@ -29,6 +29,9 @@ function svc(id: string): Service | null {
 /**
  * M6 我的權益：用台北通帳號的生日、市民、原住民身分，主動列出長輩的權益。
  * 未滿年齡的人只看到補助小幫手（也可以幫家裡的長輩看）。
+ *
+ * 順序：很多人不知道的權益 → 重陽禮金（寫給還沒收到的人）→ 敬老卡 → 疫苗 → 健檢。
+ * 重陽禮金、敬老卡幾乎每位長輩都知道；健保費補助、長照交通接送知道的人少很多，所以放最上面。
  */
 export function BenefitsScreen() {
   const { ready, now, user } = useElder();
@@ -81,6 +84,7 @@ function BenefitList({ benefits: b, district, citizen }: { benefits: ElderBenefi
   return (
     <>
       <p className="text-elder-body text-text-primary">您今年 {b.age} 歲，下面是您可能可以用的權益。最後以主責機關審核為準。</p>
+      {b.lesserKnown && <LesserKnownCard lesserKnown={b.lesserKnown} district={district} />}
       {b.gift && <GiftCard gift={b.gift} district={district} />}
       {b.seniorCard && <SeniorCard />}
       {b.vaccine && <VaccineCard age={b.age} />}
@@ -133,12 +137,73 @@ function districtChannel(d: District): Channel {
   return { kind: "link", href: `/benefits/call/district-${d.id}`, label: `打給${d.name}公所社會課`, voice: true };
 }
 
+/**
+ * 很多人不知道的權益：老人健保費補助（不用申請，但被停補可以申請恢復）、長照交通接送、照顧家人。
+ * 金額、分機都取自 subsidies.json／services.json（有出處與查證日期）。
+ */
+function LesserKnownCard({ lesserKnown: k, district }: { lesserKnown: LesserKnown; district: District | null }) {
+  const ride = k.ltcRide ? svc("ltc-ride") : null;
+  const care = k.care ? svc("page-care") : null;
+  return (
+    <section aria-labelledby="lesser-known" className="flex flex-col gap-4 rounded-2xl border-4 border-elder-benefit bg-white p-4">
+      <h2 id="lesser-known" className="text-elder-button font-bold text-text-primary">
+        很多人不知道的權益
+      </h2>
+      <Body>這些權益很多人沒聽過。看看您或家人用不用得到。</Body>
+      {k.nhiPremium && <NhiPremium subsidy={k.nhiPremium} district={district} />}
+      {ride && <ServiceCard service={ride} headingLevel={3} />}
+      {care && (
+        <ServiceLink
+          href="/care"
+          label="照顧家人：失智篩檢、喘息服務"
+          speak="照顧家人，失智篩檢、喘息服務"
+          icon="family"
+          row
+          className="justify-start bg-elder-family text-left text-on-elder-family"
+        />
+      )}
+    </section>
+  );
+}
+
+function NhiPremium({ subsidy: s, district }: { subsidy: Subsidy; district: District | null }) {
+  const c1999 = svc("citizen-1999");
+  const ext = ext1999(s, district);
+  return (
+    <article aria-labelledby="nhi-premium" className="flex flex-col gap-3 rounded-2xl border-4 border-divider p-4">
+      <h3 id="nhi-premium" className="text-elder-button font-bold text-text-primary">
+        {s.title}：{s.amount}
+      </h3>
+      <Body>{s.apply.autoNote ?? s.summary}</Body>
+      {s.notes.map((n) => (
+        <p key={n} className="text-elder-body text-text-second">
+          {n}
+        </p>
+      ))}
+      {ext && c1999 && (
+        <>
+          <Body>想知道有沒有被停補、怎麼恢復，可以打 1999，接通後請說：「轉分機 {ext}」。</Body>
+          <ChannelButtons
+            channels={[{ kind: "run", service: c1999, action: c1999.action, label: "打 1999", speak: `打 1999，接通後說轉分機 ${ext}` }]}
+          />
+        </>
+      )}
+      <p className="text-h3 text-text-second">
+        {s.owner}・
+        <a href={s.source} className="underline underline-offset-2">
+          官方說明
+        </a>
+        （{s.verified} 查證）
+      </p>
+    </article>
+  );
+}
+
 function GiftCard({ gift, district }: { gift: GiftInfo; district: District | null }) {
   const { now } = useElder();
   const service = svc("double-ninth");
   // 還在申請期內才提供「提醒我申請」（截止前一天或當天早上 9 點跳出手機通知）
   const reminder = gift.phase === "apply" && now ? giftReminder(now) : null;
-  const amount = gift.amount.toLocaleString("zh-TW");
   const deadline =
     gift.phase === "apply"
       ? gift.daysLeft === 0
@@ -154,8 +219,11 @@ function GiftCard({ gift, district }: { gift: GiftInfo; district: District | nul
   if (district) channels.push(districtChannel(district));
 
   return (
-    <Card id="gift" title={`重陽禮金：您今年可能可以領 ${amount} 元`}>
-      <Body>{deadline}</Body>
+    <Card id="gift" title={GIFT_TITLE}>
+      <Body>
+        {giftAmountLine(gift)}
+        {deadline}
+      </Body>
       <Body>線上申請不用登入，要準備身分證字號、電話和銀行帳戶。也可以到區公所申請。</Body>
       {district && (
         <p className="text-elder-body text-text-second">
