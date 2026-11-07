@@ -25,10 +25,10 @@ export function ShareToFamily({
 }: {
   text: string;
   title?: string;
-  /** 放在另一個 h2 段落裡面時用 3，標題層級才不會跳 */
-  level?: 2 | 3;
+  /** 放在 h2 段落裡用 3、放在 h3 卡片裡用 4，標題層級才不會倒過來 */
+  level?: 2 | 3 | 4;
 }) {
-  const Heading = level === 2 ? "h2" : "h3";
+  const Heading = (["h2", "h3", "h4"] as const)[level - 2];
   const { config } = useFamilyConfig();
   const note = useFailNote();
   const contacts = config?.contacts ?? [];

@@ -729,7 +729,7 @@ function PrepSheet({ text }: { text: string }) {
         row
         className="border-4 border-grayscale-800 bg-white text-text-primary"
       />
-      {open && <ShareToFamily title="傳給家人幫忙" text={text} />}
+      {open && <ShareToFamily level={4} title="傳給家人幫忙" text={text} />}
     </section>
   );
 }
