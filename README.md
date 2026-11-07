@@ -22,7 +22,25 @@
 
 研究與出處見 TownPass repo 的 `docs/townpass/`（`accessibility-research.md`、`taipei-elderly-services.md`、`taipei-disability-services.md`、`taipei-subsidies.md`）。
 
-## 2. 主要功能
+## 2. 設計原則
+
+全國聽障者 76.3%、視障者 59.4% 年滿 65 歲，**他們大多就是長輩**。所以視障、聽障做成「模式」，不另外做服務，一個入口照顧三類人。
+
+| # | 原則 | 為什麼 |
+|---|---|---|
+| 1 | **動作要熟**：按鈕的結果只有撥電話、開 LINE、開一頁大字說明 | 長輩上網者 95.1% 用即時通訊 |
+| 2 | **選項要少**：首頁 4～6 個大按鈕，由家人挑選；其餘服務用說的或打字找 | W3C WAI-AGE |
+| 3 | **每個回饋至少兩種感官**：唸出來＋大字＋震動；螢幕閱讀器開著時不自己唸 | 避免和 VoiceOver／TalkBack 重複播報 |
+| 4 | **只能用聲音完成的路，旁邊都有一條文字路**，兩個按鈕一樣大 | 聽障者最大的困境是無法接聽電話 |
+| 5 | **按錯不怕**：每頁只有一個「回首頁」；撥號前有確認頁；不自動逾時、不自動跳頁 | WCAG 2.2.1 |
+| 6 | **主動告訴長輩「你有這個權益」**：用生日和行政區帶出符合資格的內容 | 「不知道有這個服務」約 17／100 |
+| 7 | **家人是共同使用者**：設定和緊急聯絡有家人參與，但長輩自己操作 | 用健保快易通的長輩 42.2% 靠別人操作 |
+| 8 | **只放官方電話和網址**，標出主責機關和查證日期；來源矛盾時明白寫出來 | 119 簡訊號碼有兩個官方版本 |
+| 9 | **不在 Demo 送出真實求救**：119、110 只顯示範本，由使用者自己按送出 | — |
+
+數字的出處見 `docs/` 的研究文件（`accessibility-research.md`、`taipei-elderly-services.md`、`taipei-disability-services.md`）。
+
+## 3. 主要功能
 
 | 模組 | 頁面 | 功能 | 狀態 |
 |---|---|---|---|
@@ -42,21 +60,57 @@
 
 各頁都已用瀏覽器在三種模式下檢查報讀（見下方「無障礙」）；⚠️ 尚未用實機開 VoiceOver／TalkBack 完整實測。
 
-## 3. 系統架構
+### 三種模式
+
+模式只改變行為，服務內容都一樣。第一次使用會先選模式，之後隨時可以換（`src/components/elder/ModePicker.tsx`）。
+
+| | 都還好 | 看不清楚 | 聽不清楚 |
+|---|---|---|---|
+| 按下按鈕 | 震動＋大字＋唸出名稱 | 同左 | 震動＋大字，**不出聲音** |
+| 字級 | 跟手機設定 | **至少放大 1.3 倍** | 跟手機設定 |
+| 唸的速度 | 可調，預設「慢」 | 可調，預設「正常」，可以調到最快 | 不顯示（不唸） |
+| 找服務 | 說話或打字 | 說話或打字 | **只有打字** |
+| 首頁的 1999 | 直接撥號 | 直接撥號 | **改成「1999 文字」** |
+| 電話與文字管道 | 電話在前 | 電話在前 | **文字在前**；只能打電話的服務會明講，並給替代方式 |
+| 其他 | — | 搜尋同分時，視障相關服務排前面 | 看診溝通卡、手語翻譯、119 簡訊排在撥號前；叫車結果加上手語視訊轉譯 |
+
+螢幕閱讀器開著時，三種模式都不自己唸，交給 VoiceOver／TalkBack。
+
+## 4. 系統架構
+
+![「用得了」架構：使用者從城市通 App 的服務頁開啟「用得了」，TPWebView 用 HTTPS 載入本微服務（Next.js），微服務的 bridge 用 postMessage 和 App 的 TPWebMessageListener 雙向溝通，分派給內建 Handler 與本服務新增的 6 個 Handler；後端 /api/opendata 代理 data.taipei 開放資料](docs/diagrams/architecture.svg)
+
+<details>
+<summary>文字版</summary>
 
 ```
-城市通 App（Flutter，TownPass fork）
-   │  flutterObject 雙向溝通
-   │  內建：userinfo、location、phone_call、1999agree、open_link、notify、qr_code_scan…
-   │  新增：speak、a11y_state、haptic、open_external、listen、reminder
-   ▼
-Next.js 16（本 repo，部署在 Vercel 東京）
- ├─ 前端  src/app/**/page.tsx（React 19、Tailwind 4、城市通色票＋長輩模式色票）
- │        src/lib/townpass/bridge.ts、elder.ts（呼叫 App；一般瀏覽器自動改用 mock）
- └─ 後端  src/app/api/opendata/[source]/route.ts ──► data.taipei（白名單代理）
+使用者：長輩・視障者・聽障者
+① 城市通 App（TownPass fork・Flutter 3.47.6）
+   服務頁「用得了」（my_service_model.dart，預設置頂）→ TPWebView（flutter_inappwebview）
+        │ HTTPS 載入網頁
+② 「用得了」微服務（本 repo・Next.js 16・React 19・Tailwind 4・Vercel 東京）
+   前端頁面 M1～M12
+   ├ services.json：M3 服務清單 27 筆（打包在前端，斷網可用）
+   ├ bridge.ts・elder.ts：呼叫 App 能力；一般瀏覽器改用 mock
+   └ 後端 /api/opendata：白名單代理、Big5 轉碼、TWD97 換算、CDN 快取 ──HTTPS──► data.taipei（28 個來源）
+        │ postMessage 雙向溝通
+③ App 原生能力：flutterObject ⇄ TPWebMessageListener，依訊息名稱分派
+   內建（官方）：userinfo・location・phone_call・1999agree・open_link・launch_map・notify・qr_code_scan
+   新增：speak（flutter_tts）・a11y_state（報讀軟體、字級）・haptic（震動）
+         open_external（url_launcher：LINE、簡訊）・listen（speech_to_text，只在手機上辨識）
+         reminder（flutter_local_notifications：排程手機通知）
 ```
 
-### 長輩模式新增的 App Handler
+</details>
+
+程式位置：
+- 前端頁面：`src/app/**/page.tsx`（城市通色票＋本服務的按鈕色票，見下方「無障礙」）
+- 呼叫 App：`src/lib/townpass/bridge.ts`（內建 Handler）、`src/lib/townpass/elder.ts`（新增 Handler）；一般瀏覽器會自動改用 mock
+- 後端：`src/app/api/opendata/[source]/route.ts`（開放資料代理）
+
+架構圖與下一節的流程圖，由 TownPass repo 的 `docs/townpass/diagrams/build_diagrams.py` 產生（色票取自城市通 UI Kit）；本 repo 的 `docs/diagrams/` 是複本。要改圖時改那支程式，重跑後再把 SVG 複製過來。
+
+### 新增的 App Handler
 
 App 端程式在 TownPass 的 `lib/util/web_message_handler/elder_mode_message_handlers.dart`；網頁端呼叫方式在 `src/lib/townpass/elder.ts`。
 
@@ -87,6 +141,8 @@ GET /api/opendata/<id>?near=緯度,經度&radius=500&limit=20&q=關鍵字
 - 不綁定特定報讀軟體，只用標準的無障礙語意，VoiceOver、TalkBack 與第三方報讀軟體都讀得到。
 - 每頁一個 h1，換頁後焦點移到標題；按鈕都有可見文字；圖示一律 `aria-hidden`；DOM 順序＝視覺順序。
 - 操作結果寫進同一個 live region（`role="status"`），不從 App 端呼叫原生通知（Android 已棄用 `announceForAccessibility`），避免唸兩次。
+- 操作失敗時（打不開簡訊、不能撥號、拿不到位置），失敗訊息除了大字提示，也會留在按鈕下方，直到下一次操作才清掉，不會幾秒後就消失。聽不清楚模式沒有聲音，畫面上的字是唯一的提示（`src/components/elder/FailNote.tsx`，WCAG 2.2.1）。
+- 按鈕配色照顧辨色能力退化的長輩：紅色只給「求助」，顏色固定跟著服務類別；按下時用粗框表示，不靠變色。用 8 種視覺條件（正常、紅色盲、綠色盲、藍黃色盲，各自再加上水晶體老化）模擬，任兩色的最小色差從提案原配色的 ΔE00 3.1 提高到 10.1。色票與計算方式見 `docs/elder-mode-spec.md` §4.1、`docs/elder-palette/check_palette.py`。
 - 打開服務時會在首頁前墊一筆「選模式」的瀏覽紀錄，城市通 AppBar 的返回鍵因此一定會出現，可以回去換模式（`src/lib/elder/entry.ts`）。
 - 檢查腳本：`scripts/a11y-check.js`，貼到 Chrome DevTools 的 Console 執行（App 內的 WebView 可用 `chrome://inspect` 連上）。原生機制與網頁做法的對照見 `CLAUDE.md` §4.5。
 
@@ -101,7 +157,170 @@ GET /api/opendata/<id>?near=緯度,經度&radius=500&limit=20&q=關鍵字
 - 斷網後不能用：附近共餐上課、視障出門的即時資料（畫面會說「暫時讀不到」並給替代方式）。
 - ⚠️ **斷網後「重新打開」服務會打不開。** 要做到需要 Service Worker，而 iOS 的 WebView 只有在 App 宣告 App-Bound Domains 時才支援，會影響城市通裡其他服務，所以不採用。**Demo 時一定要先在有網路時打開服務，再開飛航模式。**
 
-## 4. 執行方式
+## 5. 主要流程
+
+**① 開啟「用得了」**
+
+![開啟「用得了」：點服務、WebView 載入網頁、向 App 要 userinfo 與 a11y_state、讀手機裡的設定、算年齡並篩出首頁按鈕與權益卡片](docs/diagrams/flow-1-open.svg)
+
+<details>
+<summary>文字版</summary>
+
+```
+台北通「我的服務」→ 點「用得了」→ WebView 載入 Vercel 網址
+→ bridge：userinfo（姓名、生日、行政區）、a11y_state（報讀軟體、字級）
+→ 讀手機裡的設定（模式、語速、家人設定的按鈕）
+→ 算年齡 → 篩出首頁按鈕和權益卡片 → 畫面
+第一次使用會先到「選模式」頁；打開時在首頁前墊一筆「選模式」紀錄（返回鍵可以回去換模式），並預載全部頁面
+```
+
+</details>
+
+**② 按一顆大按鈕**
+
+![按一顆大按鈕：震動，報讀軟體沒開時唸出名稱並顯示大字、開著時只顯示大字，需要時先確認，再依服務執行；成功就完成，失敗改用 fallback 並把失敗訊息留在畫面上](docs/diagrams/flow-2-press.svg)
+
+<details>
+<summary>文字版</summary>
+
+```
+點按 → 震動（haptic）
+     → 報讀軟體沒開：speak 唸出名稱＋大字（role="status"）；開著：只顯示大字，報讀軟體自己會唸
+     → 需要確認的動作先顯示確認頁（例如撥號）
+     → 依 action 執行：phone_call／1999agree／open_link／open_external／切換頁面
+     → 失敗 → 改用 fallback；聽不清楚模式先給文字管道；失敗訊息留在按鈕下方，不會 4 秒就消失
+```
+
+</details>
+
+**③ 找服務（M2）**
+
+![找服務：打字、點一下開始說話（listen 在手機上辨識，不支援就提示改用打字）、點分類；打字和辨識出的文字經正規化比對 services.json 的長輩說法，找到就顯示「你是說」和最多三個大按鈕，都對不上就建議打 1999](docs/diagrams/flow-3-find.svg)
+
+<details>
+<summary>文字版</summary>
+
+```
+打字 ──────────────────────────────┐
+點一下開始說話、再點一下停止 → listen（在手機上辨識）→ 文字 ┤
+              （不支援離線辨識 → 提示改用打字）            ▼
+        正規化 → 比對 services.json 的 phrases → 最多三筆
+        → 「你是說：…？」＋三個大按鈕
+        → 都對不上 → 「要不要打 1999 問問看」
+點分類 → 該分類的服務清單
+```
+
+</details>
+
+**④ 附近據點（M9、M10）**
+
+![附近據點：行政區或目前位置，fetch /api/opendata，白名單檢查，有快取就直接回，沒有才抓 data.taipei，再 Big5 轉碼與座標換算，回傳前幾筆給畫面顯示一句話摘要與大字電話按鈕](docs/diagrams/flow-4-places.svg)
+
+<details>
+<summary>文字版</summary>
+
+```
+userinfo.addresses[].town 或 location
+→ fetch /api/opendata/{source}?q=中山區（或 near=緯度,經度）
+→ Route Handler：白名單 → 快取命中就直接回 → 否則抓 data.taipei → Big5 轉碼、座標轉換
+→ 回傳前幾筆 → 一句話摘要＋大字電話按鈕（斷網或讀不到：說明並給 1999）
+```
+
+</details>
+
+**⑤ 家人代設定（M7）**
+
+![家人代設定：家人的手機勾選按鈕、填電話與行政區後產生 QR code；長輩的手機按「家人幫我設定」掃描、檢查格式後存在手機裡，全程不經過伺服器](docs/diagrams/flow-5-family.svg)
+
+<details>
+<summary>文字版</summary>
+
+```
+家人手機：「用得了」→「我是家人」→ 勾首頁按鈕、填電話與行政區 → 產生 QR（設定內容在 QR 裡）
+長輩手機：「家人幫我設定」→ qr_code_scan → 檢查格式、版本、隱藏字元 → 存在手機裡 → 唸「設定好了」
+（全程不經過伺服器）
+```
+
+</details>
+
+**⑥ 權益提醒（M6）**
+
+![權益提醒：由台北通帳號的生日算年齡、比對資格，顯示權益卡片，可以線上申請匯款，或按「提醒我申請」排程手機通知](docs/diagrams/flow-6-benefit.svg)
+
+<details>
+<summary>文字版</summary>
+
+```
+userinfo.birthday → 年齡（原住民門檻降 10 歲）→ 比對資格
+→ 權益卡片「可能可以領 3,000 元，還有 6 天截止」
+→ 「線上申請匯款」→ open_external 開社會局網站
+→ 「提醒我申請」→ reminder（11/12 早上 9 點跳出手機通知，App 關掉也會跳）
+```
+
+</details>
+
+### 決策流程
+
+**M5 我要叫車：最多兩題分流**
+
+![M5 叫車分流：有身障證明→復康巴士；沒有或不知道→問長照 2 級以上嗎？是→長照交通接送，不是→敬老愛心計程車，不知道→先問 1966 並列出敬老計程車](docs/diagrams/m5-ride.svg)
+
+<details>
+<summary>文字版</summary>
+
+```
+有身心障礙證明嗎？
+├ 有 → 復康巴士：預約網站・電話訂車（8:00–17:00 受理）
+└ 沒有、不知道 → 家裡申請過長照，2 級以上嗎？
+    ├ 是 → 長照交通接送（每月給付上限 1,680 元）
+    ├ 不是 → 敬老愛心計程車：撥 55850，接通後按 0；每趟最多扣 85 點
+    └ 不知道 → 先問 1966，也先列出敬老計程車
+聽不清楚模式：結果是只能打電話的服務時，另外給「手語視訊轉譯」
+```
+
+</details>
+
+復康巴士只限持身障證明的人搭乘，很多長輩以為能叫，所以提案原本的「叫復康巴士」按鈕改成「我要叫車」，先分流。
+
+**M12 補助小幫手：自動帶入＋三題**
+
+![M12 補助小幫手：自動帶入年齡、原住民身分、行政區，再問三題（身障證明、家裡收入、需要照顧），結果分成可能可以申請、不用申請會自動入帳、答不知道的提示三塊](docs/diagrams/m12-subsidy.svg)
+
+<details>
+<summary>文字版</summary>
+
+```
+自動帶入（不用問）：年齡、原住民身分（門檻降 10 歲）、行政區 ← 台北通帳號
+→ 三題大按鈕，都有「不知道」：
+   1. 有身心障礙證明嗎？（有 → 看不清楚／聽不清楚／其他）
+   2. 家裡收入：有低收或中低收證明／沒有，但收入不高／不知道
+   3. 家裡有人需要別人照顧嗎？
+→ 結果分三塊：您可能可以申請／不用申請，會自動入帳或減免／答「不知道」的提示
+→ 每張卡片：一句話＋大約金額、要準備什麼、戶籍地社會課、家人能不能代辦、申請準備單
+```
+
+</details>
+
+只說「可能可以申請」，不說「符合」，最後由社會局審核；答案只存在手機裡，不上傳。
+
+## 6. 設計取捨
+
+開發前的規劃書有幾處和研究、實測結果衝突，以研究結果為準改掉：
+
+| 原本的想法 | 問題 | 改成 |
+|---|---|---|
+| 語音辨識用 whisper.cpp（WebAssembly） | Android WebView 不支援 `SharedArrayBuffer`，多執行緒 WASM 跑不了；模型 57 MB、執行時約需 388 MB 記憶體 | App 端 `listen` Handler，用手機系統的裝置端辨識 |
+| 朗讀用瀏覽器的 `speechSynthesis` | Android WebView 不支援 | App 端 `speak` Handler（flutter_tts） |
+| 字級「跟隨系統放大」 | 城市通的 WebView 把字級固定在 100%，iOS 也不跟隨系統 | `a11y_state.textScale` 加上全站 `rem` |
+| 按住說話、放開送出 | VoiceOver 使用者很難按住不放 | 點一下開始、再點一下結束，並一定有打字 |
+| 每顆按鈕都能「退回撥電話」 | 聽障者打不了電話 | `fallback` 之外，再加 `alt_channels` 文字管道 |
+| 首頁放「叫復康巴士」 | 復康巴士只限持身障證明者 | 「我要叫車」加分流（M5） |
+| 地圖用 flutter_map | 微服務是網頁 | 用一句話說出位置，必要時再用 Leaflet＋OpenStreetMap |
+| 每日報平安（沒按就通知家人） | 需要伺服器或簡訊，也有通報責任問題 | 列為下一階段 |
+
+**不採用的技術**：網頁的 Web Speech API 辨識（Chrome 預設送到雲端辨識，違反執行時不呼叫雲端的規則）、sherpa-onnx（由小米的 k2-fsa 團隊開發，和「不使用大陸廠牌」的原則不符）、Service Worker 離線快取（見上方「斷網」）。
+
+## 7. 執行方式
 
 需求：Node.js 24 以上。
 
@@ -121,6 +340,17 @@ npm run build
 2. 新網域要加進 TownPass 的 `lib/util/elder_mode_config.dart` 的 `trustedHosts`，否則 `listen` 會回 `forbidden`
 3. TownPass 已在 `my_service_model.dart` 登記本服務並預設置頂；`fvm flutter run` 後到「服務」頁開啟
 4. 開發用測試頁在 `/dev`，可以逐一測試新增的 Handler。語音辨識請開飛航模式再測一次
+
+### 評審試用路徑（約 2 分鐘）
+
+測試帳號在 TownPass 的 `assets/mock_data/account.json`（生日 1940/03/01，86 歲，示範重陽禮金 3,000 元級距）。
+
+1. 台北通 →「服務」→「用得了」。首頁顯示「午安，陳阿嬤」和「重陽禮金 3,000 元，還有 6 天截止」。
+2. 按「說話或打字找服務」，輸入「我要去看醫生」→ 出現聯醫掛號、叫車、1966 三個大按鈕，跨三個機關。
+3. 按「叫車」→「有身障證明嗎？沒有」→ 敬老計程車，並說明復康巴士只限身障者。
+4. 回首頁按「換模式」，改成「我聽不清楚」：同一個首頁，1999 變成「1999 文字」，撥號旁都有「用文字」；按底部的「求助」，可以看到全螢幕求助卡和 119 簡訊範本（不會自動送出）。
+5. 「家人」→ 用另一支手機在「我是家人」產生 QR code，長輩的手機一掃，首頁按鈕就換好。
+6. 開飛航模式：打字找服務、各頁切換、撥號確認都還能用。⚠️ **要先在有網路時打開服務，再開飛航模式**（見「斷網」）。
 
 ### 部署
 
@@ -142,9 +372,9 @@ docker build -t townpass2026-peakqi . && docker run -p 8080:8080 --env-file .env
 
 金鑰只放在 `.env.local`，不可 commit。
 
-## 5. 資料來源
+## 8. 資料來源
 
-授權：政府資料開放授權條款第 1 版。代理目前登記的全部來源可用 `GET /api/opendata` 查詢；下表列出長輩模式使用（或規劃使用）的資料集。
+授權：政府資料開放授權條款第 1 版。代理目前登記的全部來源可用 `GET /api/opendata` 查詢；下表列出本服務使用（或規劃使用）的資料集。
 
 | 資料集 | 提供機關 | 連結 | 用途 | 狀態 |
 |---|---|---|---|---|
@@ -173,7 +403,7 @@ docker build -t townpass2026-peakqi . && docker run -p 8080:8080 --env-file .env
 
 > 核心資料使用合法開放資料；如有模擬資料會在此標示。
 
-## 6. 第三方套件
+## 9. 第三方套件
 
 **本 repo（微服務網頁）**
 
@@ -195,7 +425,7 @@ docker build -t townpass2026-peakqi . && docker run -p 8080:8080 --env-file .env
 | speech_to_text 7.5.0 | BSD-3-Clause | `listen` |
 | timezone 0.11.1 | BSD-2-Clause | `reminder`（原本就是 flutter_local_notifications 的間接依賴，改為直接引用） |
 
-## 7. AI 使用聲明
+## 10. AI 使用聲明
 
 - **開發階段**：使用 Claude Code 協助研究資料、撰寫程式與測試、起草文件；程式碼與資料來源皆經隊員閱讀確認。
 - **執行階段**：**不使用任何大型語言模型**，也不呼叫任何雲端 AI API。服務比對使用關鍵字規則。語音辨識使用手機作業系統內建的**裝置端**辨識引擎：
@@ -210,7 +440,7 @@ docker build -t townpass2026-peakqi . && docker run -p 8080:8080 --env-file .env
 
 > 依競賽規範，執行時的推論都在裝置端完成：iOS 設定 `requiresOnDeviceRecognition`；Android 先確認 `SpeechRecognizer.isOnDeviceRecognitionAvailable`，不支援就停用語音、改用打字，不會改用雲端辨識。
 
-## 8. 評估面向對照
+## 11. 評估面向對照
 
 | 面向 | 本作品的做法 |
 |---|---|
@@ -221,10 +451,21 @@ docker build -t townpass2026-peakqi . && docker run -p 8080:8080 --env-file .env
 | 便利（數位歸戶、無縫接軌、主動推薦） | 用 `userinfo` 的生日與行政區自動判斷資格、帶出同區據點 |
 | 透明（用語淺白、即時更新、指引清楚） | 每筆服務標示主責機關、官方連結與查證日期；補助只說「可能可以申請」，最後由社會局審核 |
 
-## 9. 維運說明
+## 12. 維運說明
 
 - **資料由誰更新**：開放資料由各局處在 data.taipei 更新，代理即時抓取。服務清單（電話、網址、補助資格）是一份 JSON，規劃由各局處自行維護；每筆都有查證日期，方便定期檢查。
 - **問題由誰處理**：得獎後協助資訊局整併；程式架構與測試說明見本 README 與 TownPass `docs/townpass/`。
+
+### 已知限制與待確認
+
+| 項目 | 目前的處理 |
+|---|---|
+| 119 簡訊號碼在官方來源中有兩個版本 | 畫面上兩個都列並標示待確認；正式上線前要向臺北市消防局確認 |
+| 尚未用實機開 VoiceOver／TalkBack 完整實測 | 已用瀏覽器在三種模式下檢查報讀；決選前要實機測 |
+| 斷網後重新打開服務會打不開 | iOS WebView 的 Service Worker 限制，見「斷網」 |
+| 敬老卡餘額、看診進度、訂車狀態沒有開放 API | 第一版引導打 1999；需要市府介接 |
+| 手語翻譯的承辦單位委託到 2026-12-31 | 服務清單的 `verified` 日期會顯示在畫面上，到期要重新查證 |
+| 系統的裝置端語音辨識是否算「裝置端模型推論」 | 已依規則確保不送雲端（見「AI 使用聲明」）；如主辦認定不符，關掉語音、保留打字和點選即可 |
 
 ## 授權
 

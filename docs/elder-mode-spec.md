@@ -1,4 +1,6 @@
-# 長輩模式功能規格（合併版）
+# 「用得了」功能規格（合併版）
+
+> 服務名稱：**用得了**（2026-11-07 定名，回應子題「用不了 #身體限制」）。開發代號是「長輩模式」：程式碼、Handler、色票、檔名（`elder-mode-*`）都沿用代號，指的是同一個服務。
 
 > 2026-11-07 整理。這份文件是**開發時唯一要看的規格**，合併了四份文件：
 >
@@ -8,7 +10,7 @@
 > | [`accessibility-research.md`](accessibility-research.md) | WebView 技術限制、介面與互動層證據 |
 > | [`taipei-elderly-services.md`](taipei-elderly-services.md) | 長輩數位習慣、市府長者服務（市府原頁查證）、資料集 |
 > | [`taipei-disability-services.md`](taipei-disability-services.md) | 視障與聽障的管道、溝通需求、資料集 |
-| [`taipei-subsidies.md`](taipei-subsidies.md) | 補助的資格、金額、應備文件、申請管道、代辦（市府原頁查證） |
+> | [`taipei-subsidies.md`](taipei-subsidies.md) | 補助的資格、金額、應備文件、申請管道、代辦（市府原頁查證） |
 >
 > 規劃書和研究結果衝突時，以研究結果為準，修正對照見 §9。每個事實的出處都在三份研究文件裡，這份不重複列；標 ⚠️ 的是還沒查證、或需要實機確認的項目。
 
@@ -38,24 +40,22 @@
 
 ## 2. 功能模組總覽
 
-| 模組 | 名稱 | 對象 | 優先 | 今天做得完？ |
-|---|---|---|---|---|
-| **M0** | App 端橋接（新增 Handler 與權限） | 全部 | P0 | ✅ 每項都很小 |
-| **M1** | 首頁與模式 | 全部 | P0 | ✅ |
-| **M2** | 找服務（打字、點選、說話） | 全部 | P0（打字）／P1（說話） | ✅ 打字；說話視實機 |
-| **M3** | 服務清單（跨局處規格） | 全部 | P0 | ✅ |
-| **M4** | 我要看醫生 | 長輩、聽障 | P0 | ✅ |
-| **M5** | 我要叫車 | 長輩、身障者 | P0 | ✅ |
-| **M6** | 我的權益（敬老卡、重陽禮金、疫苗、健檢） | 長輩 | P0 | ✅ 說明與提醒；餘額要市府介接 |
-| **M7** | 家人（代設定、打給家人） | 長輩 | P0 | ✅ |
-| **M8** | 聽不清楚（文字替代、求助卡、溝通卡、手語翻譯） | 聽障 | P0 | ✅ 簡訊要改 Manifest |
-| **M9** | 附近共餐、上課 | 長輩 | P1 | ✅ |
-| **M10** | 視障出門（捷運無障礙、有聲號誌） | 視障、聽障 | P1 | ✅ 要登記新資料來源 |
-| **M11** | 防詐先問一下 | 長輩 | P2 | 決選時當「下一步」 |
-| **M12** | 補助小幫手 | 長輩、視障、聽障 | P1 | ✅ 篩選、清單、代辦準備單；線上送件要看各補助 |
-| **後端** | 開放資料代理（已完成） | — | — | ✅ 已上線 |
-
-P0＝Demo 主線，今天一定要做；P1＝今天做得完，加分；P2＝決選問答時當作下一步說明。
+| 模組 | 名稱 | 對象 | 狀態 |
+|---|---|---|---|
+| **M0** | App 端橋接（新增 Handler 與權限） | 全部 | ✅ 5 個 Handler：朗讀、無障礙狀態、震動、開啟外部 App、裝置端語音辨識 |
+| **M1** | 首頁與模式 | 全部 | ✅ |
+| **M2** | 找服務（打字、點選、說話） | 全部 | ✅ 打字、點選；說話要看手機是否支援 zh-TW 離線辨識，實機確認中 |
+| **M3** | 服務清單（跨局處規格） | 全部 | ✅ 26 筆，每筆附來源與查證日期 |
+| **M4** | 我要看醫生 | 長輩、聽障 | ✅ |
+| **M5** | 我要叫車 | 長輩、身障者 | ✅ |
+| **M6** | 我的權益（敬老卡、重陽禮金、疫苗、健檢） | 長輩 | ✅ 依生日判斷資格、說明、截止日倒數、線上申請禮金匯款、「提醒我申請」（`reminder` Handler 排程手機通知）。敬老卡餘額要市府介接，目前引導打 1999 |
+| **M7** | 家人（代設定、打給家人） | 長輩 | ✅ |
+| **M8** | 聽不清楚（文字替代、求助卡、溝通卡、手語翻譯） | 聽障 | ✅ App 已開放簡訊連結（Android `<queries>`、iOS `LSApplicationQueriesSchemes`）；簡訊能否帶入內文要實機確認 |
+| **M9** | 附近共餐、上課 | 長輩 | ✅ |
+| **M10** | 視障出門（捷運無障礙、有聲號誌） | 視障、聽障 | ✅ 新增 7 個開放資料來源 |
+| **M11** | 防詐先問一下 | 長輩 | ✅ `/antifraud`：點選或打字（可說話）說出對方講了什麼，比對 165 官方整理的 6 種手法，給官方提醒與下一步（掛電話、問家人、問 165）。永遠不說「安全」；聽不清楚模式有 165 LINE 查網址 |
+| **M12** | 補助小幫手 | 長輩、視障、聽障 | ✅ 篩選、應備文件、戶籍地社會課、家人代辦準備單。可線上申請的只有輔具補助與重陽禮金匯款，其餘依官方管道到區公所或打 1966 |
+| **後端** | 開放資料代理 | — | ✅ 已上線，28 個來源 |
 
 ---
 
@@ -65,14 +65,15 @@ P0＝Demo 主線，今天一定要做；P1＝今天做得完，加分；P2＝決
 
 城市通 App（TownPass fork）**不改既有流程，只新增 Handler 和權限宣告**。指引第 03 章明寫可以「以自訂 Handler 擴充：音訊、裝置端 AI…」，擴充流程第 3 步就是加權限。
 
-| Handler `name` | 網頁送出 | App 回覆 | 做法 | 優先 |
+| Handler `name` | 網頁送出 | App 回覆 | 做法 | 狀態 |
 |---|---|---|---|---|
-| `speak` | `{ text, rate? }` | `true／false` | flutter_tts 呼叫系統 TTS，挑 `zh-TW` 且不需網路的聲音 | P0 |
-| `a11y_state` | `null` | `{ screenReader, textScale }` | `PlatformDispatcher` 的 `accessibleNavigation`、`textScaleFactor`。網頁用 `textScale` 設定根字級（雙平台一致，見下方說明） | P0 |
-| `haptic` | `'light'｜'medium'` | `true` | Flutter 內建 `HapticFeedback`，不需新套件 | P0 |
-| `open_external` | `url` | `true／false` | `launchUrl(uri, mode: LaunchMode.externalApplication)`，給 LINE、簡訊、VRS | P0 |
-| `listen` | `{ action: 'start'｜'stop'｜'cancel', locale? }` | 先回 `{ status: 'listening' }`，再回 `{ text }` 或 `{ error }` | speech_to_text，`onDevice: true`。**只開放長輩模式網域**。Android 先用 `MainActivity` 的原生方法確認 `SpeechRecognizer.isOnDeviceRecognitionAvailable`（API 31+），不可用就回 `offline_unavailable`，因為套件在不支援時會默默改用雲端辨識；iOS 由套件設定 `requiresOnDeviceRecognition` | P1 |
-| `set_start_service` | `serviceId` | `true` | 讓設定頁的「APP 起始頁面」可以選長輩模式，長輩一打開 App 就進來 | P2 |
+| `speak` | `{ text, rate? }` | `true／false` | flutter_tts 呼叫系統 TTS，挑 `zh-TW` 且不需網路的聲音 | ✅ |
+| `a11y_state` | `null` | `{ screenReader, textScale }` | `PlatformDispatcher` 的 `accessibleNavigation`、`textScaleFactor`。網頁用 `textScale` 設定根字級（雙平台一致，見下方說明） | ✅ |
+| `haptic` | `'light'｜'medium'` | `true` | Flutter 內建 `HapticFeedback`，不需新套件 | ✅ |
+| `open_external` | `url` | `true／false` | `launchUrl(uri, mode: LaunchMode.externalApplication)`，給 LINE、簡訊、VRS | ✅ |
+| `listen` | `{ action: 'start'｜'stop'｜'cancel', locale? }` | 先回 `{ status: 'listening' }`，再回 `{ text }` 或 `{ error }` | speech_to_text，`onDevice: true`。**只開放本服務網域**。Android 先用 `MainActivity` 的原生方法確認 `SpeechRecognizer.isOnDeviceRecognitionAvailable`（API 31+），不可用就回 `offline_unavailable`，因為套件在不支援時會默默改用雲端辨識；iOS 由套件設定 `requiresOnDeviceRecognition` | ✅ |
+| `reminder` | `{ action: 'set', id, title, body, at }`／`{ action: 'cancel', id }` | `{ status: 'scheduled', at }`／`{ status: 'cancelled' }`／`{ error }` | 用 App 已有的 flutter_local_notifications 排程本機通知（App 關掉也會跳），時間換成 UTC，不需要時區資料庫。**只開放本服務網域**；`at` 要帶時區、在 1 分鐘後到 400 天內；同一個 id 再設定會取代舊的（通知編號從 10 億起算，不和內建 `notify` 重疊）。Android 用 inexact 模式，不需要精確鬧鐘權限 | ✅ |
+| `set_start_service` | `serviceId` | `true` | 讓設定頁的「APP 起始頁面」可以選「用得了」，長輩一打開 App 就進來 | 未做（下一步） |
 
 **為什麼不用內建的 `launch_map` 開 LINE**：`launch_map` 先呼叫 `canLaunchUrl`，Android 11 以上沒宣告的 scheme 會回 `false`，就不會開啟；而且它用預設的開啟模式，https 連結不一定會跳到 LINE App。新增 `open_external` 比改動內建 Handler 安全。
 
@@ -117,9 +118,9 @@ P0＝Demo 主線，今天一定要做；P1＝今天做得完，加分；P2＝決
 
 **做什麼**：三種輸入方式，結果最多三個大按鈕，順序固定。
 
-1. **打字**（P0）：放在和語音按鈕一樣顯眼的位置。系統鍵盤本身支援注音和手寫。
+1. **打字**：放在和語音按鈕一樣顯眼的位置。系統鍵盤本身支援注音和手寫。
 2. **點選**：兩層分類大按鈕（看病、交通、錢與福利、吃飯上課、家人、緊急），作為不用說也不用打字的路。
-3. **說話**（P1）：`listen` Handler。預設「按住說話、放開送出、滑出取消」；螢幕閱讀器開啟時改成「點一下開始、再點一下結束」。
+3. **說話**：`listen` Handler。預設「按住說話、放開送出、滑出取消」；螢幕閱讀器開啟時改成「點一下開始、再點一下結束」。
 
 **比對流程**：文字 → 正規化（去空白、全半形）→ 比對服務清單的 `phrases` → 取前三筆 → 先顯示「你是說：我要叫車？」再列出按鈕 → 都對不上就回「要不要打 1999 問問看」（聽不清楚模式改成「用 LINE 問 1999」）。
 
@@ -128,7 +129,7 @@ P0＝Demo 主線，今天一定要做；P1＝今天做得完，加分；P2＝決
 - **辨識錯了也不怕**：先確認、再執行，並提供「重說一次」。高齡語音的辨識錯誤率明顯偏高（Vipperla 2008：47.8%，一般成人 36.4%）。
 - **局處可以補說法**：`phrases` 開放各局處從 1999 來電紀錄補充長輩的說法。
 
-**技術**：純 TypeScript 比對，不需要模型。裝置端小模型排序列為 P2，用指引建議的 flutter_edge_ai，⚠️ 今天不做。
+**技術**：純 TypeScript 比對，不需要模型。裝置端小模型排序列為下一步，用指引建議的 flutter_edge_ai，⚠️ 今天不做。
 
 ### M3 服務清單
 
@@ -156,7 +157,7 @@ P0＝Demo 主線，今天一定要做；P1＝今天做得完，加分；P2＝決
 ```
 
 規則：
-- `action.type` 只能是既有或 M0 新增的 Handler 名稱（`phone_call`、`1999agree`、`open_link`、`open_external`、`launch_map`），長輩模式不自己發明動作。
+- `action.type` 只能是既有或 M0 新增的 Handler 名稱（`phone_call`、`1999agree`、`open_link`、`open_external`、`launch_map`），本服務不自己發明動作。
 - 每筆都要有 `fallback`；只能打電話的服務，**一定要有 `alt_channels`**，沒有就在畫面上寫「這項服務目前只能打電話，可以請家人代打」。
 - `source` 和 `verified` 必填。電話號碼一律寫死在清單裡，不從網路即時抓。
 - 清單是一個 JSON 檔，放在作品 repo，以 AGPL 授權開源，對應簡報 p.7「各局處自助上架」。
@@ -182,13 +183,22 @@ P0＝Demo 主線，今天一定要做；P1＝今天做得完，加分；P2＝決
 **情境**：「我腳不方便，要怎麼去醫院？」
 
 **流程**：最多問兩個問題，用大按鈕回答。
+![M5 叫車分流：有身障證明→復康巴士；沒有或不知道→問長照 2 級以上嗎？是→長照交通接送，不是→敬老愛心計程車，不知道→先問 1966 並列出敬老計程車](diagrams/m5-ride.svg)
+
+<details>
+<summary>文字版</summary>
+
 ```
-有身心障礙證明嗎？ ── 有 → 復康巴士：開預約網站（可用台北通帳號登入）／語音訂車 0800-065165
-        │
-        └ 沒有 → 長照等級 2 級以上嗎？ ── 是 → 長照交通接送：開 LINE @taipeicareride／撥 1966
-                          │
-                          └ 不是或不知道 → 敬老愛心計程車：撥 55850（每趟最高扣 85 點）
+有身心障礙證明嗎？
+├ 有 → 復康巴士：預約網站・電話訂車（8:00–17:00 受理）
+└ 沒有、不知道 → 家裡申請過長照，2 級以上嗎？
+    ├ 是 → 長照交通接送（每月給付上限 1,680 元）
+    ├ 不是 → 敬老愛心計程車：撥 55850，接通後按 0；每趟最多扣 85 點
+    └ 不知道 → 先問 1966，也先列出敬老計程車
+聽不清楚模式：結果是只能打電話的服務時，另外給「手語視訊轉譯」
 ```
+
+</details>
 
 **設計亮點**：處理一個真實落差：**復康巴士只限持身障證明的人搭乘**，很多長輩以為能叫。原提案的「叫復康巴士」按鈕因此改成「我要叫車」。
 
@@ -209,12 +219,12 @@ P0＝Demo 主線，今天一定要做；P1＝今天做得完，加分；P2＝決
 
 **資料**：`9a1aefde…`（健檢院所，Big5）、`0db13d34…`（流感院所）、`f999b187…`（肺鏈院所）、`074036e5…`（敬老卡公車路線）。
 
-**限制**：內建 `notify` 只能立即通知；要做「10/1 早上提醒」這類排程，要另外寫 Handler（類似往屆 ParkFlow 的 `timer_set`），列為 P2。
+**提醒**：內建 `notify` 只能立即通知，所以新增 `reminder` Handler（類似往屆 ParkFlow 的 `timer_set`）排程手機通知。重陽禮金卡有「提醒我申請」：截止前一天（11/12）早上 9 點提醒，已經過了就改成截止當天早上 9 點（`src/lib/elder/reminders.ts`）。
 
 ### M7 家人（新服務）
 
-**家人代設定**（P0）：
-1. 家人在自己的手機打開長輩模式，按「幫長輩設定」。
+**家人代設定**：
+1. 家人在自己的手機打開「用得了」，按「幫長輩設定」。
 2. 勾選 4～6 個按鈕、填家人電話和行政區，畫面產生 QR code。**設定內容直接編在 QR 裡，不經過伺服器**。
 3. 長輩手機按「家人幫我設定」，用內建的 `qr_code_scan` 掃描。
 4. 長輩手機存到本機，並唸出「設定好了，有事按這些按鈕」。
@@ -229,13 +239,13 @@ P0＝Demo 主線，今天一定要做；P1＝今天做得完，加分；P2＝決
 
 ### M8 聽不清楚（整合介面＋新服務）
 
-| 功能 | 做法 | 優先 |
+| 功能 | 做法 | 狀態 |
 |---|---|---|
-| **「用文字」替代鍵** | 每個撥號按鈕旁並排：1999 → LINE `taipeicity1999`（文字 24 小時；手語視訊週一至週六 9:00–18:00）；手語翻譯 → LINE 0963-047-723；私人電話 → 手語視訊轉譯（VRS）。同時顯示 ID 和「複製」按鈕，避免 LINE 連結格式出問題 | P0 |
-| **緊急文字求助卡** | 全螢幕大字，可以轉給旁人看：「我聽不到，請用寫的」「請幫我叫救護車」；下方是 119 簡訊範本，用 `location` 帶入地址 | P0 |
-| **看診溝通卡** | 「我聽力不好，請面向我、說慢一點，或寫下來」，加上常用問答卡，醫護可以點選回答 | P1 |
-| **一鍵預約手語翻譯或聽打** | 用 `userinfo` 帶入姓名，選日期和地點，產生申請文字 → 複製後開 LINE，或開線上申辦。原則上要在 3 日前申請 | P1 |
-| **我聽不到時的求助總表** | 一頁列出 119 簡訊、110 簡訊、1999 LINE、手語翻譯、VRS，各自寫上時段、來源和查證日期 | P1 |
+| **「用文字」替代鍵** | 每個撥號按鈕旁並排：1999 → LINE `taipeicity1999`（文字 24 小時；手語視訊週一至週六 9:00–18:00）；手語翻譯 → LINE 0963-047-723；私人電話 → 手語視訊轉譯（VRS）。同時顯示 ID 和「複製」按鈕，避免 LINE 連結格式出問題 | ✅ |
+| **緊急文字求助卡** | 全螢幕大字，可以轉給旁人看：「我聽不到，請用寫的」「請幫我叫救護車」；下方是 119 簡訊範本，用 `location` 帶入地址 | ✅ |
+| **看診溝通卡** | 「我聽力不好，請面向我、說慢一點，或寫下來」，加上常用問答卡，醫護可以點選回答 | ✅ |
+| **一鍵預約手語翻譯或聽打** | 用 `userinfo` 帶入姓名，選日期和地點，產生申請文字 → 複製後開 LINE，或開線上申辦。原則上要在 3 日前申請 | ✅ |
+| **我聽不到時的求助總表** | 一頁列出 119 簡訊、110 簡訊、1999 LINE、手語翻譯、VRS，各自寫上時段、來源和查證日期 | ✅ |
 
 **設計亮點**：把分散在研考會、消防局、社會局、衛福部的聽障管道集中起來；「用文字」和「打電話」並排，一眼就看出原本聽不到的人沒有路可走。
 
@@ -264,23 +274,37 @@ P0＝Demo 主線，今天一定要做；P1＝今天做得完，加分；P2＝決
 
 **設計亮點**：地圖對螢幕閱讀器幾乎讀不到，所以**用一句話取代地圖**。這是視障者真正需要的格式，也是這個模組和一般「找地點」服務的差別。
 
-### M11 防詐先問一下（P2，決選時說明）
+### M11 防詐先問一下
 
 說出或打出對方講了什麼 → 本機比對常見詐騙說法 → 一鍵打給家人或 165。**永遠不說「這不是詐騙」**，只說「這很像詐騙，先問家人或 165」，避免長輩誤以為安全。
+
+實作（作品 repo `src/lib/elder/antifraud.ts`、`src/data/antifraud.json`、查證紀錄 `docs/antifraud-research.md`）：
+- 6 種手法：假檢警（監管帳戶）、解除分期付款、假中獎、假投資、假親友借錢、要密碼／驗證碼／提款卡。說法與提醒文字都來自內政部警政署 165 全民防騙網的文章（逐篇讀原文，附出處與查證日期）。
+- 比對不到時說「我們不確定，請先停下來」，不會說「安全」。
+- 下一步：先掛電話自己打 165、不要轉帳、不給密碼；問家人（M7 設定的聯絡人，走撥號確認）；問 165。
+- 聽不清楚模式：165 LINE 官方帳號 `@tw165` 可以查網址有沒有被通報（✅ 165 打詐儀錶板連結）；查不到可以用 LINE 向真人諮詢的官方說明，所以明白寫「165 專線只能用講的，可以請家人代打」。
 
 ### M12 補助小幫手（延續服務＋新服務）
 
 **情境**：「我不知道自己能領什麼補助。」「我想幫我媽申請，要帶什麼？」
 
 **流程**
+![M12 補助小幫手：自動帶入年齡、原住民身分、行政區，再問三題（身障證明、家裡收入、需要照顧），結果分成可能可以申請、不用申請會自動入帳、答不知道的提示三塊](diagrams/m12-subsidy.svg)
+
+<details>
+<summary>文字版</summary>
+
 ```
-年齡、原住民身分 ← userinfo（birthday、nativePeople；原住民門檻降 10 歲）
-→ 最多問三題（大按鈕，都有「不知道」）：
+自動帶入（不用問）：年齡、原住民身分（門檻降 10 歲）、行政區 ← 台北通帳號
+→ 三題大按鈕，都有「不知道」：
    1. 有身心障礙證明嗎？（有 → 看不清楚／聽不清楚／其他）
    2. 家裡收入：有低收或中低收證明／沒有，但收入不高／不知道
    3. 家裡有人需要別人照顧嗎？
-→ 「您可能可以申請」卡片，依符合程度排序
+→ 結果分三塊：您可能可以申請／不用申請，會自動入帳或減免／答「不知道」的提示
+→ 每張卡片：一句話＋大約金額、要準備什麼、戶籍地社會課、家人能不能代辦、申請準備單
 ```
+
+</details>
 答案只存在手機裡，不上傳。
 
 **卡片內容**（一次只看一張，大字）
@@ -408,83 +432,128 @@ P0＝Demo 主線，今天一定要做；P1＝今天做得完，加分；P2＝決
 
 ### 5.1 架構圖
 
+圖由 `docs/townpass/diagrams/build_diagrams.py` 產生（色票取自城市通 UI Kit）；內容要改時改那支程式再重跑。
+
+![「用得了」架構：使用者從城市通 App 的服務頁開啟「用得了」，TPWebView 用 HTTPS 載入「用得了」微服務（Next.js），微服務的 bridge 用 postMessage 和 App 的 TPWebMessageListener 雙向溝通，分派給內建 Handler 與本服務新增的 6 個 Handler；後端 /api/opendata 代理 data.taipei 開放資料](diagrams/architecture.svg)
+
+<details>
+<summary>文字版</summary>
+
 ```
-┌──────────────── 城市通 App（TownPass fork，Flutter 3.47.6）────────────────┐
-│  服務清單 my_service_model.dart ─ 新增「長輩模式」，預設釘選                │
-│  TPWebView（flutter_inappwebview）                                         │
-│    └ flutterObject ⇄ TPWebMessageListener                                  │
-│        內建：userinfo  location  phone_call  1999agree  open_link          │
-│              launch_map  notify  qr_code_scan  deviceinfo                  │
-│        新增：speak  a11y_state  haptic  open_external  listen  (set_start) │
-│              │        │                      │           │                 │
-│        flutter_tts  MediaQuery     url_launcher   speech_to_text           │
-│       （系統 TTS）                （LINE、簡訊）  （裝置端辨識）           │
-└───────────────────────────────┬────────────────────────────────────────────┘
-                                │ HTTPS（WebView 載入）
-┌──────────────── 長輩模式微服務（townpass2026-peakqi，Next.js 16）──────────┐
-│  前端（React 19 + Tailwind 4，城市通色票）                                 │
-│   M1 首頁與模式   M2 找服務   M4～M10 各模組頁                              │
-│   lib/townpass/bridge.ts ─ 呼叫 App；一般瀏覽器自動改用 mock               │
-│   data/services.json ─ M3 服務清單（打包在前端，頁面打開後斷網也能用）      │
-│  後端（Next.js Route Handlers）                                            │
-│   /api/opendata/{source} ─ 白名單代理、Big5、TWD97、快取                    │
-└───────────────────────────────┬────────────────────────────────────────────┘
-                                │ HTTPS（伺服器端抓取，CDN 快取）
-                      data.taipei 開放資料 API
-部署：Vercel（東京 hnd1），附 Dockerfile，可移轉到 Cloud Run
+使用者：長輩・視障者・聽障者
+① 城市通 App（TownPass fork・Flutter 3.47.6）
+   服務頁「用得了」（my_service_model.dart，預設置頂）→ TPWebView（flutter_inappwebview）
+        │ HTTPS 載入網頁
+② 「用得了」微服務（townpass2026-peakqi・Next.js 16・React 19・Tailwind 4・Vercel 東京）
+   前端頁面 M1～M12
+   ├ services.json：M3 服務清單 27 筆（打包在前端，斷網可用）
+   ├ bridge.ts・elder.ts：呼叫 App 能力；一般瀏覽器改用 mock
+   └ 後端 /api/opendata：白名單代理、Big5 轉碼、TWD97 換算、CDN 快取 ──HTTPS──► data.taipei（28 個來源）
+        │ postMessage 雙向溝通
+③ App 原生能力：flutterObject ⇄ TPWebMessageListener，依訊息名稱分派
+   內建（官方）：userinfo・location・phone_call・1999agree・open_link・launch_map・notify・qr_code_scan
+   新增：speak（flutter_tts）・a11y_state（報讀軟體、字級）・haptic（震動）
+         open_external（url_launcher：LINE、簡訊）・listen（speech_to_text，只在手機上辨識）
+         reminder（flutter_local_notifications：排程手機通知）
 ```
+
+</details>
 
 ### 5.2 主要流程
 
-**① 開啟長輩模式**
+**① 開啟「用得了」**
+![開啟「用得了」：點服務、WebView 載入網頁、向 App 要 userinfo 與 a11y_state、讀手機裡的設定、算年齡並篩出首頁按鈕與權益卡片](diagrams/flow-1-open.svg)
+
+<details>
+<summary>文字版</summary>
+
 ```
-台北通「我的服務」→ 點「長輩模式」→ WebView 載入 Vercel 網址
-→ bridge: userinfo（姓名、生日、行政區）、a11y_state（螢幕閱讀器、字級）
-→ 讀 localStorage（模式、家人設定的按鈕）
-→ 算年齡 → 從 services.json 篩出首頁按鈕和權益卡片 → 畫面
+台北通「我的服務」→ 點「用得了」→ WebView 載入 Vercel 網址
+→ bridge：userinfo（姓名、生日、行政區）、a11y_state（報讀軟體、字級）
+→ 讀手機裡的設定（模式、語速、家人設定的按鈕）
+→ 算年齡 → 篩出首頁按鈕和權益卡片 → 畫面
+第一次使用會先到「選模式」頁；打開時在首頁前墊一筆「選模式」紀錄（返回鍵可以回去換模式），並預載全部頁面
 ```
+
+</details>
 
 **② 按一顆大按鈕**
+![按一顆大按鈕：震動，報讀軟體沒開時唸出名稱並顯示大字、開著時只顯示大字，需要時先確認，再依服務執行；成功就完成，失敗改用 fallback 並把失敗訊息留在畫面上](diagrams/flow-2-press.svg)
+
+<details>
+<summary>文字版</summary>
+
 ```
-點按 → haptic('light')
-     → 螢幕閱讀器關閉時才 speak(按鈕名稱)；同時更新 role="status" 大字
-     → 需要確認的動作顯示確認頁
-     → 依 action.type：phone_call／1999agree／open_link／open_external
-     → 失敗（回 false）→ 改用 fallback；聽不清楚模式優先顯示 alt_channels
+點按 → 震動（haptic）
+     → 報讀軟體沒開：speak 唸出名稱＋大字（role="status"）；開著：只顯示大字，報讀軟體自己會唸
+     → 需要確認的動作先顯示確認頁（例如撥號）
+     → 依 action 執行：phone_call／1999agree／open_link／open_external／切換頁面
+     → 失敗 → 改用 fallback；聽不清楚模式先給文字管道；失敗訊息留在按鈕下方，不會 4 秒就消失
 ```
+
+</details>
 
 **③ 找服務**
+![找服務：打字、點一下開始說話（listen 在手機上辨識，不支援就提示改用打字）、點分類；打字和辨識出的文字經正規化比對 services.json 的長輩說法，找到就顯示「你是說」和最多三個大按鈕，都對不上就建議打 1999](diagrams/flow-3-find.svg)
+
+<details>
+<summary>文字版</summary>
+
 ```
-打字 ─────────────────────────┐
-點一下或按住說話 → listen（App 端裝置辨識）→ 文字 ┤
-                       （不支援離線 → 回錯誤 → 提示改用打字）│
-                                                 ▼
-        正規化 → 比對 services.json 的 phrases → 前三筆
-        → 「你是說：…？」＋三個大按鈕（speak＋大字）
-        → 都對不上 → 「要不要打 1999 問問看」（或「用 LINE 問 1999」）
+打字 ──────────────────────────────┐
+點一下開始說話、再點一下停止 → listen（在手機上辨識）→ 文字 ┤
+              （不支援離線辨識 → 提示改用打字）            ▼
+        正規化 → 比對 services.json 的 phrases → 最多三筆
+        → 「你是說：…？」＋三個大按鈕
+        → 都對不上 → 「要不要打 1999 問問看」
+點分類 → 該分類的服務清單
 ```
 
+</details>
+
 **④ 附近據點（M9、M10）**
+![附近據點：行政區或目前位置，fetch /api/opendata，白名單檢查，有快取就直接回，沒有才抓 data.taipei，再 Big5 轉碼與座標換算，回傳前幾筆給畫面顯示一句話摘要與大字電話按鈕](diagrams/flow-4-places.svg)
+
+<details>
+<summary>文字版</summary>
+
 ```
 userinfo.addresses[].town 或 location
 → fetch /api/opendata/{source}?q=中山區（或 near=緯度,經度）
 → Route Handler：白名單 → 快取命中就直接回 → 否則抓 data.taipei → Big5 轉碼、座標轉換
-→ 回傳前幾筆 → 一句話摘要（role="status"）＋大字電話按鈕
+→ 回傳前幾筆 → 一句話摘要＋大字電話按鈕（斷網或讀不到：說明並給 1999）
 ```
 
+</details>
+
 **⑤ 家人代設定（M7）**
+![家人代設定：家人的手機勾選按鈕、填電話與行政區後產生 QR code；長輩的手機按「家人幫我設定」掃描、檢查格式後存在手機裡，全程不經過伺服器](diagrams/flow-5-family.svg)
+
+<details>
+<summary>文字版</summary>
+
 ```
-家人手機：長輩模式 →「幫長輩設定」→ 勾按鈕、填電話與行政區 → 產生 QR（設定內容在 QR 裡）
-長輩手機：「家人幫我設定」→ qr_code_scan → 驗證格式 → 存 localStorage → speak("設定好了")
+家人手機：「用得了」→「我是家人」→ 勾首頁按鈕、填電話與行政區 → 產生 QR（設定內容在 QR 裡）
+長輩手機：「家人幫我設定」→ qr_code_scan → 檢查格式、版本、隱藏字元 → 存在手機裡 → 唸「設定好了」
 （全程不經過伺服器）
 ```
 
+</details>
+
 **⑥ 權益提醒（M6）**
+![權益提醒：由台北通帳號的生日算年齡、比對資格，顯示權益卡片，可以線上申請匯款，或按「提醒我申請」排程手機通知](diagrams/flow-6-benefit.svg)
+
+<details>
+<summary>文字版</summary>
+
 ```
-userinfo.birthday → 年齡 → 比對 services.json 的 eligibility
-→ 首頁卡片「您可領 3,000 元，還有 6 天截止」→ 按下 → open_link（線上同意書）
-→ 選擇提醒 → notify（立即通知；排程提醒是 P2）
+userinfo.birthday → 年齡（原住民門檻降 10 歲）→ 比對資格
+→ 權益卡片「可能可以領 3,000 元，還有 6 天截止」
+→ 「線上申請匯款」→ open_external 開社會局網站
+→ 「提醒我申請」→ reminder（11/12 早上 9 點跳出手機通知，App 關掉也會跳）
 ```
+
+</details>
 
 ---
 
@@ -501,7 +570,7 @@ userinfo.birthday → 年齡 → 比對 services.json 的 eligibility
 | 後端 | Next.js Route Handlers（同一個專案） | — | ✅ 已上線 |
 | 部署 | Vercel Hobby（東京 `hnd1`）＋ Dockerfile | — | ✅ |
 | 資料 | data.taipei（政府資料開放授權條款第 1 版） | — | ✅ 21 個來源已上線；約 9 個待新增 |
-| AI | **執行時不使用雲端 AI**。語音辨識用系統裝置端引擎；服務比對用關鍵字 | — | 裝置端小模型（flutter_edge_ai）列為 P2 |
+| AI | **執行時不使用雲端 AI**。語音辨識用系統裝置端引擎；服務比對用關鍵字 | — | 裝置端小模型（flutter_edge_ai）列為下一步 |
 
 **不採用**：whisper.cpp WebAssembly（Android WebView 跑不了，見 §9）、網頁 Web Speech API（Android 不支援朗讀；辨識預設送到雲端）、flutter_map（微服務是網頁，用 Leaflet 就好）、sherpa-onnx（小米 k2-fsa 團隊，和「不使用大陸廠牌套件」的原則不符）。
 
@@ -523,7 +592,7 @@ userinfo.birthday → 年齡 → 比對 services.json 的 eligibility
 
 ## 8. Demo 劇本（2 分鐘）
 
-1. **開場**（0:00）：台北通 → 我的服務 → 長輩模式。畫面：「午安，陳阿嬤」＋「重陽禮金 3,000 元，還有 6 天截止」。
+1. **開場**（0:00）：台北通 → 我的服務 → 用得了。畫面：「午安，陳阿嬤」＋「重陽禮金 3,000 元，還有 6 天截止」。
 2. **說一句話**（0:20）：「我要去看醫生」→ 三個大按鈕（聯醫掛號、叫車、1966），跨三個機關。
 3. **分流**（0:45）：按「叫車」→「有身障證明嗎？沒有」→ 敬老計程車，說明「復康巴士其實只限身障者」。
 4. **切換聽不清楚模式**（1:05）：同一個首頁，撥號按鈕旁出現「用文字」→ 打開緊急求助卡。
@@ -538,12 +607,12 @@ userinfo.birthday → 年齡 → 比對 services.json 的 eligibility
 | 「純網頁可用瀏覽器的語音合成」 | Android WebView 不支援 `speechSynthesis` | App 端 `speak` Handler |
 | 只補 `speak`、`set_start_service` 兩個橋接 | 漏了 `listen`、`a11y_state`、`haptic`、`open_external`、麥克風權限、字級 | 見 M0 |
 | 字級「跟隨系統放大到 200% 不破版」 | WebView 把字級固定在 100%，iOS 也不跟隨系統 | `a11y_state.textScale` 加上網頁 `rem` |
-| 「叫復康巴士」列為 P1 大按鈕 | 復康巴士只限持身障證明者 | 「我要叫車」加分流（M5） |
+| 「叫復康巴士」列為大按鈕 | 復康巴士只限持身障證明者 | 「我要叫車」加分流（M5） |
 | 每顆按鈕都能「退回撥電話」 | 聽障者打不了電話 | `fallback` 之外，加上 `alt_channels` 文字管道 |
 | 按住說話（放開才送出） | VoiceOver 使用者很難按住不放 | 加上「點一下開始、再點一下結束」和打字 |
 | 地圖用 flutter_map | 微服務是網頁 | Leaflet，或用一句話取代地圖 |
 | 敬老卡可用於 66 處場館 | 社會局 115/6/3 新聞稿寫 71 處 | 71 處 |
-| 每日報平安（沒按就通知家人）列為 P1 | 需要伺服器或簡訊；有通報責任問題 | 第一版只做「我很好」按鈕，通知家人列為第二階段 |
+| 每日報平安（沒按就通知家人）列為優先功能 | 需要伺服器或簡訊；有通報責任問題 | 第一版只做「我很好」按鈕，通知家人列為第二階段 |
 | 復康巴士「顯示可折抵 85 點」 | 官方資料只確認**計程車**從 65 點調為 85 點 | ⚠️ 未查證，先不寫 |
 | 數據來源多為新聞媒體 | 規則要求註明出處，一手來源較可靠 | 敬老卡、禮金、交通數字已換成市府原頁（見長輩研究 B 節）；「只有 6% 用完點數」仍要找原文 |
 
