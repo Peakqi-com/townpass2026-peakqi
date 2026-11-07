@@ -305,7 +305,7 @@ def banner(theme: str) -> str:
     b.append(R(x0 - 8, 226, tw + 16, 46, 10, th["mark"], cls="mark"))
     for i, ch in enumerate("用得了"):
         b.append(T(x0 + i * (title_size + gap), 262, ch, title_size, th["ink"], 900, cls=f"ch ch{i}"))
-    b.append(T(x0, 340, "看不清楚、聽不清楚，都用得了。", 40, th["ink"], 800, cls="up d1"))
+    b.append(T(x0, 340, "不方便的時候，也用得了。", 40, th["ink"], 800, cls="up d1"))
     sub = "說一句話，城市就聽懂。"
     b.append(T(x0, 398, sub, 28, th["accent"], 700, cls="up d2"))
     wx = x0 + text_width(sub, 28) + 16
@@ -358,12 +358,12 @@ def banner(theme: str) -> str:
     ph.append(f'<g class="buzz">{buzz_marks(th["accent"])}</g>')
     ph.append("</g>")
     b.extend(ph)
-    label = "用得了：看不清楚、聽不清楚，都用得了。說一句話，城市就聽懂。右邊的手機輪流示範三種模式（都還好、看不清楚、聽不清楚）按下「看醫生」時的回饋。"
+    label = "用得了：不方便的時候，也用得了。說一句話，城市就聽懂。右邊的手機輪流示範三種模式（都還好、看不清楚、聽不清楚）按下「看醫生」時的回饋。"
     return svg(W, H, label, "".join(b), css, defs)
 
 
 # ---- 一眼看懂（專案數字） ----
-GLANCE = [("3", "種模式"), ("16", "個功能模組"), ("31", "筆跨局處服務"),
+GLANCE = [("3", "種模式"), ("17", "個功能模組"), ("32", "筆跨局處服務"),
           ("37", "個開放資料來源"), ("6", "個新增 App 能力"), ("0", "次呼叫雲端 AI")]
 
 

@@ -371,6 +371,19 @@
     "verified": "2026-11-07"
   },
   {
+    "id": "page-nearby",
+    "title": "附近哪裡可以用",
+    "speak": "附近哪裡可以用，找無障礙廁所、捷運電梯、哺集乳室",
+    "description": "坐輪椅、拿拐杖、懷孕、受傷，或陪家人出門時，用目前位置找最近的無障礙廁所、捷運電梯、哺集乳室、親子廁所、AED。",
+    "category": "ride",
+    "phrases": ["無障礙廁所", "廁所", "上廁所", "洗手間", "輪椅", "坐輪椅", "拐杖", "受傷", "骨折", "腳受傷", "懷孕", "孕婦", "大肚子", "餵奶", "哺乳", "哺乳室", "集乳", "擠奶", "換尿布", "嬰兒車", "推車", "親子廁所", "坡道", "aed", "心臟電擊"],
+    "audience": ["elder", "vision", "hearing"],
+    "action": { "type": "page", "target": "/nearby" },
+    "owner": "臺北市政府環境保護局、衛生局、臺北大眾捷運股份有限公司",
+    "source": "https://data.taipei/dataset/detail?id=ca205b54-a06f-4d84-894c-d6ab5079ce79",
+    "verified": "2026-11-07"
+  },
+  {
     "id": "page-shelter",
     "title": "避難的地方",
     "speak": "颱風、地震時去哪裡避難",

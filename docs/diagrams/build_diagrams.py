@@ -219,7 +219,7 @@ def architecture():
     d.edge([svc.side("r"), wv.side("l")])
 
     d.group(40, 330, 780, 266, "②「用得了」微服務")
-    pages = d.box(610, 400, ["前端頁面 M1～M16", "根目錄・Next.js 16", "React 19・Tailwind 4・Vercel 東京"], "ours", w=330)
+    pages = d.box(610, 400, ["前端頁面 M1～M17", "根目錄・Next.js 16", "React 19・Tailwind 4・Vercel 東京"], "ours", w=330)
     data = d.box(170, 526, ["前端內建資料（斷網可用）", "services.json：服務清單 31 筆", "walk/：步行路網（OSM）", "開發時下載一次，不呼叫路線服務"], "ours", w=250)
     bridge = d.box(420, 515, ["bridge.ts・elder.ts", "呼叫 App 能力", "一般瀏覽器改用 mock"], "ours", w=220)
     api = d.box(680, 526, ["後端 Route Handlers", "/api/opendata：白名單代理", "Big5・ODS・TWD97・CDN 快取", "/api/bus：公車預估到站"], "ours", w=250)

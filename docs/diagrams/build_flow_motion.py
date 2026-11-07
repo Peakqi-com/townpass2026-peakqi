@@ -429,7 +429,7 @@ def scan_line(st, t0, t1):
 @story_for("architecture.svg")
 def architecture(d):
     f = d.find
-    user, svc, wv, pages = f("長輩・視障者・聽障者"), f("服務頁「用得了」"), f("TPWebView"), f("前端頁面 M1～M16")
+    user, svc, wv, pages = f("長輩・視障者・聽障者"), f("服務頁「用得了」"), f("TPWebView"), f("前端頁面 M1～M17")
     data, bridge, api = f("前端內建資料"), f("bridge.ts・elder.ts"), f("後端 Route Handlers")
     od, busdb, lis, built = f("data.taipei"), f("公運處公車資料"), f("flutterObject"), f("內建 Handler（官方）")
     hs = [f(n) for n in ("speak", "a11y_state", "haptic", "open_external", "listen", "reminder")]

@@ -1,14 +1,14 @@
 <h1 align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/readme/banner-dark.svg">
-    <img src="docs/readme/banner-light.svg" width="100%" alt="用得了：看不清楚、聽不清楚，都用得了。說一句話，城市就聽懂。右邊的手機輪流示範三種模式（都還好、看不清楚、聽不清楚）按下「看醫生」時的回饋">
+    <img src="docs/readme/banner-light.svg" width="100%" alt="用得了：不方便的時候，也用得了。說一句話，城市就聽懂。右邊的手機輪流示範三種模式（都還好、看不清楚、聽不清楚）按下「看醫生」時的回饋">
   </picture>
 </h1>
 
 <p align="center">
-  <b>說一句話，城市就聽懂。</b><br>
-  長輩、視障者、聽障者用同一個入口，依「需求」而不是「機關」找到市府服務；<br>
-  每條路都有不靠聲音、也不靠眼睛的替代方式。
+  <b>不方便的時候，也用得了。</b><br>
+  為長輩，以及行動、視力、聽力不方便的人設計；懷孕、受傷、陪伴家人的時候也用得到。<br>
+  說一句話，依「需求」而不是「機關」找到市府服務；每條路都有不靠聲音、也不靠眼睛的替代方式。
 </p>
 
 <p align="center">
@@ -35,7 +35,7 @@
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/readme/glance-dark.svg">
-  <img src="docs/readme/glance-light.svg" width="100%" alt="一眼看懂：3 種模式、16 個功能模組、31 筆跨局處服務、37 個開放資料來源、6 個新增 App 能力、0 次呼叫雲端 AI">
+  <img src="docs/readme/glance-light.svg" width="100%" alt="一眼看懂：3 種模式、17 個功能模組、32 筆跨局處服務、37 個開放資料來源、6 個新增 App 能力、0 次呼叫雲端 AI">
 </picture>
 
 <p align="center">
@@ -69,8 +69,8 @@
   <img src="docs/readme/stats-light.svg" width="100%" alt="聽障者 76.3% 年滿 65 歲、視障者 59.4% 年滿 65 歲（衛福部 2026-06）；臺北市人口 23.9% 是 65 歲以上（主計處統計週報第 1355 號）；用健保快易通的長輩 42.2% 靠別人幫忙操作（數發部 111 年調查）">
 </picture>
 
-- **誰**：長輩，以及同樣是長輩居多的視障者、聽障者。全國聽障者 76.3%、視障者 59.4% 年滿 65 歲（衛福部 2026-06）；臺北市 65 歲以上人口占 23.9%（主計處統計週報第 1355 號）。
-- **在什麼時候**：要看醫生、叫車、辦補助、找附近的共餐據點，或遇到緊急狀況時。
+- **誰**：長輩，以及行動、視力、聽力不方便的人；懷孕、受傷、陪伴家人的時候也用得到。主要對象是長輩與同樣是長輩居多的視障者、聽障者。全國聽障者 76.3%、視障者 59.4% 年滿 65 歲（衛福部 2026-06）；臺北市 65 歲以上人口占 23.9%（主計處統計週報第 1355 號）。
+- **在什麼時候**：要看醫生、叫車、辦補助、找附近的共餐據點，出門要找無障礙廁所、電梯、哺集乳室，或遇到緊急狀況時。
 - **遇到什麼困難**：
   - 市府服務依「機關」分類，要先知道「這件事歸誰管」，入口又散在電話、臨櫃和各局處網站。
   - 長輩卡在流程：用過健保快易通的長輩，42.2% 是靠別人幫忙操作（數發部 111 年調查）；「不知道有這個服務」約占 17／100。
@@ -117,6 +117,7 @@
 | M14 | `/care` | 照顧家人：失智症篩檢合約醫院、喘息服務特約單位（依服務範圍）、家庭照顧者服務中心、健康服務中心 | ✅ |
 | M15 | `/health/places` | 打疫苗、做篩檢：依行政區列出公費流感、肺炎鏈球菌疫苗、五癌篩檢的合約院所，以及假牙補助院所 | ✅ |
 | M16 | 首頁、`/family/setup` | 公車還有幾分鐘到：家人在「幫長輩設定」選路線、方向、站牌（最多 2 組，臺北、新北都可以），編進設定碼；長輩首頁每 30 秒更新「307 往撫遠街・南京三民路口，還有 7 分鐘」，按「再查一次」會唸出來。**帶我走到站牌**（`/walk`）：在手機上算步行路線，比較走路和公車時間（趕不上就說等下一班），轉彎、過馬路前先提醒並震動，有有聲號誌就提醒聽嗶嗶聲；斷網也能用，路網目前只涵蓋會場周邊 | ✅ |
+| M17 | `/nearby` | 附近哪裡可以用：坐輪椅、拿拐杖、懷孕、受傷，或陪家人出門的時候，用目前位置找最近的無障礙廁所、捷運電梯、親子廁所、AED（各列最近 3 個、直線距離、「怎麼去」開 OpenStreetMap）；哺集乳室的資料沒有座標，依台北通帳號的行政區列出 | ✅ |
 
 「傳給家人知道」只打開簡訊 App 並帶好內文，不會自動送出，也不經過伺服器；沒設定家人時可以複製貼到 LINE。各頁都已用瀏覽器在三種模式下檢查報讀（見下方「無障礙」）。
 
@@ -146,7 +147,7 @@
 
 ## 4. 系統架構
 
-![「用得了」架構：使用者從城市通 App 的服務頁開啟「用得了」，TPWebView 用 HTTPS 載入本微服務（Next.js，前端頁面 M1～M16），微服務的 bridge 用 postMessage 和 App 的 TPWebMessageListener 雙向溝通，分派給內建 Handler 與本服務新增的 6 個 Handler；後端 /api/opendata 代理 data.taipei 開放資料，/api/bus 讀公運處的公車資料。動畫：資料流從使用者開始，一段一段沿著連線亮起來](docs/diagrams/architecture.svg)
+![「用得了」架構：使用者從城市通 App 的服務頁開啟「用得了」，TPWebView 用 HTTPS 載入本微服務（Next.js，前端頁面 M1～M17），微服務的 bridge 用 postMessage 和 App 的 TPWebMessageListener 雙向溝通，分派給內建 Handler 與本服務新增的 6 個 Handler；後端 /api/opendata 代理 data.taipei 開放資料，/api/bus 讀公運處的公車資料。動畫：資料流從使用者開始，一段一段沿著連線亮起來](docs/diagrams/architecture.svg)
 
 <details>
 <summary>文字版</summary>
@@ -157,7 +158,7 @@
    服務頁「用得了」（my_service_model.dart，預設置頂）→ TPWebView（flutter_inappwebview）
         │ HTTPS 載入網頁
 ② 「用得了」微服務（根目錄・Next.js 16・React 19・Tailwind 4・Vercel 東京）
-   前端頁面 M1～M16
+   前端頁面 M1～M17
    ├ services.json：M3 服務清單 31 筆（打包在前端，斷網可用）
    ├ public/walk/：步行路網（OSM，開發時下載一次；路線在手機上算，斷網可用）
    ├ bridge.ts・elder.ts：呼叫 App 能力；一般瀏覽器改用 mock
@@ -241,7 +242,7 @@ GET /api/bus/eta?t=tpe:16111:15276,…           預估到站（一次最多 4 �
 - 開啟 Next.js 的 `experimental.useOffline`：斷網時點到沒預載的頁面，不會跳到瀏覽器錯誤頁，網路恢復後自動重試。
 - 斷網時頁首顯示「現在沒有網路。附近的據點和捷運資料暫時查不到，其他功能照常可以用」。
 - 斷網後能用：首頁、找服務（打字比對）、看醫生（含設定回診、領藥提醒）、叫車（含訂不到車的退路）、帶我走到站牌（路線在手機上算；只有公車時間要網路）、我的權益、補助小幫手、家人、文字聯絡、求助卡、看診溝通卡、撥號確認頁。撥號、震動、朗讀、已排好的手機通知由 App 處理，不需要網路。
-- 斷網後不能用：要讀開放資料的清單，包括附近共餐上課、視障出門、避難收容處所、照顧家人、疫苗篩檢院所（畫面會說「暫時讀不到」並給替代方式），以及公車時間（顯示「查不到時間」，路線名稱仍看得到）。
+- 斷網後不能用：要讀開放資料的清單，包括附近共餐上課、視障出門、附近哪裡可以用、避難收容處所、照顧家人、疫苗篩檢院所（畫面會說「暫時讀不到」並給替代方式），以及公車時間（顯示「查不到時間」，路線名稱仍看得到）。
 - ⚠️ **斷網後「重新打開」服務會打不開。** 要做到需要 Service Worker，而 iOS 的 WebView 只有在 App 宣告 App-Bound Domains 時才支援，會影響城市通裡其他服務，所以不採用。**Demo 時一定要先在有網路時打開服務，再開飛航模式。**
 
 ## 5. 主要流程
@@ -578,7 +579,7 @@ docker build -t townpass2026-peakqi . && docker run -p 8080:8080 --env-file .env
 | 長青學苑 | 社會局 | [67b63404…](https://data.taipei/dataset/detail?id=67b63404-89b8-4214-8096-3322204144e6) | M9 | 使用中 |
 | 樂齡學習據點 | 教育局 | [ca59e66b…](https://data.taipei/dataset/detail?id=ca59e66b-7200-4283-8c32-08bde2f5f142) | M9（樂齡學堂＋樂齡學習中心） | 使用中 |
 | 臺北捷運車站無障礙設施資料 | 捷運公司 | [3c799405…](https://data.taipei/dataset/detail?id=3c799405-4e44-40dd-b747-daed09e88cdb) | M10 視障出門 | 使用中 |
-| 臺北捷運車站出入口無障礙電梯、坡道座標 | 捷運公司 | [0a3bb422…](https://data.taipei/dataset/detail?id=0a3bb422-9eb5-459b-a9d4-138456516183) | M10 | 使用中 |
+| 臺北捷運車站出入口無障礙電梯、坡道座標 | 捷運公司 | [0a3bb422…](https://data.taipei/dataset/detail?id=0a3bb422-9eb5-459b-a9d4-138456516183) | M10、M17 捷運電梯 | 使用中 |
 | 交工處無障礙設施設置資料（有聲號誌） | 交通局 | [baf32b58…](https://data.taipei/dataset/detail?id=baf32b58-b194-448d-96a0-ba04013d164f) | M10 | 使用中 |
 | 臺北捷運車站無障礙設施異常公告 | 捷運公司 | [d884a9c6…](https://data.taipei/dataset/detail?id=d884a9c6-f86c-4854-8da7-e6516ddbe612) | M10 | 使用中 |
 | 臺北市老人服務中心 | 社會局 | [78dfc9a2…](https://data.taipei/dataset/detail?id=78dfc9a2-36e2-4ef5-beaa-a74633ba3d26) | M9 附近吃飯、上課 | 使用中 |
@@ -594,6 +595,10 @@ docker build -t townpass2026-peakqi . && docker run -p 8080:8080 --env-file .env
 | 臺北市公費肺炎鏈球菌疫苗合約醫療院所名單 | 衛生局 | [92934ab2…](https://data.taipei/dataset/detail?id=92934ab2-3509-4a6b-9cee-9ac556ca2f65) | M15 肺炎鏈球菌疫苗 | 使用中 |
 | 臺北市五癌篩檢醫療院所 | 衛生局 | [ae20d75c…](https://data.taipei/dataset/detail?id=ae20d75c-dffb-4d4f-85e1-9c512189005c) | M15 癌症篩檢 | 使用中 |
 | 臺北市假牙補助醫療院所名單 | 社會局 | [76b8b514…](https://data.taipei/dataset/detail?id=76b8b514-e793-4cca-8dcf-065d5af4b760) | M15、M12 假牙補助 | 使用中 |
+| 臺北市公廁點位資訊 | 環保局 | [ca205b54…](https://data.taipei/dataset/detail?id=ca205b54-a06f-4d84-894c-d6ab5079ce79) | M17 無障礙廁所（只列「無障礙廁座數」大於 0 的公廁） | 使用中 |
+| 臺北市親子友善廁所點位資訊 | 環保局 | [9d7488f5…](https://data.taipei/dataset/detail?id=9d7488f5-0f19-45c3-adf9-badf686dda18) | M17 親子廁所 | 使用中 |
+| 臺北市哺集乳室 | 衛生局 | [5d1d34d8…](https://data.taipei/dataset/detail?id=5d1d34d8-1b81-4162-87b6-05e0896af958) | M17 哺集乳室（沒有座標，依地址的行政區列出） | 使用中 |
+| 臺北市AED自動體外心臟去顫器設置地點 | 衛生局 | [cd050577…](https://data.taipei/dataset/detail?id=cd050577-115f-4299-b37a-012ff490a632) | M17 AED | 使用中 |
 
 **步行路網（M16「帶我走到站牌」）**：[OpenStreetMap](https://www.openstreetmap.org/) 的道路與人行道，© OpenStreetMap contributors，授權 [ODbL 1.0](https://opendatacommons.org/licenses/odbl/1-0/)（不是政府資料開放授權條款）。開發時用 `scripts/build-walk-graph.ts` 從 Overpass API 下載會場周邊（北緯 25.100～25.122、東經 121.515～121.540）一次，轉成 `public/walk/tianmu.json`；執行時不呼叫任何路線規劃服務，路線在手機上算。畫面上有標註出處。
 
@@ -663,6 +668,23 @@ docker build -t townpass2026-peakqi . && docker run -p 8080:8080 --env-file .env
 - **資料由誰更新**：開放資料由各局處在 data.taipei 更新，代理即時抓取。服務清單（電話、網址、補助資格）是一份 JSON，規劃由各局處自行維護；每筆都有查證日期，方便定期檢查。
 - **問題由誰處理**：得獎後協助資訊局整併；程式架構與測試說明見本 README 與 `docs/`。
 
+### 資訊局整併清單
+
+App 端相對 [taipei-doit/TownPass](https://github.com/taipei-doit/TownPass) main（2026/10）只**新增**，不改既有流程。整併時照下表合併即可（`git diff` 的比較基準是 `townpass/` 併入前的上游 commit `e65b586`）：
+
+| 項目 | 位置（相對 `townpass/`） | 內容 |
+|---|---|---|
+| 6 個新 Handler | `lib/util/web_message_handler/elder_mode_message_handlers.dart`、`elder_mode_platform.dart` | `speak`、`a11y_state`、`haptic`、`open_external`、`listen`、`reminder`（規格見上方「新增的 App Handler」）；名稱不和內建 9 個重複 |
+| 登記 Handler | `lib/util/web_message_handler/tp_web_message_listener.dart` | 在 `_cachedMessageHandlers` 加 6 行 |
+| 只開放給本服務的能力 | `lib/util/elder_mode_config.dart` | `listen`（麥克風）、`reminder` 只接受 `trustedHosts` 裡的 https 網域；換正式網域時改這裡 |
+| 服務卡片與預設置頂 | `lib/page/city_service/model/my_service_model.dart`、`widget/pinned_service_widget_controller.dart`、`assets/svg/icon_accessibility.svg` | 「用得了」卡片、專屬圖示 |
+| 套件 | `pubspec.yaml` | flutter_tts（MIT）、speech_to_text（BSD-3-Clause）、timezone（BSD-2-Clause）；flutter_local_notifications 原本就有 |
+| iOS 權限 | `ios/Runner/Info.plist` | 麥克風、語音辨識的用途說明；`LSApplicationQueriesSchemes` 加 sms、tel、line |
+| Android 權限 | `android/app/src/main/AndroidManifest.xml`、`MainActivity.kt` | 正式版的 INTERNET、RECORD_AUDIO、RECEIVE_BOOT_COMPLETED；排程通知的 2 個 receiver；`<queries>` 加簡訊、https、TTS、語音辨識；`MainActivity` 加一個確認「裝置端辨識可用」的 MethodChannel（不可用就不辨識，不會退回雲端） |
+| 測試 | `test/elder_mode/` | Handler 與網域白名單的單元測試 |
+
+網頁端是獨立的 Next.js 專案，附 `Dockerfile`，可以搬到市府自己的主機；搬家後把新網域加進 `elder_mode_config.dart` 的 `trustedHosts`，並更新 `my_service_model.dart` 裡的網址。
+
 ### 已知限制與待確認
 
 | 項目 | 目前的處理 |
@@ -682,6 +704,8 @@ docker build -t townpass2026-peakqi . && docker run -p 8080:8080 --env-file .env
 | OSM 的斑馬線資料不一定完整 | 路線只是參考，畫面寫「過馬路一定要看號誌、走斑馬線」 |
 | 手語翻譯的承辦單位委託到 2026-12-31 | 服務清單的 `verified` 日期會顯示在畫面上，到期要重新查證 |
 | 系統的裝置端語音辨識是否算「裝置端模型推論」 | 已依規則確保不送雲端（見「AI 使用聲明」）；如主辦認定不符，關掉語音、保留打字和點選即可 |
+| 「附近哪裡可以用」的哺集乳室資料沒有座標 | 依地址的行政區列出（約 2% 資料的行政區代碼和地址不同區，以地址為準）；其他 4 類用目前位置找 1.5 公里內最近的 3 個 |
+| 公廁、哺集乳室實際開放時間與能不能用，資料不一定即時 | 畫面寫「實際開放情形以現場為準」，並附資料集名稱與連結 |
 
 ## 授權
 
