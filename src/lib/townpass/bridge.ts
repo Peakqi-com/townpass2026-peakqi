@@ -49,8 +49,12 @@ export function callApp<T>(name: string, data: unknown = null, timeoutMs = 10_00
       try {
         reply = JSON.parse(event.data);
       } catch {
+        // DEBUG（暫時）：iOS 實機查掃碼問題用，查完移除
+        postToApp(`debug-reply-unparsed:${typeof event.data}:${String(event.data).slice(0, 60)}`);
         return;
       }
+      // DEBUG（暫時）
+      postToApp(`debug-reply:${reply.name}:${typeof reply.data}`);
       if (reply.name !== name) return;
       cleanup();
       resolve(reply.data);
