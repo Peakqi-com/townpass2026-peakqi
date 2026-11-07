@@ -35,7 +35,7 @@ const EMPTY_ROWS: Row[] = Array.from({ length: FAMILY_LIMITS.maxContacts }, () =
  * 里辦公處或聯醫志工也可以用同一頁幫長輩設定。
  */
 export function FamilySetup() {
-  const { announce, say } = useElder();
+  const { a11y, announce, say } = useElder();
   const [buttons, setButtons] = useState<string[]>(() => HOME_BUTTONS.map((b) => b.id));
   const [rows, setRows] = useState<Row[]>(EMPTY_ROWS);
   const [town, setTown] = useState("");
@@ -90,7 +90,8 @@ export function FamilySetup() {
       });
       setError("");
       setResult({ config: checked.config, image });
-      say("設定碼做好了，請用長輩的手機掃描");
+      // QrResult 掛載時會把焦點移到它的標題，報讀軟體會唸標題；開著報讀軟體時再 say 會唸兩次
+      if (!a11y.screenReader) say("設定碼做好了，請用長輩的手機掃描");
     } catch {
       fail("設定碼做不出來，請再按一次");
     }
@@ -211,7 +212,7 @@ export function FamilySetup() {
         </button>
       </form>
 
-      {result && <QrResult config={result.config} image={result.image} />}
+      {result && <QrResult key={result.image} config={result.config} image={result.image} />}
     </PageShell>
   );
 }
