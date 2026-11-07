@@ -4,13 +4,12 @@ import Link from "next/link";
 import { useRef, useState } from "react";
 import { phoneCall, scanQrCode } from "@/lib/townpass/bridge";
 import { openExternal } from "@/lib/townpass/elder";
-import { decodeFamilyConfig, familyButtons, formatMobile, type FamilyContact } from "@/lib/elder/familyConfig";
+import { decodeFamilyConfig, familyButtons, formatMobile, type FamilyConfig, type FamilyContact } from "@/lib/elder/familyConfig";
 import { useElder } from "./ElderProvider";
 import { FailNote, useFailNote } from "./FailNote";
 import { PageShell } from "./PageShell";
 import { ServiceAction, ServiceLink } from "./ServiceButton";
 import { useFamilyConfig } from "./useFamilyConfig";
-import { useFocusAfterRender } from "./useFocusAfterRender";
 
 const LINK =
   "flex min-h-12 items-center self-center py-3 text-elder-body text-text-second underline underline-offset-4 " +
@@ -23,7 +22,6 @@ const LINK =
  */
 export function FamilyScreen() {
   const { mode, say, a11y } = useElder();
-  const { register, focusLater } = useFocusAfterRender();
   const note = useFailNote();
   const { config, save } = useFamilyConfig();
   const [calling, setCalling] = useState<number | null>(null);
@@ -56,28 +54,18 @@ export function FamilyScreen() {
       return;
     }
     save(next);
-    // 「設定好了」出現在頁面最上面，但按鈕在最下面：移焦點過去（會捲動到那裡），長輩才看得到有變化
-    focusLater("saved");
+    // 換成一整頁「設定好了」（FamilySavedScreen），長輩一眼就知道成功了；
+    // 報讀軟體會唸新頁面的標題，所以開著報讀軟體時不再 say()，避免唸兩次
     setJustSaved(true);
-    if (!a11y.screenReader) say("設定好了，有事按這些按鈕");
+    if (!a11y.screenReader) say("設定好了。家人幫您設定的內容在畫面上");
   };
 
   // key 讓兩個畫面各自掛載，換畫面時焦點會移到新的 h1
   if (contact) return <FamilyCallConfirm key={`call-${calling}`} contact={contact} onCancel={() => setCalling(null)} />;
+  if (justSaved && config) return <FamilySavedScreen key="saved" config={config} onBack={() => setJustSaved(false)} />;
 
   return (
     <PageShell key="family" title="家人">
-      {justSaved && config && (
-        <section aria-labelledby="saved-heading" className="flex flex-col gap-3 rounded-2xl border-4 border-elder-family bg-white p-4">
-          <h2 id="saved-heading" ref={register("saved")} tabIndex={-1} className="text-elder-button font-bold text-text-primary focus:outline-none">
-            設定好了
-          </h2>
-          <p className="text-elder-body text-text-second">
-            首頁的按鈕換成：{familyButtons(config).map((b) => b.label).join("、")}。
-          </p>
-          <ServiceLink href="/" label="回首頁看看" icon="home" row className="bg-elder-family text-on-elder-family" />
-        </section>
-      )}
 
       {contacts.length > 0 ? (
         <section aria-labelledby="call-heading" className="flex flex-col gap-4">
@@ -164,6 +152,39 @@ function SmsButton({ contact }: { contact: FamilyContact }) {
  * 撥號前的大字確認：要打給誰、號碼是多少，按「撥打」才撥；也可以不打了。
  * M11 防詐先問一下也用這個畫面打給家人（撥號規則只寫在這裡一份）。
  */
+/** 掃完家人的設定碼：整頁顯示「設定好了」和設定了哪些東西 */
+function FamilySavedScreen({ config, onBack }: { config: FamilyConfig; onBack: () => void }) {
+  const items: { title: string; value: string }[] = [
+    { title: "首頁的按鈕", value: familyButtons(config).map((b) => b.label).join("、") },
+    { title: "家人的電話", value: config.contacts.map((c) => `${c.name} ${formatMobile(c.phone)}`).join("、") },
+    { title: "住的地方", value: config.town },
+  ];
+  if (config.buses?.length) {
+    items.push({ title: "常坐的公車", value: config.buses.map((b) => b.label).join("、") });
+  }
+  return (
+    <PageShell title="設定好了">
+      <div className="flex items-center gap-4 rounded-2xl border-4 border-elder-family bg-white p-4">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" className="size-16 shrink-0 text-elder-family">
+          <circle cx="12" cy="12" r="11" fill="currentColor" />
+          <path d="M6.5 12.5l3.5 3.5 7.5-8" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+        <p className="text-elder-button font-bold text-text-primary">家人幫您設定好了</p>
+      </div>
+      <dl className="flex flex-col gap-3">
+        {items.map((item) => (
+          <div key={item.title} className="flex flex-col gap-1 rounded-2xl bg-bg-dark p-4">
+            <dt className="text-elder-body text-text-second">{item.title}</dt>
+            <dd className="text-elder-body font-bold text-text-primary">{item.value}</dd>
+          </div>
+        ))}
+      </dl>
+      <ServiceLink href="/" label="回首頁看看" icon="home" row className="bg-elder-family text-on-elder-family" />
+      <ServiceAction onPress={onBack} label="回到家人頁" row className="border-4 border-grayscale-800 bg-white text-text-primary" />
+    </PageShell>
+  );
+}
+
 export function FamilyCallConfirm({ contact, onCancel }: { contact: FamilyContact; onCancel: () => void }) {
   const { mode } = useElder();
   const note = useFailNote();
