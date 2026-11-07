@@ -1,17 +1,67 @@
-# 用得了
+<h1 align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/readme/banner-dark.svg">
+    <img src="docs/readme/banner-light.svg" width="100%" alt="用得了：看不清楚、聽不清楚，都用得了。說一句話，城市就聽懂。右邊的手機輪流示範三種模式（都還好、看不清楚、聽不清楚）按下「看醫生」時的回饋">
+  </picture>
+</h1>
 
-> 看不清楚、聽不清楚，都用得了。（開發代號：長輩模式。程式碼、規格文件裡的「長輩模式」都是指本服務）
+<p align="center">
+  <b>說一句話，城市就聽懂。</b><br>
+  長輩、視障者、聽障者用同一個入口，依「需求」而不是「機關」找到市府服務；<br>
+  每條路都有不靠聲音、也不靠眼睛的替代方式。
+</p>
 
-> 2026 臺北秋季程式設計節 · 城市通微服務大黑客松　參賽作品（AI城市起風 × 奇鋒國際 PEAKQI）
-> **說一句話，城市就聽懂。** 長輩、視障者、聽障者用同一個入口，依「需求」而不是「機關」找到市府服務；每條路都有不靠聲音、也不靠眼睛的替代方式。
+<p align="center">
+  <a href="https://townpass2026-peakqi.vercel.app/"><img src="docs/readme/btn-demo.svg" height="52" alt="線上試用（微服務網頁）"></a>
+  <a href="#評審試用路徑約-2-分鐘"><img src="docs/readme/btn-judge.svg" height="52" alt="評審 2 分鐘試用路徑"></a>
+  <a href="docs/elder-mode-spec.md"><img src="docs/readme/btn-spec.svg" height="52" alt="功能規格（開發以此為準）"></a>
+  <a href="townpass/"><img src="docs/readme/btn-app.svg" height="52" alt="修改後的城市通 App 原始碼"></a>
+</p>
 
-- 微服務網頁：https://townpass2026-peakqi.vercel.app/
-- 修改後的城市通 App：本 repo 的 [`townpass/`](townpass/)（新增 Handler 與權限，不改既有流程）
-- 功能規格（開發以此為準）：[`docs/elder-mode-spec.md`](docs/elder-mode-spec.md)
+<p align="center">
+  <img src="docs/readme/badge-nextjs.svg" alt="Next.js 16">
+  <img src="docs/readme/badge-flutter.svg" alt="Flutter 3.47">
+  <img src="docs/readme/badge-license.svg" alt="授權 AGPL-3.0">
+  <img src="docs/readme/badge-ai.svg" alt="執行時不使用雲端 AI">
+  <img src="docs/readme/badge-speech.svg" alt="語音辨識只在手機上">
+  <img src="docs/readme/badge-offline.svg" alt="斷網：打開後仍可用">
+</p>
+
+<p align="center"><sub>
+  2026 臺北秋季程式設計節・城市通微服務大黑客松 參賽作品｜AI城市起風 × 奇鋒國際 PEAKQI<br>
+  微服務網頁 https://townpass2026-peakqi.vercel.app/ ・修改後的城市通 App 在 <a href="townpass/"><code>townpass/</code></a>（新增 Handler 與權限，不改既有流程）<br>
+  開發代號「長輩模式」：程式碼、規格文件裡的「長輩模式」都是指本服務
+</sub></p>
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/readme/glance-dark.svg">
+  <img src="docs/readme/glance-light.svg" width="100%" alt="一眼看懂：3 種模式、16 個功能模組、31 筆跨局處服務、37 個開放資料來源、6 個新增 App 能力、0 次呼叫雲端 AI">
+</picture>
+
+<p align="center">
+  <a href="#1-要解決的問題">問題</a> ・
+  <a href="#2-設計原則">原則</a> ・
+  <a href="#3-主要功能">功能</a> ・
+  <a href="#4-系統架構">架構</a> ・
+  <a href="#5-主要流程">流程</a> ・
+  <a href="#6-設計取捨">取捨</a> ・
+  <a href="#7-執行方式">執行</a> ・
+  <a href="#8-資料來源">資料來源</a> ・
+  <a href="#9-第三方套件">套件</a> ・
+  <a href="#10-ai-使用聲明">AI 聲明</a> ・
+  <a href="#11-評估面向對照">評估對照</a> ・
+  <a href="#12-維運說明">維運</a> ・
+  <a href="#授權">授權</a>
+</p>
 
 ---
 
 ## 1. 要解決的問題
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/readme/stats-dark.svg">
+  <img src="docs/readme/stats-light.svg" width="100%" alt="聽障者 76.3% 年滿 65 歲、視障者 59.4% 年滿 65 歲（衛福部 2026-06）；臺北市人口 23.9% 是 65 歲以上（主計處統計週報第 1355 號）；用健保快易通的長輩 42.2% 靠別人幫忙操作（數發部 111 年調查）">
+</picture>
 
 - **誰**：長輩，以及同樣是長輩居多的視障者、聽障者。全國聽障者 76.3%、視障者 59.4% 年滿 65 歲（衛福部 2026-06）；臺北市 65 歲以上人口占 23.9%（主計處統計週報第 1355 號）。
 - **在什麼時候**：要看醫生、叫車、辦補助、找附近的共餐據點，或遇到緊急狀況時。
@@ -62,11 +112,19 @@
 | M15 | `/health/places` | 打疫苗、做篩檢：依行政區列出公費流感、肺炎鏈球菌疫苗、五癌篩檢的合約院所，以及假牙補助院所 | ✅ |
 | M16 | 首頁、`/family/setup` | 公車還有幾分鐘到：家人在「幫長輩設定」選路線、方向、站牌（最多 2 組，臺北、新北都可以），編進設定碼；長輩首頁每 30 秒更新「307 往撫遠街・南京三民路口，還有 7 分鐘」，按「再查一次」會唸出來。**帶我走到站牌**（`/walk`）：在手機上算步行路線，比較走路和公車時間（趕不上就說等下一班），轉彎、過馬路前先提醒並震動，有有聲號誌就提醒聽嗶嗶聲；斷網也能用，路網目前只涵蓋會場周邊 | ✅ |
 
-「傳給家人知道」只打開簡訊 App 並帶好內文，不會自動送出，也不經過伺服器；沒設定家人時可以複製貼到 LINE。各頁都已用瀏覽器在三種模式下檢查報讀（見下方「無障礙」）；⚠️ 尚未用實機開 VoiceOver／TalkBack 完整實測。
+「傳給家人知道」只打開簡訊 App 並帶好內文，不會自動送出，也不經過伺服器；沒設定家人時可以複製貼到 LINE。各頁都已用瀏覽器在三種模式下檢查報讀（見下方「無障礙」）。
+
+> [!NOTE]
+> 尚未用實機開 VoiceOver／TalkBack 完整實測。
 
 ### 三種模式
 
 模式只改變行為，服務內容都一樣。第一次使用會先選模式，之後隨時可以換（`src/components/elder/ModePicker.tsx`）。
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/readme/modes-dark.svg">
+  <img src="docs/readme/modes-light.svg" width="100%" alt="三種模式的首頁並排比較。都還好：按下按鈕會震動、顯示大字、唸出名稱，字級跟手機設定。看不清楚：字至少放大 1.3 倍，一樣震動、大字、唸出名稱。聽不清楚：不出聲音，只震動和大字；1999 改成「1999 文字」，只能打字找服務，文字管道排在電話前面">
+</picture>
 
 | | 都還好 | 看不清楚 | 聽不清楚 |
 |---|---|---|---|
@@ -117,7 +175,7 @@
 - 傳給家人：`src/components/elder/ShareToFamily.tsx`（回診提醒、補助準備單、求助頁共用）
 - 步行導航：`src/lib/elder/walk.ts`（A* 算路線、提醒判斷，有測試）、`src/components/elder/WalkScreen.tsx`；路網由 `scripts/build-walk-graph.ts` 在開發時產生 `public/walk/tianmu.json`
 
-架構圖與下一節的流程圖，由 `docs/diagrams/build_diagrams.py` 產生（只用 Python 標準函式庫，色票取自城市通 UI Kit）。要改圖時改那支程式再重跑 `python3 docs/diagrams/build_diagrams.py`，不要手改 SVG。
+架構圖與下一節的流程圖，由 `docs/diagrams/build_diagrams.py` 產生（只用 Python 標準函式庫，色票取自城市通 UI Kit）。要改圖時改那支程式再重跑 `python3 docs/diagrams/build_diagrams.py`，不要手改 SVG。README 開頭的橫幅、按鈕、徽章與數字卡片同樣由 `docs/readme/build_readme_art.py` 產生（`python3 docs/readme/build_readme_art.py`）。
 
 ### 新增的 App Handler
 
@@ -463,14 +521,23 @@ fvm flutter analyze && fvm flutter test
 
 ### 評審試用路徑（約 2 分鐘）
 
+> [!TIP]
+> 最快的看法：照下面 6 步走一次，就能看到「依需求找服務」「三種模式」「家人代設定」「斷網」四個重點。
+
 測試帳號在 `townpass/assets/mock_data/account.json`（生日 1940/03/01，86 歲，示範重陽禮金 3,000 元級距）。
 
-1. 台北通 →「服務」→「用得了」。首頁顯示「午安，陳阿嬤」和「重陽禮金 3,000 元，還有 6 天截止」。
+1. 台北通 →「服務」→「用得了」。首頁顯示「午安，金大森」和「重陽禮金 3,000 元，還有 6 天截止」。
 2. 按「說話或打字找服務」，輸入「我要去看醫生」→ 出現聯醫掛號、叫車、1966 三個大按鈕，跨三個機關。
 3. 按「叫車」→「有身障證明嗎？沒有」→ 敬老計程車，並說明復康巴士只限身障者。
 4. 回首頁按「換模式」，改成「我聽不清楚」：同一個首頁，1999 變成「1999 文字」，撥號旁都有「用文字」；按底部的「求助」，可以看到全螢幕求助卡和 119 簡訊範本（不會自動送出）。
 5. 「家人」→ 用另一支手機在「我是家人」產生 QR code，長輩的手機一掃，首頁按鈕就換好。
-6. 開飛航模式：打字找服務、各頁切換、撥號確認都還能用。⚠️ **要先在有網路時打開服務，再開飛航模式**（見「斷網」）。
+6. 開飛航模式：打字找服務、各頁切換、撥號確認都還能用。
+
+> [!IMPORTANT]
+> 要先在有網路時打開服務，再開飛航模式（見「斷網」）。
+
+> [!WARNING]
+> Demo 不會送出真實求救：119、110 只顯示簡訊範本，要使用者自己按送出。
 
 ### 部署
 
