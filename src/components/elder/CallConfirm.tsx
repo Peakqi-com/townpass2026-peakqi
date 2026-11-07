@@ -1,63 +1,61 @@
 "use client";
 
 import { phoneCall } from "@/lib/townpass/bridge";
-import type { PhoneEntry } from "@/lib/elder/home";
+import { formatPhone, type Service } from "@/lib/elder/services";
 import { useElder } from "./ElderProvider";
 import { PageShell } from "./PageShell";
-import { ServiceAction, ServiceLink } from "./ServiceButton";
+import { ServiceAction } from "./ServiceButton";
+import { useRunAction } from "./useRunAction";
 
-/** 撥號前的確認頁：大字顯示要打給誰，避免誤撥。聽不清楚模式把「用文字」放在最前面 */
-export function CallConfirm({ entry }: { entry: PhoneEntry }) {
-  const { mode } = useElder();
+/**
+ * 撥號前的確認頁：大字顯示要打給誰，避免誤撥。
+ * 聽不清楚模式把服務清單的 alt_channels（文字管道）排在最前面；沒有文字管道就明白說出來。
+ */
+export function CallConfirm({ service, number }: { service: Service; number: string }) {
+  const { mode, say } = useElder();
+  const run = useRunAction();
   const hearing = mode === "hearing";
+  const alts = service.alt_channels ?? [];
 
   const call = (
     <ServiceAction
-      onPress={() => void phoneCall(entry.number)}
-      label={`撥打 ${entry.number}`}
-      speak={`撥打 ${entry.title}`}
+      key="call"
+      onPress={async () => {
+        if (!(await phoneCall(number))) say("這支手機不能撥電話。請改用其他方式，或請家人幫忙。");
+      }}
+      label={`撥打 ${formatPhone(number)}`}
+      speak={`撥打 ${service.title}`}
       icon="phone"
       row
       className="bg-grayscale-800 text-white"
     />
   );
-  const text = (
-    <ServiceLink
-      href="/text"
-      label="用文字聯絡"
+  const texts = alts.map((alt) => (
+    <ServiceAction
+      key={alt.label}
+      onPress={() => void run(service, alt)}
+      label={alt.label}
       icon="text"
       row
       className="bg-elder-hearing text-on-elder-hearing"
     />
-  );
+  ));
 
   return (
-    <PageShell title={`打給 ${entry.title}`}>
-      <p className="text-elder-body text-text-second">{entry.description}</p>
-      {hearing && !entry.hasTextAlternative && (
+    <PageShell title={`打給 ${service.title}`}>
+      <p className="text-elder-body text-text-second">{service.description}</p>
+      {hearing && alts.length === 0 && (
         <p className="rounded-2xl bg-bg-dark p-4 text-elder-body text-text-primary">
           這支電話目前只能用講的。可以請家人代打，或改用文字問 1999。
         </p>
       )}
-      <div className="flex flex-col gap-4">
-        {hearing ? (
-          <>
-            {text}
-            {call}
-          </>
-        ) : (
-          <>
-            {call}
-            {text}
-          </>
-        )}
-      </div>
+      <div className="flex flex-col gap-4">{hearing ? [...texts, call] : [call, ...texts]}</div>
       <p className="text-h3 text-text-second">
-        資料來源：
-        <a href={entry.source} className="underline underline-offset-2">
-          臺北市政府
+        {service.owner}・
+        <a href={service.source} className="underline underline-offset-2">
+          官方說明
         </a>
-        （{entry.verified} 查證）
+        （{service.verified} 查證）
       </p>
     </PageShell>
   );

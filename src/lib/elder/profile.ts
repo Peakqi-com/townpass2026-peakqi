@@ -12,6 +12,40 @@ export function parseMode(value: string | null): ElderMode | null {
   return MODES.includes(value as ElderMode) ? (value as ElderMode) : null;
 }
 
+/* ---------- 唸的速度 ---------- */
+
+export type SpeechRate = "slow" | "normal" | "fast" | "fastest";
+
+const RATES: readonly SpeechRate[] = ["slow", "normal", "fast", "fastest"];
+
+/**
+ * 傳給 App speak Handler 的 rate（flutter_tts：0.5 約為正常語速，1.0 是上限）。
+ * 長輩需要慢；視障者習慣用一般 3～5 倍的速度聆聽，所以要能調快。
+ * 實際能多快依手機的 TTS 引擎而定，iOS 的上限可能達不到 3 倍。
+ */
+export const RATE_VALUE: Readonly<Record<SpeechRate, number>> = {
+  slow: 0.4,
+  normal: 0.5,
+  fast: 0.75,
+  fastest: 1,
+};
+
+export const RATE_LABEL: Readonly<Record<SpeechRate, string>> = {
+  slow: "慢",
+  normal: "正常",
+  fast: "快",
+  fastest: "最快",
+};
+
+export function parseRate(value: string | null): SpeechRate | null {
+  return RATES.includes(value as SpeechRate) ? (value as SpeechRate) : null;
+}
+
+/** 沒有自己調過語速時的預設值：看不清楚模式用正常速度，其他用慢速 */
+export function defaultRate(mode: ElderMode | null): SpeechRate {
+  return mode === "vision" ? "normal" : "slow";
+}
+
 /* ---------- 日期 ---------- */
 
 interface Ymd {

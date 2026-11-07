@@ -14,7 +14,6 @@ const SECTIONS: Record<string, string> = {
   family: "打給家人",
   text: "用文字聯絡",
   help: "求助",
-  find: "找服務",
 };
 
 export function generateStaticParams() {

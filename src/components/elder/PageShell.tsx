@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Icon } from "./Icon";
 import { useElder } from "./ElderProvider";
+import { useFocusOnMount } from "./useFocusOnMount";
 
 /**
  * 長輩模式的內頁：左上只有一個「回首頁」，沒有多層返回（elder-mode-spec.md §4）。
@@ -10,6 +11,7 @@ import { useElder } from "./ElderProvider";
  */
 export function PageShell({ title, children }: { title: string; children: React.ReactNode }) {
   const { announce } = useElder();
+  const heading = useFocusOnMount<HTMLHeadingElement>();
   return (
     <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-5 px-4 pb-10 pt-4">
       <Link
@@ -20,7 +22,9 @@ export function PageShell({ title, children }: { title: string; children: React.
         <Icon name="home" className="size-7" />
         回首頁
       </Link>
-      <h1 className="text-elder-title font-bold text-text-primary">{title}</h1>
+      <h1 ref={heading} tabIndex={-1} className="text-elder-title font-bold text-text-primary focus:outline-none">
+        {title}
+      </h1>
       {children}
     </main>
   );

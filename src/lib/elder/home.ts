@@ -40,30 +40,3 @@ export const HOME_BUTTONS: readonly HomeButton[] = [
   { id: "family", label: "打給家人", speak: "打給家人", href: "/family", icon: "family", className: "bg-elder-family text-on-elder-family" },
   { id: "text", label: "文字聯絡", speak: "用文字聯絡市政府", href: "/text", icon: "text", className: "bg-elder-hearing text-on-elder-hearing" },
 ];
-
-export interface PhoneEntry {
-  /** 確認頁的大字標題：「打給 ○○」 */
-  title: string;
-  /** 一句話說明這支電話做什麼 */
-  description: string;
-  number: string;
-  /** 有文字或視訊替代管道時，連到「用文字聯絡」頁 */
-  hasTextAlternative: boolean;
-  source: string;
-  verified: string;
-}
-
-/**
- * 需要確認頁的電話。號碼寫死在這裡，不從網址參數讀取，避免被帶去撥任意號碼。
- * 1999 走 App 內建的 1999agree（自帶確認），不在這裡。
- */
-export const PHONES: Readonly<Record<string, PhoneEntry>> = {
-  "1966": {
-    title: "1966 長照專線",
-    description: "申請長期照顧服務：居家照顧、交通接送、輔具、喘息服務。",
-    number: "1966",
-    hasTextAlternative: false,
-    source: "https://dosw.gov.taipei/cp.aspx?n=1847C5A001C1DC3C",
-    verified: "2026-11-07",
-  },
-};

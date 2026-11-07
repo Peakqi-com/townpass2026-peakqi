@@ -7,6 +7,7 @@ import { doubleNinthGift, greetingFor, type GiftInfo } from "@/lib/elder/profile
 import { useElder } from "./ElderProvider";
 import { ModePicker } from "./ModePicker";
 import { ServiceAction, ServiceLink } from "./ServiceButton";
+import { useFocusOnMount } from "./useFocusOnMount";
 
 /** M1 首頁：問候、權益提醒、6 個大按鈕、找服務、固定的 1999／1966／求助 */
 export function HomeScreen() {
@@ -25,10 +26,7 @@ export function HomeScreen() {
 
   return (
     <main className={`mx-auto flex w-full max-w-md flex-1 flex-col gap-5 px-4 pt-5 ${large ? "pb-6" : "pb-44"}`}>
-      <h1 className="text-elder-title font-bold text-text-primary">
-        {greetingFor(now)}
-        {user?.realName ? `，${user.realName}` : ""}
-      </h1>
+      <Greeting text={`${greetingFor(now)}${user?.realName ? `，${user.realName}` : ""}`} />
 
       {gift && <GiftCard gift={gift} />}
 
@@ -76,7 +74,7 @@ export function HomeScreen() {
           ) : (
             <ServiceAction onPress={call1999} label="1999" speak="打給 1999 市民熱線" icon="phone" className="bg-grayscale-800 text-white" />
           )}
-          <ServiceLink href="/call/1966" label="1966" speak="1966 長照專線" icon="phone" className="bg-grayscale-800 text-white" />
+          <ServiceLink href="/call/ltc-1966" label="1966" speak="1966 長照專線" icon="phone" className="bg-grayscale-800 text-white" />
           <ServiceLink
             href="/help"
             label="求助"
@@ -88,6 +86,16 @@ export function HomeScreen() {
         </div>
       </nav>
     </main>
+  );
+}
+
+/** 首頁標題；載入時把焦點移過來，報讀軟體從問候開始唸 */
+function Greeting({ text }: { text: string }) {
+  const heading = useFocusOnMount<HTMLHeadingElement>();
+  return (
+    <h1 ref={heading} tabIndex={-1} className="text-elder-title font-bold text-text-primary focus:outline-none">
+      {text}
+    </h1>
   );
 }
 

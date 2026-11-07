@@ -91,6 +91,33 @@ src/
 - 無障礙：觸控目標至少 48×48（`min-h-12`）、圖示要有 `aria-label`、字級用 rem、不禁止縮放、不使用閃爍效果。
 - 以手機寬度 360～430px 為主，版面寬度上限 `max-w-md`。
 
+## 4.5 長輩模式開發規範（M1～M12 一律遵守）
+
+規格：TownPass repo 的 `docs/townpass/elder-mode-spec.md`（模組、介面規範 §4、色票 §4.1）。
+
+**一定要用共用元件，不要自己重做**
+- 頁面：`PageShell`（回首頁＋h1＋載入時焦點移到 h1）。首頁類畫面自己的 h1 要用 `useFocusOnMount`。
+- 服務：資料只放在 `src/data/services.json`（M3），用 `ServiceCard` 顯示，用 `useRunAction` 執行動作。**不要在元件裡直接呼叫 bridge 的 phoneCall／openLink 等**，撥號確認、文字管道、失敗提示才會一致。
+- 按鈕：`ServiceLink`／`ServiceAction`（`src/components/elder/ServiceButton.tsx`）。顏色用 `CATEGORY_STYLE` 或 `bg-elder-*`／`text-on-elder-*` token；紅色 `bg-elder-help` 只給「求助」。
+- 字級：`text-elder-title`（32）、`text-elder-button`（28）、`text-elder-body`（20）；最小用 `text-h3`（16）。全部 rem。
+- 狀態：`useElder()` 取得 `mode`、`user`、`now`、`textScale`、`rate`。日期一律用 `now`（不要在元件裡 `new Date()`，Cache Components 會擋）。
+
+**回饋（VoiceOver／TalkBack 一定要能用）**
+- 按下當下：`announce(按鈕名稱)`（震動＋大字＋唸；報讀軟體開著時只震動）。
+- 操作結果：`say(結果)`，例如「找到 3 個」「打不開」「設定好了」。一律寫進 live region，報讀軟體會唸。
+- 每個可互動元素都要有**可見文字**當名稱；圖示一律 `aria-hidden`（`Icon` 元件已處理）。狀態用 `aria-pressed`。
+- DOM 順序＝視覺順序；每頁一個 h1；區塊用 h2／h3，讓視障者可以用標題跳讀。
+- 只用單指點一下，不用長按、滑動、雙指。語音一律「點一下開始、再點一下停止」，開始收音時只震動不出聲（避免錄到報讀軟體的聲音）。
+
+**內容**
+- 視障者用報讀軟體時習慣 3～5 倍速聆聽、會跳著聽：**重點放在標題和第一句**，不要開場白。自己唸（TTS）的速度用 `rate`，不要寫死。
+- 聽不清楚模式：每個只能用講的動作旁邊都要有文字管道（`alt_channels`）；沒有就明白寫「只能用講的，可以請家人代打」。
+- 電話、網址、金額、資格只能用 TownPass `docs/townpass/` 研究文件裡標 ✅ 的資料，附 `source` 與 `verified`。查不到就不要寫。
+- 只說「可能可以申請」，不說「符合」；最後以主責機關審核為準。
+- Demo 絕對不能真的送出 119／110 簡訊或撥號。
+
+**測試**：純邏輯（資格判斷、比對、資料轉換）放 `src/lib/elder/*.ts`，先寫 `*.test.ts`（`node --test`）。完成前跑 `npm test`、`npm run lint`、`npx tsc --noEmit`、`npm run build`。
+
 ## 5. Next.js 16 注意事項
 
 - 這版的 Next.js 和訓練資料中的版本有差異，寫程式前先看 `node_modules/next/dist/docs/`（見 AGENTS.md）。

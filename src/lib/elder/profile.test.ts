@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { ageOn, doubleNinthGift, greetingFor, parseMode } from "./profile.ts";
+import { ageOn, defaultRate, doubleNinthGift, greetingFor, parseMode, parseRate, RATE_VALUE } from "./profile.ts";
 
 // 2026-11-07 中午（臺北時間）＝ 04:00 UTC
 const TODAY = new Date("2026-11-07T04:00:00Z");
@@ -77,4 +77,21 @@ test("重陽禮金：規則只適用 115 年（2026），其他年份不顯示�
   const person = { ...citizen, birthday: "1940/03/01" };
   assert.equal(doubleNinthGift(person, new Date("2027-10-01T04:00:00Z")), null);
   assert.equal(doubleNinthGift(person, new Date("2025-11-01T04:00:00Z")), null);
+});
+
+test("語速：預設依模式（都還好＝慢，給長輩；看不清楚＝正常，視障者常用高速，可以自己調快）", () => {
+  assert.equal(defaultRate("normal"), "slow");
+  assert.equal(defaultRate("vision"), "normal");
+  assert.equal(defaultRate(null), "slow");
+});
+
+test("語速：四段數值遞增，最快是 App 允許的上限 1.0", () => {
+  assert.ok(RATE_VALUE.slow < RATE_VALUE.normal && RATE_VALUE.normal < RATE_VALUE.fast && RATE_VALUE.fast < RATE_VALUE.fastest);
+  assert.equal(RATE_VALUE.fastest, 1);
+});
+
+test("parseRate：只接受四種語速，其他回傳 null", () => {
+  assert.equal(parseRate("fastest"), "fastest");
+  assert.equal(parseRate("turbo"), null);
+  assert.equal(parseRate(null), null);
 });
