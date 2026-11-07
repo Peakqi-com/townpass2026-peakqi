@@ -343,5 +343,18 @@
     "owner": "臺北市政府消防局",
     "source": "https://www-ws.gov.taipei/001/Upload/691/relfile/61747/8937655/b275fc3e-70f8-4e5b-83da-f7fdb9a77e18.pdf",
     "verified": "2026-11-07"
+  },
+  {
+    "id": "page-vision-go",
+    "title": "視障出門",
+    "speak": "視障出門，找最近的捷運電梯和有聲號誌",
+    "description": "用目前位置找最近的捷運站：電梯在哪個出口、有沒有異常公告，還有附近的有聲號誌路口。",
+    "category": "vision",
+    "phrases": ["捷運電梯", "電梯在哪", "無障礙", "出門", "有聲號誌", "導盲磚", "捷運", "過馬路", "紅綠燈"],
+    "audience": ["vision", "hearing"],
+    "action": { "type": "page", "target": "/vision" },
+    "owner": "臺北大眾捷運股份有限公司、臺北市交通管制工程處",
+    "source": "https://data.taipei/dataset/detail?id=3c799405-4e44-40dd-b747-daed09e88cdb",
+    "verified": "2026-11-07"
   }
 ]

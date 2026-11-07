@@ -55,7 +55,7 @@ src/
    │  ├─ types.ts       App 回傳資料的型別
    │  └─ mock.ts        一般瀏覽器開發時使用的假資料
    └─ opendata/
-      ├─ sources.ts     資料來源白名單（21 個，已驗證）
+      ├─ sources.ts     資料來源白名單（28 個，已驗證）
       ├─ client.ts      網頁端呼叫：getOpenData()
       ├─ parse.ts       Big5／CSV／XML 解析
       ├─ geo.ts         TWD97 → WGS84、距離計算
