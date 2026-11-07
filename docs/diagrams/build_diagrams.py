@@ -489,6 +489,11 @@ def flow_walk():
 
 
 if __name__ == "__main__":
+    # 動畫流程圖、情境手機與逐步說明在 build_flow_motion.py：先掛上去，存檔時才會套用
+    import sys
+    sys.dont_write_bytecode = True  # 不要在 docs/ 留下 __pycache__
+    from build_flow_motion import install
+    install(globals())
     architecture()
     ride()
     subsidy()

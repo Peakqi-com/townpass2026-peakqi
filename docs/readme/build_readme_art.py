@@ -8,14 +8,18 @@
 - GitHub 會濾掉 README 裡的 <style>／<script>，所以動畫只寫在 SVG 檔案裡（CSS keyframes）。
 - 素材都存在 repo 裡，不依賴外部產圖服務（Demo 當天外部服務可能掛掉）。
 - 每張有深淺兩個版本，README 用 <picture> 依 GitHub 主題切換；按鈕和徽章是實心底色，只有一個版本。
-- 系統設定「減少動態效果」時停止動畫，停在第一個模式的畫面。
+- 系統設定「減少動態效果」時停止動畫，停在第一個模式的畫面（三種模式圖則是三張首頁並排）。
+- 三種模式圖的手機畫面用 docs/diagrams/phone_kit.py（和流程圖的情境手機共用），照 HomeScreen.tsx 畫。
 - 以 <img> 載入的 SVG 讀不到網路字型，中文用系統字（PingFang TC／Noto Sans TC／微軟正黑體）。
 """
 
 from __future__ import annotations
 
 import os
+import sys
 from html import escape
+
+sys.dont_write_bytecode = True  # 三種模式圖會載入 docs/diagrams/phone_kit.py，不要留下 __pycache__
 
 OUT = os.path.dirname(os.path.abspath(__file__))
 FONT = "'PingFang TC','Noto Sans TC','Microsoft JhengHei',system-ui,sans-serif"
@@ -426,23 +430,41 @@ MODE_NOTES = {
 
 
 def modes(theme: str) -> str:
+    """三支手機同時按下「看醫生」，各自演出自己模式的回饋（手指點按、按鈕縮一下＋漣漪、震動、大字、
+    唸出來或靜音）。首頁畫面用 docs/diagrams/phone_kit.py 照 HomeScreen.tsx 畫：看不清楚模式字放大 1.3 倍、
+    改成單欄；聽不清楚模式「1999 文字」、只打字找服務。沒有動畫時就是三張首頁並排。"""
+    sys.path.insert(0, os.path.join(OUT, "..", "diagrams"))
+    import phone_kit as ui
     th = THEMES[theme]
     W, H, PS = 1200, 640, 0.72
+    m = ui.Motion(6.0)
+    tap = 1.2
     b = []
-    for i, m in enumerate(MODES):
+    for i, md in enumerate(MODES):
         cx = 200 + i * 400
-        name = MODE_NAME[m]
+        name = MODE_NAME[md]
         w = 60 + text_width(name, 24) + 26
         b.append(R(cx - w / 2, 8, w, 54, 27, th["chip_on_bg"])
-                 + icon(MODE_ICON[m], cx - w / 2 + 22, 22, 26, th["chip_on_ink"])
+                 + icon(MODE_ICON[md], cx - w / 2 + 22, 22, 26, th["chip_on_ink"])
                  + T(cx - w / 2 + 60, 44, name, 24, th["chip_on_ink"], 800))
-        px = cx - 150 * PS
-        b.append(f'<g transform="translate({px:.1f},84) scale({PS})">'
-                 f'{phone_frame_open()}{phone_screen(m)}{phone_island()}</g>')
-        for j, line in enumerate(MODE_NOTES[m]):
+        s = ui.home(md, m, gift=False, press={"health": tap})
+        fx, fy = s.at["health"]
+        hearing = md == "hearing"
+        ring = TP["orange500"] if hearing else TP["primary500"]
+        voice = (f'<g transform="translate(300,64)"><g opacity="0" class="{m.pop(tap + 0.15, tap + 3.2)}">'
+                 f'<circle r="28" fill="#FFFFFF" stroke="{ring}" stroke-width="3"/>'
+                 f'{icon("muted" if hearing else "speaker", -15, -15, 30, TP["orange500"] if hearing else TP["primary700"])}</g></g>')
+        b.append(f'<g transform="translate({cx - 150 * PS:.1f},84) scale({PS})">{phone_frame_open()}'
+                 f'<g clip-path="url(#scr)">{s.svg()}'
+                 f'<g opacity="0" class="{m.pop(tap + 0.15, tap + 3.2)}">{ui.toast("看醫生", md)}</g></g>{phone_island()}'
+                 f'<g opacity="0" class="{m.buzz([tap + 0.05])}">{buzz_marks(th["accent"])}</g>{voice}'
+                 f'<g opacity="0" class="{ui.finger_track(m, [(tap, fx, fy)])}">{ui.finger()}</g></g>')
+        for j, line in enumerate(MODE_NOTES[md]):
             b.append(T(cx, 560 + j * 30, line, 19, th["ink"] if j == 0 else th["ink2"], 800 if j == 0 else 500, "middle"))
-    alt = ("三種模式的首頁並排比較。" + "；".join(f"{MODE_NAME[m]}：" + "，".join(MODE_NOTES[m]) for m in MODES))
-    return svg(W, H, alt, "".join(b))
+    alt = ("三種模式的首頁並排比較：三支手機同時按下「看醫生」，都會震動、上方跳出大字「看醫生」。"
+           + "；".join(f"{MODE_NAME[md]}：" + "，".join(MODE_NOTES[md]) for md in MODES))
+    defs = f'<clipPath id="scr"><rect x="{ui.SX}" y="{ui.SY}" width="{ui.SW}" height="{ui.SH}" rx="36"/></clipPath>'
+    return svg(W, H, alt, "".join(b), m.css(), defs)
 
 
 # ---- 按鈕與徽章（實心底色，深淺主題共用） ----

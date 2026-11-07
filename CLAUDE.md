@@ -106,7 +106,7 @@ fvm flutter clean                                         # Android build 出問
 - `*.gen.dart` 已列入 `townpass/.gitignore`。新增 SVG／mock 檔或修改 `@JsonSerializable` model 之後，都要重跑 build_runner。
 - 沒有 FVM 的話，把指令開頭的 `fvm` 拿掉，並確認 `flutter --version` 是 3.47.6。
 
-**文件的圖**：架構圖、流程圖改 `docs/diagrams/build_diagrams.py` 後重跑 `python3 docs/diagrams/build_diagrams.py`；不要手改 SVG。
+**文件的圖**：架構圖、流程圖改 `docs/diagrams/build_diagrams.py` 後重跑 `python3 docs/diagrams/build_diagrams.py`；README 開頭的橫幅、按鈕、徽章、數字卡片、三種模式圖改 `docs/readme/build_readme_art.py` 後重跑。不要手改 SVG。README 素材一律存進 repo，不用 capsule-render、shields 等外部產圖服務；動畫寫在 SVG 內（README 的 `<style>` 會被 GitHub 濾掉），沒有動畫時畫面也要完整。
 
 ## 2. 專案結構與常改的位置
 
