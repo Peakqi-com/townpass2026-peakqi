@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { call1999 } from "@/lib/townpass/bridge";
 import { familyButtons } from "@/lib/elder/familyConfig";
 import { doubleNinthGift, greetingFor, type GiftInfo } from "@/lib/elder/profile";
 import { useElder } from "./ElderProvider";
-import { ModePicker } from "./ModePicker";
 import { ServiceAction, ServiceLink } from "./ServiceButton";
 import { useFamilyConfig } from "./useFamilyConfig";
 import { useFocusOnMount } from "./useFocusOnMount";
@@ -15,9 +16,17 @@ export function HomeScreen() {
   const { mode, ready, now, user, textScale } = useElder();
   // 家人代設定過（M7）就用家人挑的按鈕，沒有就用預設的 6 個
   const { config: family } = useFamilyConfig();
+  const router = useRouter();
+  const needsMode = ready && mode === null;
 
-  if (!ready || !now) return <p className="p-6 text-elder-body text-text-second">載入中…</p>;
-  if (mode === null) return <ModePicker />;
+  // 第一次使用：導向獨立的 /mode 頁。用 replace 不留下空白首頁的紀錄；
+  // 選完後 /mode 會 push 回首頁，城市通 AppBar 的「返回」就能回到選模式的頁面。
+  // （以前把選模式畫在首頁上，網址沒變，WebView 沒有上一頁，返回鍵不會出現。）
+  useEffect(() => {
+    if (needsMode) router.replace("/mode");
+  }, [needsMode, router]);
+
+  if (!ready || !now || mode === null) return <p className="p-6 text-elder-body text-text-second">載入中…</p>;
 
   const gift = user
     ? doubleNinthGift({ birthday: user.birthday, citizen: user.citizen, nativePeople: user.nativePeople }, now)
