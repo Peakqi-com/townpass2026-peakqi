@@ -18,7 +18,7 @@ import { openExternal } from "@/lib/townpass/elder";
 import { useElder } from "../ElderProvider";
 import { FailNote, useFailNote } from "../FailNote";
 import { PageShell } from "../PageShell";
-import { ServiceAction } from "../ServiceButton";
+import { ServiceAction, ServiceLink } from "../ServiceButton";
 import { ServiceCard } from "../ServiceCard";
 import { useRunAction } from "../useRunAction";
 import { CopyButton, FullScreenCard, INPUT, LABEL, SECONDARY_BUTTON, SourceList, toggleClass } from "./parts";
@@ -269,6 +269,14 @@ export function HelpScreen() {
         <SourceList sources={SMS_110.sources} />
       </section>
 
+      {/* M11：不確定是不是詐騙時，先到「防詐先問一下」比對看看 */}
+      <ServiceLink
+        href="/antifraud"
+        label="先問一下：這是不是詐騙？"
+        icon="search"
+        row
+        className="border-4 border-grayscale-800 bg-white text-text-primary"
+      />
       {antifraud && <ServiceCard service={antifraud} />}
 
       <FullScreenCard card={card} onClose={() => setCard(null)} />

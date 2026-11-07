@@ -17,6 +17,7 @@ export const PAGE_ROUTES = [
   "/family/setup",
   "/text",
   "/help",
+  "/antifraud",
   "/card/clinic",
   "/community",
   "/vision",
