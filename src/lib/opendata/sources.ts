@@ -11,6 +11,7 @@
  */
 import { decodeBody, parseCsv, parseXmlRecords, toNumber, xmlText, type Encoding, type RawRecord } from "./parse.ts";
 import { isInTaipeiArea, twd97ToWgs84 } from "./geo.ts";
+import { mergeLohas, normalizeElderRecord } from "./normalize.ts";
 
 export type OpenDataRecord = Record<string, unknown> & { lat?: number; lng?: number };
 
@@ -75,6 +76,8 @@ function csvSource(opts: {
   encoding: Encoding;
   ttl: number;
   geo?: { lat: string; lng: string };
+  /** 解析後的欄位整理（例如清理欄位內換行、補上行政區） */
+  transform?: (record: RawRecord) => RawRecord;
 }): OpenDataSource {
   return {
     id: opts.id,
@@ -83,7 +86,8 @@ function csvSource(opts: {
     ttl: opts.ttl,
     hasGeo: Boolean(opts.geo),
     load: async () => {
-      const rows = parseCsv(await fetchText(DOWNLOAD + opts.rid, opts.encoding));
+      const parsed = parseCsv(await fetchText(DOWNLOAD + opts.rid, opts.encoding));
+      const rows = opts.transform ? parsed.map(opts.transform) : parsed;
       const geo = opts.geo;
       return { records: geo ? rows.map((r) => withLatLng(r, geo.lat, geo.lng)) : rows };
     },
@@ -279,6 +283,61 @@ const places: Parameters<typeof csvSource>[0][] = [
   { id: "metro-elevators", title: "臺北捷運車站出入口無障礙電梯、無障礙坡道GPS座標", datasetId: "0a3bb422-9eb5-459b-a9d4-138456516183", rid: "61792c82-6609-41b2-9775-3a346934826d", encoding: "big5", ttl: DAY, geo: { lat: "緯度", lng: "經度" } },
 ];
 places.forEach((p) => register(csvSource(p)));
+
+/* 捷運無障礙與有聲號誌（M10 視障出門）。2026-11-07 實際下載確認 */
+
+register(
+  csvSource({
+    // 119 站，沒有座標（座標用 metro-elevators 的出入口電梯）；欄位是英文，多線車站用「【文湖線】…。【板南線】…」分段
+    id: "metro-station-facilities",
+    title: "臺北捷運車站無障礙設施資料",
+    datasetId: "3c799405-4e44-40dd-b747-daed09e88cdb",
+    rid: "5d45ef49-d60d-4354-b634-8dcf7d28da07",
+    encoding: "big5",
+    ttl: DAY,
+  }),
+);
+
+register(
+  csvSource({
+    // 191 筆，WGS84 座標；「路口」欄位用全形空白分隔兩條路
+    id: "audible-signals",
+    title: "臺北市交通管制工程處無障礙設施設置資料（有聲號誌設置地點）",
+    datasetId: "baf32b58-b194-448d-96a0-ba04013d164f",
+    rid: "1c18341c-9f6f-4b6b-b17f-8c66b94e39a0",
+    encoding: "big5",
+    ttl: DAY,
+    geo: { lat: "WGS84緯度座標", lng: "WGS84經度座標" },
+  }),
+);
+
+/* 長輩服務（M9 附近吃飯上課）：都沒有座標，用 district（行政區）篩選，例如 ?q=中山區。2026-11-07 實際下載確認 */
+
+const elderPlaces: (Omit<Parameters<typeof csvSource>[0], "encoding" | "ttl" | "transform"> & { address: string })[] = [
+  { id: "elder-meals", title: "臺北市銀髮族服務_臺北市老人共餐單位一覽表", datasetId: "fe55795c-a220-4b88-bde1-5b994321f8af", rid: "86d839db-85c7-48b0-991b-dc86922eb093", address: "據點地址" },
+  { id: "elder-care-points", title: "臺北市銀髮族服務_社區照顧關懷據點", datasetId: "d082dc87-d3fd-479d-89c6-745ff1be955a", rid: "11930dc6-4092-4bde-a42c-7722e0416462", address: "地址" },
+  { id: "elder-evergreen", title: "臺北市銀髮族服務長青學苑", datasetId: "67b63404-89b8-4214-8096-3322204144e6", rid: "4b03e7ea-8007-4b95-bc65-bc359abd29ea", address: "地址" },
+  { id: "elder-service-centers", title: "臺北市銀髮族服務_臺北市老人服務中心", datasetId: "78dfc9a2-36e2-4ef5-beaa-a74633ba3d26", rid: "869a27cb-65d8-4479-bde0-5781220b2016", address: "地址" },
+];
+elderPlaces.forEach(({ address, ...p }) =>
+  register(csvSource({ ...p, encoding: "utf-8", ttl: DAY, transform: (r) => normalizeElderRecord(r, { address }) })),
+);
+
+register({
+  // 同一個資料集有兩個資源：樂齡學堂（56 所）、樂齡學習中心（12 處），合併後用 kind 區分
+  id: "elder-lohas",
+  title: "臺北市樂齡學習據點",
+  datasetUrl: DATASET + "ca59e66b-7200-4283-8c32-08bde2f5f142",
+  ttl: DAY,
+  hasGeo: false,
+  load: async () => {
+    const [schools, centers] = await Promise.all([
+      fetchText(DOWNLOAD + "2cd14e6d-ed84-40bc-8523-812be0e0bf6a").then(parseCsv),
+      fetchText(DOWNLOAD + "462a64a2-f999-4322-8ac9-ae241380ffc1").then(parseCsv),
+    ]);
+    return { records: mergeLohas(schools, centers) };
+  },
+});
 
 export function getSource(id: string): OpenDataSource | undefined {
   return Object.hasOwn(SOURCES, id) ? SOURCES[id] : undefined;
