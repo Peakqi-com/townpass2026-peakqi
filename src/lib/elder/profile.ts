@@ -7,6 +7,9 @@ export type ElderMode = "normal" | "hearing" | "vision";
 
 const MODES: readonly ElderMode[] = ["normal", "hearing", "vision"];
 
+/** 畫面上顯示的模式名稱（和選模式頁的選項一致） */
+export const MODE_NAME: Record<ElderMode, string> = { normal: "都還好", vision: "看不清楚", hearing: "聽不清楚" };
+
 /** 從 localStorage 讀到的字串轉成模式；不認得就回 null（視為還沒選過） */
 export function parseMode(value: string | null): ElderMode | null {
   return MODES.includes(value as ElderMode) ? (value as ElderMode) : null;

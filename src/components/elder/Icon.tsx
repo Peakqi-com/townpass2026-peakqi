@@ -101,4 +101,6 @@ const PATHS: Record<IconName, React.ReactNode> = {
       <path d="M8 14a5 5 0 0 0 8 0M9 9.5v.5M15 9.5v.5" />
     </>
   ),
+  // 換模式：上下兩個方向相反的箭頭
+  switch: <path d="M4 8h14l-4-4M20 16H6l4 4" />,
 };

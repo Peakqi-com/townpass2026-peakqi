@@ -22,20 +22,22 @@
 
 ## 2. 主要功能
 
-| 模組 | 功能 | 狀態 |
-|---|---|---|
-| M0 | App 端橋接：朗讀、震動、無障礙狀態、開啟外部 App、裝置端語音辨識 | ✅ 完成（App 與網頁端） |
-| M1 | 首頁與模式：6 個大按鈕、重陽禮金提醒、固定的 1999／1966／求助；「看不清楚／聽不清楚／都還好」三種模式 | ✅ 完成 |
-| M2 | 找服務：打字、點選、說話，只回三個大按鈕 | ⏳（下一步） |
-| M3 | 服務清單：跨局處的開源 JSON 規格（`phrases`、`alt_channels`、`eligibility`、`source`） | ⏳ |
-| M4 | 我要看醫生：聯醫掛號、叫車、1966 一次列出 | ⏳ |
-| M5 | 我要叫車：依身分分流到復康巴士、長照交通接送、敬老計程車 | ⏳ |
-| M6 | 我的權益：敬老卡、重陽禮金、疫苗、健檢，依生日自動判斷 | ⏳ |
-| M7 | 家人：用 QR code 幫長輩設定按鈕（不經過伺服器）、打給家人 | ⏳ |
-| M8 | 聽不清楚：每個撥號按鈕旁的「用文字」、緊急求助卡、看診溝通卡 | ⏳ |
-| M9 | 附近共餐、上課：依行政區篩選 | ⏳ |
-| M10 | 視障出門：用一句話說明捷運無障礙設施與附近有聲號誌 | ⏳ |
-| M12 | 補助小幫手：三題篩出「可能可以申請」的補助，產生家人代辦準備單 | ⏳ |
+| 模組 | 頁面 | 功能 | 狀態 |
+|---|---|---|---|
+| M0 | （App 端） | App 端橋接：朗讀、震動、無障礙狀態、開啟外部 App、裝置端語音辨識 | ✅ |
+| M1 | `/`、`/mode` | 首頁與模式：6 個大按鈕、重陽禮金提醒、固定的 1999／1966／求助；「都還好／看不清楚／聽不清楚」三種模式，可調整唸的速度 | ✅ |
+| M2 | `/find` | 找服務：打字、點選分類、說話（點一下開始、再點一下停止），用關鍵字比對，離線也能用 | ✅ |
+| M3 | `src/data/services.json` | 服務清單：跨局處的開源 JSON（`phrases`、`alt_channels`、`audience`、`source`、`verified`），目前 26 筆 | ✅ |
+| M4 | `/health` | 我要看醫生：聯醫掛號、叫車、1966 一次列出；聽不清楚模式加看診溝通卡、手語翻譯 | ✅ |
+| M5 | `/ride` | 我要叫車：最多兩題，分流到復康巴士、長照交通接送、敬老計程車 | ✅ |
+| M6 | `/benefits` | 我的權益：重陽禮金、敬老卡、公費疫苗、老人健檢，依生日與戶籍自動判斷 | ✅ |
+| M7 | `/family`、`/family/setup` | 家人：家人用 QR code 幫長輩設定首頁按鈕與聯絡人（不經過伺服器）、打給家人 | ✅ |
+| M8 | `/text`、`/help`、`/card/clinic` | 聽不清楚：文字聯絡管道、全螢幕求助卡、119 簡訊範本、看診溝通卡與手語翻譯申請文字 | ✅ |
+| M9 | `/community` | 附近吃飯、上課：依行政區列出共餐、關懷據點、長青學苑、樂齡學習 | ✅ |
+| M10 | `/vision` | 視障出門：用一句話說出最近捷運站的電梯位置、異常公告與附近有聲號誌 | ✅ |
+| M12 | `/benefits/subsidy` | 補助小幫手：三題篩出「可能可以申請」的補助，附應備文件、戶籍地社會課與家人代辦準備單 | ✅ |
+
+各頁都已用瀏覽器在三種模式下檢查報讀（見下方「無障礙」）；⚠️ 尚未用實機開 VoiceOver／TalkBack 完整實測。
 
 ## 3. 系統架構
 
@@ -57,7 +59,7 @@ App 端程式在 TownPass 的 `lib/util/web_message_handler/elder_mode_message_h
 
 | name | 網頁送出 | App 回覆 | 說明 |
 |---|---|---|---|
-| `speak` | `'叫車'` 或 `{ text, rate? }` | `true`／`false` | 系統 TTS（flutter_tts），語速預設 0.45、限制 0.2～0.7，文字上限 200 字 |
+| `speak` | `'叫車'` 或 `{ text, rate? }` | `true`／`false` | 系統 TTS（flutter_tts），語速預設 0.45、限制 0.2～1.0，文字上限 200 字。螢幕閱讀器開著時網頁不呼叫 |
 | `a11y_state` | `null` | `{ screenReader, textScale }` | 螢幕閱讀器開著時網頁不自己唸；`textScale` 用來設定根字級（城市通 WebView 不跟隨系統字級） |
 | `haptic` | `'light'`／`'medium'` | `true` | 觸覺回饋（iOS WebView 不支援 `navigator.vibrate`） |
 | `open_external` | 網址字串 | `true`／`false` | 用外部 App 開啟（LINE、簡訊、撥號畫面）。只允許 https、tel、sms、mailto |
@@ -76,6 +78,14 @@ GET /api/opendata/<id>?near=緯度,經度&radius=500&limit=20&q=關鍵字
 - 統一轉成 JSON，TWD97 座標換算為 WGS84，可依位置篩選附近的點（附 `distance` 公尺），或用 `q` 依行政區等文字篩選
 - 依來源更新頻率設定 CDN 快取（`s-maxage`），上游暫時失敗時回傳最近一次的資料（`stale: true`）
 
+### 無障礙與報讀軟體
+
+- 不綁定特定報讀軟體，只用標準的無障礙語意，VoiceOver、TalkBack 與第三方報讀軟體都讀得到。
+- 每頁一個 h1，換頁後焦點移到標題；按鈕都有可見文字；圖示一律 `aria-hidden`；DOM 順序＝視覺順序。
+- 操作結果寫進同一個 live region（`role="status"`），不從 App 端呼叫原生通知（Android 已棄用 `announceForAccessibility`），避免唸兩次。
+- 打開服務時會在首頁前墊一筆「選模式」的瀏覽紀錄，城市通 AppBar 的返回鍵因此一定會出現，可以回去換模式（`src/lib/elder/entry.ts`）。
+- 檢查腳本：`scripts/a11y-check.js`，貼到 Chrome DevTools 的 Console 執行（App 內的 WebView 可用 `chrome://inspect` 連上）。原生機制與網頁做法的對照見 `CLAUDE.md` §4.5。
+
 ## 4. 執行方式
 
 需求：Node.js 24 以上。
@@ -86,6 +96,8 @@ cp .env.example .env.local   # 目前用到的資料來源都不需要金鑰
 npm run dev                  # http://localhost:3000（一般瀏覽器會自動使用 mock 資料）
 npm test                     # 單元測試（node --test）
 npm run lint
+npx tsc --noEmit
+npm run build
 ```
 
 在城市通 App 內測試：
@@ -196,6 +208,6 @@ docker build -t townpass2026-peakqi . && docker run -p 8080:8080 --env-file .env
 
 ## 授權
 
-本專案採 [GNU AGPL-3.0](LICENSE) 授權。
+本專案採 [GNU AGPL-3.0](LICENSE) 授權。修改後的城市通 App（[Peakqi-com/TownPass](https://github.com/Peakqi-com/TownPass)）沿用原專案的 GPL-3.0。
 
-TODO：附上主辦單位指定的授權聲明。
+<!-- 待補：主辦單位在競賽須知（115.08.27 版）指定的授權聲明全文。指引只寫「附上主辦指定的授權聲明」，沒有附原文；向主辦取得後貼在這裡，不要自行改寫。 -->

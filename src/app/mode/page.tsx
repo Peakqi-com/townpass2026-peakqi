@@ -1,5 +1,5 @@
-import { ModePicker } from "@/components/elder/ModePicker";
+import { ModeRoute } from "@/components/elder/ModeRoute";
 
 export default function ModePage() {
-  return <ModePicker afterSelect="/" />;
+  return <ModeRoute />;
 }

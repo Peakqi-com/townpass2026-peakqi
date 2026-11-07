@@ -1,11 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { homeEntry, readEntryFlag, writeEntryFlag } from "@/lib/elder/entry";
 import { call1999 } from "@/lib/townpass/bridge";
 import { familyButtons } from "@/lib/elder/familyConfig";
-import { doubleNinthGift, greetingFor, type GiftInfo } from "@/lib/elder/profile";
+import { doubleNinthGift, greetingFor, MODE_NAME, type GiftInfo } from "@/lib/elder/profile";
 import { useElder } from "./ElderProvider";
 import { ServiceAction, ServiceLink } from "./ServiceButton";
 import { useFamilyConfig } from "./useFamilyConfig";
@@ -17,16 +17,34 @@ export function HomeScreen() {
   // 家人代設定過（M7）就用家人挑的按鈕，沒有就用預設的 6 個
   const { config: family } = useFamilyConfig();
   const router = useRouter();
-  const needsMode = ready && mode === null;
 
-  // 第一次使用：導向獨立的 /mode 頁。用 replace 不留下空白首頁的紀錄；
-  // 選完後 /mode 會 push 回首頁，城市通 AppBar 的「返回」就能回到選模式的頁面。
-  // （以前把選模式畫在首頁上，網址沒變，WebView 沒有上一頁，返回鍵不會出現。）
+  // 城市通 AppBar 的返回鍵只在 WebView 有上一頁時才出現（見 lib/elder/entry.ts）。
+  // - 還沒選模式（pick）：換成 /mode，選完 push 回首頁
+  // - 選過模式、剛打開服務（seed）：先換成 /mode，/mode 會馬上 push 回首頁，
+  //   紀錄變成 [/mode, /]，按返回就回到選模式的頁面
+  // 判斷寫在 effect 裡：Next.js 16 會保留離開過的頁面（不拆掉），回到這頁時 state 還在，
+  // 但 effect 會重新執行，所以每次顯示都會用當下的瀏覽紀錄重新判斷。
+  const [stay, setStay] = useState(false);
   useEffect(() => {
-    if (needsMode) router.replace("/mode");
-  }, [needsMode, router]);
+    if (!ready) return;
+    let cancelled = false;
+    // 瀏覽紀錄和 sessionStorage 是外部狀態：和 ElderProvider 讀帳號一樣，在 callback 裡更新 state
+    queueMicrotask(() => {
+      if (cancelled) return;
+      const step = homeEntry({ mode, flag: readEntryFlag(), historyLength: window.history.length });
+      if (step === "stay") {
+        setStay(true);
+        return;
+      }
+      writeEntryFlag(step === "seed" ? "forward" : "done");
+      router.replace("/mode");
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [ready, mode, router]);
 
-  if (!ready || !now || mode === null) return <p className="p-6 text-elder-body text-text-second">載入中…</p>;
+  if (!ready || !now || mode === null || !stay) return <p className="p-6 text-elder-body text-text-second">載入中…</p>;
 
   const gift = user
     ? doubleNinthGift({ birthday: user.birthday, citizen: user.citizen, nativePeople: user.nativePeople }, now)
@@ -64,12 +82,17 @@ export function HomeScreen() {
         label={hearing ? "打字找服務" : "說話或打字找服務"}
         icon="search"
         row
-        className="border-4 border-grayscale-800 bg-white text-text-primary"
+        className={`border-4 border-grayscale-800 bg-white text-text-primary ${large ? "justify-start px-6 text-left" : ""}`}
       />
 
-      <Link href="/mode" className="self-center py-3 text-elder-body text-text-second underline underline-offset-4">
-        換成其他模式（看不清楚、聽不清楚）
-      </Link>
+      <ServiceLink
+        href="/mode"
+        label={`換模式：${MODE_NAME[mode]}`}
+        speak={`換模式。現在是${MODE_NAME[mode]}`}
+        icon="switch"
+        row
+        className={`border-4 border-grayscale-800 bg-white text-text-primary ${large ? "justify-start px-6 text-left" : ""}`}
+      />
 
       {/* 電話與求助：每一頁同樣的位置與順序，長輩不用找（WCAG 3.2.6） */}
       <nav
