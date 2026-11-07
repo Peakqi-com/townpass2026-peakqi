@@ -14,6 +14,17 @@
 
 本機如果已經 clone 了 TownPass（`../TownPass`），直接讀那份；沒有的話到 GitHub 上讀。
 
+### 文件同步規則
+
+本 repo 的 `docs/` 是 TownPass `docs/townpass/` 的**複本**（規格、研究、架構圖與流程圖 SVG），兩邊必須一致。
+
+- **唯一來源是 TownPass 的 `docs/townpass/`**。新增或修改文件一律在 TownPass 做，**不要直接改本 repo 的 `docs/`**，下次同步會被蓋掉。
+- TownPass 的文件改完後，在本 repo 執行 `npm run docs:sync`（`scripts/sync-docs.mjs`，TownPass 預設在 `../TownPass`，其他位置用環境變數 `TOWNPASS_DIR`），再把兩個 repo 都 commit。
+- commit 或 push 前執行 `npm run docs:check`，兩邊不一致時會列出差異並以 exit code 1 結束。
+- 架構圖、流程圖由 TownPass 的 `docs/townpass/diagrams/build_diagrams.py` 產生；不要手改本 repo 的 SVG。
+- 不同步、兩邊各自保留的檔案：`*.pdf`、`diagrams/build_diagrams.py`。
+- README 引用了 `docs/diagrams/*.svg`、`docs/antifraud-research.md` 等檔案；在 TownPass 改檔名或刪檔時，要一起改 README。
+
 ---
 
 ## 0. 不可違反的規則
