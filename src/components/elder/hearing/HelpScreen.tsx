@@ -13,6 +13,7 @@ import {
   type LatLng,
 } from "@/lib/elder/messages";
 import { getService } from "@/lib/elder/services";
+import { helpShareText } from "@/lib/elder/share";
 import { getLocation } from "@/lib/townpass/bridge";
 import { openExternal } from "@/lib/townpass/elder";
 import { useElder } from "../ElderProvider";
@@ -20,6 +21,7 @@ import { FailNote, useFailNote } from "../FailNote";
 import { PageShell } from "../PageShell";
 import { ServiceAction, ServiceLink } from "../ServiceButton";
 import { ServiceCard } from "../ServiceCard";
+import { ShareToFamily } from "../ShareToFamily";
 import { useRunAction } from "../useRunAction";
 import { CopyButton, FullScreenCard, INPUT, LABEL, SECONDARY_BUTTON, SourceList, toggleClass } from "./parts";
 
@@ -31,6 +33,9 @@ const KINDS: { kind: Exclude<EmergencyKind, "police">; label: string }[] = [
 
 /**
  * /help 求助（M8）：撥 119、給旁人看的求助卡、119／110 簡訊範本、165 防詐騙。
+ * 最上面分兩條：「現在有危險」（119／110／讓家人知道）和「接到可疑電話」（防詐先問一下、165），
+ * 兩種情況要做的事完全不同，分開來長輩才不會在緊急時看到防詐、接到詐騙電話時看到 119。
+ * 簡訊範本等細節放在兩條之後，用「用簡訊報 119／110」跳過去。
  * ⚠️ 原則 9：不在 Demo 送出真實求救。簡訊只打開簡訊 App，由使用者自己按送出。
  */
 export function HelpScreen() {
@@ -48,6 +53,7 @@ export function HelpScreen() {
   const [position, setPosition] = useState<LatLng | null>(null);
   const [locating, setLocating] = useState(false);
   const smsHeading = useRef<HTMLHeadingElement>(null);
+  const sms110Heading = useRef<HTMLHeadingElement>(null);
 
   const who = {
     name: user?.realName,
@@ -93,15 +99,18 @@ export function HelpScreen() {
       className="bg-elder-help text-on-elder-help"
     />
   );
+  /** 跳到下面的簡訊範本 */
+  const jumpTo = (heading: HTMLHeadingElement | null, spoken: string) => {
+    heading?.scrollIntoView({ block: "start" });
+    heading?.focus({ preventScroll: true });
+    // 焦點已經移到標題，報讀軟體會唸標題；開著報讀軟體時不要再 say，免得唸兩次
+    if (!a11y.screenReader) say(spoken);
+  };
+
   const sms119 = (
     <ServiceAction
       key="sms"
-      onPress={() => {
-        smsHeading.current?.scrollIntoView({ block: "start" });
-        smsHeading.current?.focus({ preventScroll: true });
-        // 焦點已經移到標題，報讀軟體會唸標題；開著報讀軟體時不要再 say，免得唸兩次
-        if (!a11y.screenReader) say("下面是 119 簡訊範本");
-      }}
+      onPress={() => jumpTo(smsHeading.current, "下面是 119 簡訊範本")}
       label="用簡訊報 119"
       icon="text"
       row
@@ -111,12 +120,42 @@ export function HelpScreen() {
 
   return (
     <PageShell title="求助">
-      <p className="text-elder-body text-text-primary">很緊急就打 119。聽不到的話，用下面的求助卡或簡訊。</p>
+      <section aria-labelledby="danger-heading" className="flex flex-col gap-4">
+        <h2 id="danger-heading" className="text-elder-title font-bold text-text-primary">
+          現在有危險
+        </h2>
+        <p className="text-elder-body text-text-primary">很緊急就打 119。聽不到的話，用下面的求助卡或簡訊。</p>
 
-      {/* 原則 4：打電話與用文字兩個按鈕一樣大、並排；聽不清楚模式文字排前面 */}
-      <div className="flex flex-col gap-3">{hearing ? [sms119, call119] : [call119, sms119]}</div>
-      <p className="text-h3 text-text-second">按「撥 119」會先出現大字確認，不會直接撥出。</p>
-      <ServiceLink href="/shelter" label="颱風、地震時去哪裡" speak="颱風、地震時去哪裡避難" icon="home" row className="border-4 border-grayscale-800 bg-white text-text-primary" />
+        {/* 原則 4：打電話與用文字兩個按鈕一樣大、並排；聽不清楚模式文字排前面 */}
+        <div className="flex flex-col gap-3">{hearing ? [sms119, call119] : [call119, sms119]}</div>
+        <p className="text-h3 text-text-second">按「撥 119」會先出現大字確認，不會直接撥出。</p>
+        <ServiceAction
+          onPress={() => jumpTo(sms110Heading.current, "下面是 110 簡訊報警")}
+          label="用簡訊報警 110"
+          icon="text"
+          row
+          className="border-4 border-grayscale-800 bg-white text-text-primary"
+        />
+        <ServiceLink href="/shelter" label="颱風、地震時去哪裡" speak="颱風、地震時去哪裡避難" icon="home" row className="border-4 border-grayscale-800 bg-white text-text-primary" />
+
+        <ShareToFamily title="讓家人知道" text={helpShareText(user?.realName)} />
+      </section>
+
+      {/* M11：不確定是不是詐騙時，先到「防詐先問一下」比對看看 */}
+      <section aria-labelledby="fraud-heading" className="flex flex-col gap-4">
+        <h2 id="fraud-heading" className="text-elder-title font-bold text-text-primary">
+          接到可疑電話
+        </h2>
+        <p className="text-elder-body text-text-primary">不確定是不是詐騙，先問一下，或打 165。</p>
+        <ServiceLink
+          href="/antifraud"
+          label="先問一下：這是不是詐騙？"
+          icon="search"
+          row
+          className="border-4 border-grayscale-800 bg-white text-text-primary"
+        />
+        {antifraud && <ServiceCard service={antifraud} headingLevel={3} />}
+      </section>
 
       <section aria-labelledby="cards-heading" className="flex flex-col gap-3">
         <h2 id="cards-heading" className="text-elder-button font-bold text-text-primary">
@@ -253,7 +292,12 @@ export function HelpScreen() {
       </section>
 
       <section aria-labelledby="sms110-heading" className="flex flex-col gap-3">
-        <h2 id="sms110-heading" className="text-elder-button font-bold text-text-primary">
+        <h2
+          id="sms110-heading"
+          ref={sms110Heading}
+          tabIndex={-1}
+          className="text-elder-button font-bold text-text-primary focus:outline-none"
+        >
           110 簡訊報警
         </h2>
         <p className="text-elder-body text-text-second">
@@ -269,16 +313,6 @@ export function HelpScreen() {
         <FailNote message={note.at(SMS_110.number)} />
         <SourceList sources={SMS_110.sources} />
       </section>
-
-      {/* M11：不確定是不是詐騙時，先到「防詐先問一下」比對看看 */}
-      <ServiceLink
-        href="/antifraud"
-        label="先問一下：這是不是詐騙？"
-        icon="search"
-        row
-        className="border-4 border-grayscale-800 bg-white text-text-primary"
-      />
-      {antifraud && <ServiceCard service={antifraud} />}
 
       <FullScreenCard card={card} onClose={() => setCard(null)} />
     </PageShell>

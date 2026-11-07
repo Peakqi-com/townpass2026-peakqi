@@ -44,6 +44,68 @@ export function formatReminderTime(iso: string): string {
   return `${taipei.getUTCMonth() + 1} 月 ${taipei.getUTCDate()} 日（星期${WEEKDAY[taipei.getUTCDay()]}）${period} ${time}`;
 }
 
+/* ---------- 回診／領藥提醒（M4 看醫生 → 看完醫生之後） ---------- */
+
+/** revisit＝回診；refill＝領慢性病連續處方箋的藥 */
+export type FollowUpKind = "revisit" | "refill";
+
+/** 按鈕上的字（畫面與報讀共用） */
+export const FOLLOW_UP_LABEL: Readonly<Record<FollowUpKind, string>> = {
+  revisit: "回診",
+  refill: "領慢性病連續處方箋的藥",
+};
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+const TAIPEI_OFFSET_MS = 8 * 60 * 60 * 1000;
+/** App 的 reminder Handler 最遠只接受 400 天之後 */
+const MAX_DAYS_AHEAD = 400;
+
+/** 某個時間點在臺北是哪一天（YYYY-MM-DD） */
+function taipeiDate(ms: number): string {
+  return new Date(ms + TAIPEI_OFFSET_MS).toISOString().slice(0, 10);
+}
+
+/** YYYY-MM-DD 而且是真的日期（擋掉 2 月 30 日之類），否則回 null */
+function parseDay(date: string): number | null {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return null;
+  const noon = Date.parse(`${date}T12:00:00+08:00`);
+  return Number.isNaN(noon) || taipeiDate(noon) !== date ? null : noon;
+}
+
+/** 日期欄可以選的範圍：最早明天，最晚 400 天後（前一天晚上的提醒一定在 App 接受的範圍內） */
+export function followUpDateRange(now: Date): { min: string; max: string } {
+  return { min: taipeiDate(now.getTime() + DAY_MS), max: taipeiDate(now.getTime() + MAX_DAYS_AHEAD * DAY_MS) };
+}
+
+/** 「11 月 20 日（星期五）」：date 是 YYYY-MM-DD（臺北日期） */
+export function formatDay(date: string): string {
+  const [, month, day] = date.split("-").map(Number);
+  const weekday = new Date(`${date}T12:00:00+08:00`).getUTCDay();
+  return `${month} 月 ${day} 日（星期${WEEKDAY[weekday]}）`;
+}
+
+/**
+ * 回診或領藥的提醒：前一天晚上 7 點；剩不到 5 分鐘就改成當天早上 7 點；都來不及回 null。
+ * 日期格式不對、或超過 400 天（App 不接受）也回 null。
+ *
+ * 內文只提醒要帶的東西，不寫健保的領藥期限等規則（沒有查證健保署的官方頁面，不寫）。
+ */
+export function followUpReminder({ kind, date, now }: { kind: FollowUpKind; date: string; now: Date }): Reminder | null {
+  const noon = parseDay(date);
+  if (noon === null || date > followUpDateRange(now).max) return null;
+
+  const what = kind === "revisit" ? "回診" : "領藥";
+  const bring = kind === "revisit" ? "健保卡和藥袋" : "健保卡、慢性病連續處方箋和藥袋";
+  const body = `${formatDay(date)}要${what}，記得帶${bring}。`;
+  const candidates = [
+    { at: `${taipeiDate(noon - DAY_MS)}T19:00:00+08:00`, title: `明天要${what}` },
+    { at: `${date}T07:00:00+08:00`, title: `今天要${what}` },
+  ];
+  const next = candidates.find((c) => new Date(c.at).getTime() - now.getTime() >= MIN_LEAD_MS);
+  if (!next) return null;
+  return { id: `followup-${kind}-${date.replaceAll("-", "")}`, title: next.title, body, at: next.at };
+}
+
 /* ---------- 記住已經設定的提醒（只用來顯示「已設定」，不影響 App 端的通知） ---------- */
 
 const STORE_KEY = "elder-reminders";

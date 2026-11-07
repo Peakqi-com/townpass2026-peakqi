@@ -1,10 +1,23 @@
 "use client";
 
+import { useState } from "react";
+import {
+  FOLLOW_UP_LABEL,
+  followUpDateRange,
+  followUpReminder,
+  formatDay,
+  type FollowUpKind,
+} from "@/lib/elder/reminders";
 import { getService, type Service } from "@/lib/elder/services";
+import { followUpShareText } from "@/lib/elder/share";
 import { useElder } from "./ElderProvider";
+import { FailNote, useFailNote } from "./FailNote";
 import { PageShell } from "./PageShell";
+import { ReminderButton } from "./ReminderButton";
 import { ServiceLink } from "./ServiceButton";
 import { ServiceCard } from "./ServiceCard";
+import { ShareToFamily } from "./ShareToFamily";
+import { INPUT, LABEL, toggleClass } from "./hearing/parts";
 
 /** 看病會用到的服務，依序：掛號（聯醫）→ 怎麼去（交通局、社會局）→ 找人照顧（衛生局） */
 const HEALTH_IDS = ["tpech-reg", "page-ride", "ltc-1966"] as const;
@@ -20,7 +33,7 @@ function pick(ids: readonly string[]): Service[] {
  * 不需要開放資料；醫院清單由其他模組處理。
  */
 export function HealthScreen() {
-  const { mode } = useElder();
+  const { mode, now, user } = useElder();
   const hearing = mode === "hearing";
   // 敬老卡扣掛號費的出處：市府 114/10/29 新聞（115/1 起擴大到一般長者，21 處聯醫門診）
   const seniorCard = getService("senior-card");
@@ -76,6 +89,91 @@ export function HealthScreen() {
           ))}
         </section>
       )}
+
+      {/* 日期要用 now（使用者資料讀完後才有），所以讀完才顯示 */}
+      {now && <AfterVisit now={now} name={user?.realName} />}
     </PageShell>
+  );
+}
+
+const FOLLOW_UP_KINDS: readonly FollowUpKind[] = ["revisit", "refill"];
+
+/**
+ * 看完醫生之後：選「回診」或「領藥」和日子，前一天晚上 7 點跳出手機通知（規則在 reminders.ts），
+ * 也可以把日子傳給家人，請家人提醒。
+ * 只提醒要帶的東西（健保卡、藥袋、處方箋），不寫健保的領藥期限等規則（沒有查證健保署官方頁面）。
+ */
+function AfterVisit({ now, name }: { now: Date; name?: string }) {
+  const { announce } = useElder();
+  const note = useFailNote();
+  const [kind, setKind] = useState<FollowUpKind | null>(null);
+  const [date, setDate] = useState("");
+  const range = followUpDateRange(now);
+  const reminder = kind && date ? followUpReminder({ kind, date, now }) : null;
+
+  const pickDate = (value: string) => {
+    setDate(value);
+    note.clear();
+    if (!value) return;
+    // 有些手機可以直接打字，會選到範圍外的日子
+    if (value > range.max) note.fail(`最遠只能選到 ${formatDay(range.max)}。`);
+    else if (!followUpReminder({ kind: kind ?? "revisit", date: value, now })) note.fail("這一天已經過了，來不及提醒。");
+  };
+
+  return (
+    <>
+      <section aria-labelledby="after-visit-heading" className="flex flex-col gap-4">
+        <h2 id="after-visit-heading" className="text-elder-button font-bold text-text-primary">
+          看完醫生之後
+        </h2>
+        <p className="text-elder-body text-text-second">選下次回診或領藥的日子，前一天晚上 7 點手機會跳出通知提醒您。</p>
+
+        <fieldset className="flex flex-col gap-3">
+          <legend className={`${LABEL} mb-2`}>要提醒什麼？</legend>
+          {FOLLOW_UP_KINDS.map((k) => {
+            const pressed = kind === k;
+            return (
+              <button
+                key={k}
+                type="button"
+                aria-pressed={pressed}
+                onClick={() => {
+                  announce(FOLLOW_UP_LABEL[k]);
+                  setKind(k);
+                }}
+                className={`w-full ${toggleClass(pressed)}`}
+              >
+                {/* 選到時深底加「✓」，不只靠顏色；報讀軟體由 aria-pressed 唸「已選取」 */}
+                {pressed && <span aria-hidden="true">✓</span>}
+                {FOLLOW_UP_LABEL[k]}
+              </button>
+            );
+          })}
+        </fieldset>
+
+        <div className="flex flex-col gap-2">
+          <label htmlFor="after-visit-date" className={LABEL}>
+            哪一天？
+          </label>
+          <input
+            id="after-visit-date"
+            type="date"
+            min={range.min}
+            max={range.max}
+            value={date}
+            onChange={(e) => pickDate(e.target.value)}
+            className={INPUT}
+          />
+          <FailNote message={note.at()} />
+        </div>
+
+        {!kind && date && <p className="text-elder-body text-text-second">再選上面「要提醒什麼？」，就可以設定提醒。</p>}
+        {reminder && kind && (
+          <ReminderButton key={reminder.id} reminder={reminder} label={kind === "revisit" ? "提醒我回診" : "提醒我領藥"} />
+        )}
+      </section>
+
+      {reminder && kind && <ShareToFamily text={followUpShareText({ kind, date, name })} />}
+    </>
   );
 }

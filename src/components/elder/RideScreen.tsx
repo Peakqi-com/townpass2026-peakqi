@@ -23,6 +23,10 @@ const FOCUS_RING =
 const SECONDARY =
   `flex min-h-[4.5rem] w-full items-center justify-center rounded-2xl border-4 border-grayscale-800 bg-white px-5 text-elder-button font-bold text-text-primary ${FOCUS_RING}`;
 
+function pick(ids: readonly string[] = []): Service[] {
+  return ids.map(getService).filter((s): s is Service => Boolean(s));
+}
+
 /**
  * M5 我要叫車：最多兩題大按鈕，分流到復康巴士、長照交通接送、敬老計程車。
  * 分流邏輯在 src/lib/elder/ride.ts（純函式，有測試）。
@@ -43,7 +47,8 @@ export function RideScreen() {
   }, [state]);
 
   const result = rideResult(state.answers, { hearing });
-  const services = (result?.serviceIds ?? []).map(getService).filter((s): s is Service => Boolean(s));
+  const services = pick(result?.serviceIds);
+  const fallbacks = pick(result?.fallback.serviceIds);
   const question = state.asking ? RIDE_QUESTIONS[state.asking] : null;
   const canGoBack = backRide(state) !== null;
 
@@ -152,15 +157,36 @@ export function RideScreen() {
             <ServiceCard key={service.id} service={service} headingLevel={3} />
           ))}
           <p className="text-h3 text-text-second">能不能用，最後以主責機關審核為準。</p>
-          <div className="flex flex-col gap-4">
-            <button type="button" onClick={back} className={SECONDARY}>
-              回上一題
-            </button>
-            <button type="button" onClick={restart} className={SECONDARY}>
-              重新回答
-            </button>
-          </div>
         </section>
+      )}
+
+      {/* 叫車最常遇到的是訂不到車：列出下一個可以試的方式，不讓長輩卡在這裡（邏輯在 ride.ts） */}
+      {result && fallbacks.length > 0 && (
+        <section aria-labelledby="ride-fallback" className="flex flex-col gap-4">
+          <h2 id="ride-fallback" className="text-elder-button font-bold text-text-primary">
+            訂不到車怎麼辦？
+          </h2>
+          <p className="text-elder-body text-text-second">照順序試試看：</p>
+          {result.fallback.notes.map((note) => (
+            <p key={note} className="text-elder-body text-text-second">
+              {note}
+            </p>
+          ))}
+          {fallbacks.map((service) => (
+            <ServiceCard key={service.id} service={service} headingLevel={3} />
+          ))}
+        </section>
+      )}
+
+      {result && (
+        <div className="flex flex-col gap-4">
+          <button type="button" onClick={back} className={SECONDARY}>
+            回上一題
+          </button>
+          <button type="button" onClick={restart} className={SECONDARY}>
+            重新回答
+          </button>
+        </div>
       )}
     </PageShell>
   );

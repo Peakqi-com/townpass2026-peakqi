@@ -135,3 +135,52 @@ test("聽不清楚模式：結果有敬老計程車（只能用講的）時，�
   assert.deepEqual(rideResult(play("yes").answers, { hearing: true })?.serviceIds, ["rehab-bus"], "復康巴士可以用網站預約，不用加");
   assert.ok(getService("vrs"), "vrs 要在 services.json");
 });
+
+/* ---------- 訂不到車怎麼辦？（退路） ---------- */
+
+const fallbackIds = (state: RideState, hearing = false) => rideResult(state.answers, { hearing })?.fallback.serviceIds;
+
+test("退路：復康巴士訂不到 → 長照交通接送、敬老計程車、打給家人", () => {
+  assert.deepEqual(fallbackIds(play("yes")), ["ltc-ride", "senior-taxi", "page-family"]);
+  const result = rideResult(play("yes").answers);
+  assert.ok(
+    result?.fallback.notes.some((n) => n.includes("長照") && n.includes("2 級以上")),
+    "沒問過長照等級，要說明長照交通接送的條件",
+  );
+});
+
+test("退路：長照交通接送訂不到 → 敬老計程車、打給家人", () => {
+  assert.deepEqual(fallbackIds(play("no", "yes")), ["senior-taxi", "page-family"]);
+  assert.deepEqual(fallbackIds(play("unsure", "yes")), ["senior-taxi", "page-family"]);
+});
+
+test("退路：敬老計程車叫不到 → 打給家人", () => {
+  assert.deepEqual(fallbackIds(play("no", "no")), ["page-family"]);
+  assert.deepEqual(fallbackIds(play("no", "unsure")), ["page-family"], "長照等級不知道時，主要也是敬老計程車");
+});
+
+test("退路：回答過「長照不到 2 級」或「不知道」時，不推長照交通接送", () => {
+  for (const path of [["no", "no"], ["no", "unsure"], ["unsure", "no"], ["unsure", "unsure"]] as RideAnswer[][]) {
+    assert.ok(!fallbackIds(play(...path))?.includes("ltc-ride"), `${path.join("→")} 不能出現長照交通接送`);
+  }
+});
+
+test("退路：不重複結果裡已經有的服務，而且一定有「打給家人」", () => {
+  const paths: RideAnswer[][] = [["yes"], ["no", "yes"], ["no", "no"], ["no", "unsure"], ["unsure", "yes"], ["unsure", "unsure"]];
+  for (const path of paths) {
+    const result = rideResult(play(...path).answers);
+    assert.ok(result);
+    for (const id of result.fallback.serviceIds) {
+      assert.ok(!result.serviceIds.includes(id), `${path.join("→")}：${id} 已經在結果裡`);
+      assert.ok(getService(id), `${id} 不在 services.json`);
+    }
+    assert.equal(result.fallback.serviceIds.at(-1), "page-family");
+    for (const note of result.fallback.notes) assert.ok(!note.includes("符合"));
+  }
+});
+
+test("退路：聽不清楚模式，退路裡有敬老計程車（只能用講的）時，緊接著加手語視訊轉譯", () => {
+  assert.deepEqual(fallbackIds(play("yes"), true), ["ltc-ride", "senior-taxi", "vrs", "page-family"]);
+  assert.deepEqual(fallbackIds(play("no", "yes"), true), ["senior-taxi", "vrs", "page-family"]);
+  assert.deepEqual(fallbackIds(play("no", "no"), true), ["page-family"], "結果已經有手語視訊轉譯，退路不用再放");
+});
