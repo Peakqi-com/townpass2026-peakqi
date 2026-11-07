@@ -148,8 +148,11 @@ function SmsButton({ contact }: { contact: FamilyContact }) {
   );
 }
 
-/** 撥號前的大字確認：要打給誰、號碼是多少，按「撥打」才撥；也可以不打了 */
-function FamilyCallConfirm({ contact, onCancel }: { contact: FamilyContact; onCancel: () => void }) {
+/**
+ * 撥號前的大字確認：要打給誰、號碼是多少，按「撥打」才撥；也可以不打了。
+ * M11 防詐先問一下也用這個畫面打給家人（撥號規則只寫在這裡一份）。
+ */
+export function FamilyCallConfirm({ contact, onCancel }: { contact: FamilyContact; onCancel: () => void }) {
   const { mode, say } = useElder();
   const hearing = mode === "hearing";
   const number = formatMobile(contact.phone);

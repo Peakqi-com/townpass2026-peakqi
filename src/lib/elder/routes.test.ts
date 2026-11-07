@@ -17,7 +17,7 @@ test("PAGE_ROUTES 的每個路徑都有對應的 page.tsx（避免預載不存�
 
 test("offlineRoutes：包含所有功能頁面，不包含開發用的 /dev", () => {
   const routes = offlineRoutes();
-  for (const route of ["/", "/mode", "/find", "/health", "/ride", "/benefits", "/benefits/subsidy", "/family", "/family/setup", "/text", "/help", "/card/clinic", "/community", "/vision"]) {
+  for (const route of ["/", "/mode", "/find", "/health", "/ride", "/benefits", "/benefits/subsidy", "/family", "/family/setup", "/text", "/help", "/antifraud", "/card/clinic", "/community", "/vision"]) {
     assert.ok(routes.includes(route), `少了 ${route}`);
   }
   assert.ok(!routes.includes("/dev"));

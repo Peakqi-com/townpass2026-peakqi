@@ -222,6 +222,19 @@
     "verified": "2026-11-07"
   },
   {
+    "id": "page-antifraud",
+    "title": "防詐先問一下",
+    "speak": "防詐先問一下，幫您看看像不像詐騙",
+    "description": "接到奇怪的電話或訊息，點一下對方說了什麼，幫您看看像哪一種詐騙，再打給家人或 165。",
+    "category": "help",
+    "phrases": ["詐騙", "是不是詐騙", "要我轉帳", "要我匯款", "說我中獎", "要我去atm", "解除分期", "分期付款", "檢察官", "監管帳戶", "洗錢", "穩賺不賠", "猜猜我是誰", "要我給密碼", "驗證碼", "奇怪的電話"],
+    "audience": ["elder", "vision", "hearing"],
+    "action": { "type": "page", "target": "/antifraud" },
+    "owner": "長輩模式（提醒文字取自內政部警政署 165 全民防騙網）",
+    "source": "https://165.npa.gov.tw/#/article/1/1710",
+    "verified": "2026-11-07"
+  },
+  {
     "id": "antifraud-165",
     "title": "165 防詐騙",
     "speak": "165 反詐騙專線",
@@ -230,7 +243,7 @@
     "phrases": ["詐騙", "中獎", "atm", "匯款", "可疑電話", "被騙", "騙子", "轉帳", "165"],
     "audience": ["elder", "vision", "hearing"],
     "action": { "type": "phone_call", "target": "165", "label": "撥 165" },
-    "alt_channels": [],
+    "alt_channels": [{ "type": "open_external", "target": "https://line.me/R/ti/p/@tw165", "label": "165 LINE 查網址" }],
     "confirm": true,
     "owner": "內政部警政署、臺北市政府警察局",
     "source": "https://md-fraud.police.gov.taipei/News_Content.aspx?n=BD99F0864A7983ED&s=557489AAACF143A4",
