@@ -1,5 +1,5 @@
 /**
- * M9 附近吃飯上課：把共餐、關懷據點、長青學苑、樂齡學習四個開放資料集整理成同一種「地點」。
+ * M9 附近吃飯上課：把共餐、關懷據點、長青學苑、樂齡學習、老人服務中心五個開放資料集整理成同一種「地點」。
  * 規格見 docs/elder-mode-spec.md M9。
  *
  * 這些資料集都沒有座標，所以用台北通帳號裡的行政區（addresses[].town）篩選同一區，
@@ -13,6 +13,7 @@ export type CommunityCategoryId =
   | "care"
   | "evergreen"
   | "lohas"
+  | "service-center"
   // 照顧家人（/care）
   | "dementia"
   | "respite"
@@ -52,6 +53,15 @@ export const COMMUNITY_CATEGORIES: readonly CommunityCategory[] = [
   { id: "care", label: "關懷據點", speak: "社區照顧關懷據點", description: "社區裡的關懷據點，有健康課程，有的也有共餐。", source: "elder-care-points", owner: "臺北市政府社會局" },
   { id: "evergreen", label: "長青學苑", speak: "長青學苑，給長輩上課的地方", description: "給長輩上課的地方。", source: "elder-evergreen", owner: "臺北市政府社會局" },
   { id: "lohas", label: "樂齡學習", speak: "樂齡學習，學校和中心的長輩課程", description: "學校和樂齡中心開的長輩課程。", source: "elder-lohas", owner: "臺北市政府教育局" },
+  // 說明取自社會局原頁（taipei-elderly-services.md 長者服務表「老人服務中心」✅）
+  {
+    id: "service-center",
+    label: "老人服務中心",
+    speak: "老人服務中心",
+    description: "社會局委託或補助民間辦的長輩服務中心，週一到週五早上 8 點半到下午 5 點半。獨居長輩的緊急救援系統，也可以請這裡的社工幫忙申請。",
+    source: "elder-service-centers",
+    owner: "臺北市政府社會局",
+  },
 ];
 
 const HEALTH_CENTER: CommunityCategory = {
@@ -230,6 +240,11 @@ export function toCommunityPlace(category: CommunityCategoryId, record: Record<s
       break;
     case "evergreen":
       name = str(record["機構名稱"]);
+      address = str(record["地址"]);
+      phoneRaw = str(record["電話"]);
+      break;
+    case "service-center":
+      name = str(record["中心名稱"]);
       address = str(record["地址"]);
       phoneRaw = str(record["電話"]);
       break;

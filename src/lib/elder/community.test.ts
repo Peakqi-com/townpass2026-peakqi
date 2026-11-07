@@ -6,7 +6,7 @@ import type { TownPassAccount } from "../townpass/types.ts";
 // M9 附近吃飯上課：把四個開放資料集整理成同一種「地點」，給長輩大字顯示、撥號、查路線。
 // 測試資料取自 2026-11-07 下載的實際資料。
 
-test("四個分類各對應一個代理來源", () => {
+test("五個分類各對應一個代理來源", () => {
   assert.deepEqual(
     COMMUNITY_CATEGORIES.map((c) => [c.id, c.label, c.source]),
     [
@@ -14,8 +14,23 @@ test("四個分類各對應一個代理來源", () => {
       ["care", "關懷據點", "elder-care-points"],
       ["evergreen", "長青學苑", "elder-evergreen"],
       ["lohas", "樂齡學習", "elder-lohas"],
+      ["service-center", "老人服務中心", "elder-service-centers"],
     ],
   );
+});
+
+test("老人服務中心：中心名稱、地址、電話整理成地點", () => {
+  const place = toCommunityPlace("service-center", {
+    中心名稱: "大安老人服務中心",
+    地址: "臺北市大安區四維路76巷12號1-5樓",
+    行政區代碼: "63000030",
+    電話: "(02)27086255",
+    傳真: "(02)27086225",
+    district: "大安區",
+  });
+  assert.equal(place.name, "大安老人服務中心");
+  assert.equal(place.address, "臺北市大安區四維路76巷12號1-5樓");
+  assert.equal(place.phones[0].dial, "0227086255");
 });
 
 test("formatPhoneDigits：市話、手機、0800", () => {

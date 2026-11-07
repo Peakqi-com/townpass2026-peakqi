@@ -53,7 +53,7 @@
 | M6 | `/benefits` | 我的權益：最上面是「很多人不知道的權益」（老人健保費補助、長照交通接送、照顧家人），接著是重陽禮金（「還沒收到嗎？」，可以「提醒我申請」）、敬老卡、公費疫苗、老人健檢，依生日與戶籍自動判斷 | ✅ |
 | M7 | `/family`、`/family/setup` | 家人：家人用 QR code 幫長輩設定首頁按鈕與聯絡人（不經過伺服器）、打給家人 | ✅ |
 | M8 | `/text`、`/help`、`/card/clinic` | 聽不清楚：文字聯絡管道、全螢幕求助卡、119 簡訊範本、看診溝通卡與手語翻譯申請文字。求助頁分成「現在有危險」與「接到可疑電話」兩條，危險那條可以「讓家人知道」 | ✅ |
-| M9 | `/community` | 附近吃飯、上課：依行政區列出共餐、關懷據點、長青學苑、樂齡學習 | ✅ |
+| M9 | `/community` | 附近吃飯、上課：依行政區列出共餐、關懷據點、長青學苑、樂齡學習、老人服務中心 | ✅ |
 | M10 | `/vision` | 視障出門：用一句話說出最近捷運站的電梯位置、異常公告與附近有聲號誌 | ✅ |
 | M11 | `/antifraud` | 防詐先問一下：點選或打出（也可以說）對方說了什麼，在手機裡比對 6 種常見詐騙說法，說「這很像〇〇詐騙」＋165 全民防騙網的官方提醒，再一鍵打給家人或 165；比對不到時只說「不確定，先停下來」，絕不說「安全」 | ✅ |
 | M12 | `/benefits/subsidy` | 補助小幫手：先問「幫自己還是幫另一半或家人」（幫家人時改問他的年紀），再用三題篩出「可能可以申請」的補助，附應備文件、戶籍地社會課、打電話時的第一句話與家人代辦準備單（可以直接傳給家人）；找不到時給 1957、1966、文字聯絡，不停在「沒有」；含假牙補助（先到聯醫做口腔檢查，由醫院送件） | ✅ |
@@ -469,21 +469,19 @@ docker build -t townpass2026-peakqi . && docker run -p 8080:8080 --env-file .env
 
 ## 8. 資料來源
 
-授權：政府資料開放授權條款第 1 版。代理目前登記的全部來源可用 `GET /api/opendata` 查詢；下表列出本服務使用（或規劃使用）的資料集。
+授權：政府資料開放授權條款第 1 版。代理目前登記的全部來源可用 `GET /api/opendata` 查詢；下表列出本服務使用的資料集。
 
 | 資料集 | 提供機關 | 連結 | 用途 | 狀態 |
 |---|---|---|---|---|
-| 公私立醫院 | 衛生局 | [b02cd6b2…](https://data.taipei/dataset/detail?id=b02cd6b2-79be-4d7f-ae78-305b2af668f5) | M4 我要看醫生 | 規劃中 |
 | 老人共餐單位一覽表 | 社會局 | [fe55795c…](https://data.taipei/dataset/detail?id=fe55795c-a220-4b88-bde1-5b994321f8af) | M9 附近共餐 | 使用中 |
 | 社區照顧關懷據點 | 社會局 | [d082dc87…](https://data.taipei/dataset/detail?id=d082dc87-d3fd-479d-89c6-745ff1be955a) | M9 | 使用中 |
 | 長青學苑 | 社會局 | [67b63404…](https://data.taipei/dataset/detail?id=67b63404-89b8-4214-8096-3322204144e6) | M9 | 使用中 |
 | 樂齡學習據點 | 教育局 | [ca59e66b…](https://data.taipei/dataset/detail?id=ca59e66b-7200-4283-8c32-08bde2f5f142) | M9（樂齡學堂＋樂齡學習中心） | 使用中 |
-| 流感疫苗合約醫療院所（成人） | 衛生局 | [0db13d34…](https://data.taipei/dataset/detail?id=0db13d34-51e3-497a-a023-286d5ef692ea) | M6 疫苗 | 規劃中 |
 | 臺北捷運車站無障礙設施資料 | 捷運公司 | [3c799405…](https://data.taipei/dataset/detail?id=3c799405-4e44-40dd-b747-daed09e88cdb) | M10 視障出門 | 使用中 |
 | 臺北捷運車站出入口無障礙電梯、坡道座標 | 捷運公司 | [0a3bb422…](https://data.taipei/dataset/detail?id=0a3bb422-9eb5-459b-a9d4-138456516183) | M10 | 使用中 |
 | 交工處無障礙設施設置資料（有聲號誌） | 交通局 | [baf32b58…](https://data.taipei/dataset/detail?id=baf32b58-b194-448d-96a0-ba04013d164f) | M10 | 使用中 |
 | 臺北捷運車站無障礙設施異常公告 | 捷運公司 | [d884a9c6…](https://data.taipei/dataset/detail?id=d884a9c6-f86c-4854-8da7-e6516ddbe612) | M10 | 使用中 |
-| 臺北市老人服務中心 | 社會局 | [78dfc9a2…](https://data.taipei/dataset/detail?id=78dfc9a2-36e2-4ef5-beaa-a74633ba3d26) | M9（預留） | 代理已登記 |
+| 臺北市老人服務中心 | 社會局 | [78dfc9a2…](https://data.taipei/dataset/detail?id=78dfc9a2-36e2-4ef5-beaa-a74633ba3d26) | M9 附近吃飯、上課 | 使用中 |
 | 臺北市預估到站時間(公車)、新北市預估到站時間 | 交通局公運處 | [f11a5af0…](https://data.taipei/dataset/detail?id=f11a5af0-7b37-48ef-98cc-f6f102ed43c6)、[1e26ecf6…](https://data.taipei/dataset/detail?id=1e26ecf6-d5b4-494b-b94f-bee64938dd64) | M16 公車幾分鐘到 | 使用中 |
 | 臺北市路線、新北市路線 | 交通局公運處 | [6a03b03d…](https://data.taipei/dataset/detail?id=6a03b03d-90d1-4d9e-a952-c940fd869772)、[1f5998d2…](https://data.taipei/dataset/detail?id=1f5998d2-d9e4-4d9f-8cbb-fe2d29b99c3c) | M16 找路線 | 使用中 |
 | 臺北市站牌、新北市站牌 | 交通局公運處 | [62bc76da…](https://data.taipei/dataset/detail?id=62bc76da-6e6b-46ee-8976-c1945092d504)、[010244b7…](https://data.taipei/dataset/detail?id=010244b7-c4ed-4b03-9436-c6cbe634d483) | M16 選站牌 | 使用中 |

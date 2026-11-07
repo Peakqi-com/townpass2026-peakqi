@@ -3,7 +3,7 @@
 import { COMMUNITY_CATEGORIES } from "@/lib/elder/community";
 import { PlacesScreen } from "./PlacesScreen";
 
-/** M9 附近吃飯上課：共餐、關懷據點、長青學苑、樂齡學習 */
+/** M9 附近吃飯上課：共餐、關懷據點、長青學苑、樂齡學習、老人服務中心 */
 export function CommunityScreen() {
   return (
     <PlacesScreen
