@@ -189,3 +189,38 @@ test("familyButtons：有家人設定時照家人挑的順序，沒有時用預�
   );
   assert.equal(familyButtons(null), HOME_BUTTONS);
 });
+
+/* ---------- M16 常坐的公車（選填欄位） ---------- */
+
+const BUS = { city: "tpe" as const, routeId: 16111, stopId: 15276, label: "307 往撫遠街・南京三民路口" };
+
+test("公車：選填；有設定時編碼再解碼不變，沒設定時設定碼裡不出現 buses", () => {
+  const withBus: FamilyConfig = { ...GOOD, buses: [BUS, { ...BUS, city: "ntpc", stopId: 1, label: "藍1 往捷運新店站・新店區公所" }] };
+  assert.deepEqual(decodeFamilyConfig(encodeFamilyConfig(withBus)), withBus);
+  assert.ok(!("buses" in JSON.parse(encodeFamilyConfig(GOOD))));
+});
+
+test("公車：最多 2 組；縣市只能是臺北或新北；代碼要是正整數；名稱不能太長或有隱藏字元", () => {
+  const check = (buses: unknown) => decodeFamilyConfig(tamper({ buses }));
+  assert.equal(check([BUS, BUS, BUS]), null);
+  assert.equal(check([{ ...BUS, city: "tyc" }]), null);
+  assert.equal(check([{ ...BUS, routeId: -1 }]), null);
+  assert.equal(check([{ ...BUS, stopId: "15276" }]), null);
+  assert.equal(check([{ ...BUS, label: "公".repeat(41) }]), null);
+  assert.equal(check([{ ...BUS, label: "307‮站" }]), null);
+  assert.equal(check("307"), null);
+  assert.deepEqual(check([BUS])?.buses, [BUS]);
+});
+
+test("公車：2 組公車加上最大的設定，設定碼仍在長度上限內", () => {
+  const big: FamilyConfig = {
+    v: 1,
+    buttons: HOME_BUTTONS.map((b) => b.id),
+    contacts: [1, 2, 3].map(() => ({ name: "一二三四五六七八九十", phone: "123456789012345" })),
+    town: "大安區",
+    buses: [1, 2].map(() => ({ ...BUS, label: "公".repeat(40) })),
+  };
+  const text = encodeFamilyConfig(big);
+  assert.ok(text.length <= FAMILY_LIMITS.maxInput, `長度 ${text.length}`);
+  assert.deepEqual(decodeFamilyConfig(text), big);
+});

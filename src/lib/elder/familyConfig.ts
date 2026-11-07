@@ -8,11 +8,14 @@
  *   { "kind": "elder-family", "v": 1,
  *     "buttons": ["health", "ride", "family", "community"],
  *     "contacts": [{ "name": "大兒子", "phone": "0912345678" }],
- *     "town": "中山區" }
+ *     "town": "中山區",
+ *     "buses": [{ "city": "tpe", "routeId": 16111, "stopId": 15276, "label": "307 往撫遠街・南京三民路口" }] }
+ *   buses（M16 常坐的公車）是選填欄位，後來才加的：舊版的長輩手機會把它當成不認得的欄位丟掉，所以不用升版本。
  *
  * 安全：掃到的內容一律當成不可信（任何人都能印一張 QR 貼在公布欄）。
  * 先限制長度再解析；每個欄位都檢查型別與範圍；多出來的欄位直接丟掉，只存我們認得的欄位。
  */
+import type { BusCity } from "../bus/bus.ts";
 import { HOME_BUTTONS, type HomeButton } from "./home.ts";
 
 export const FAMILY_CONFIG_KIND = "elder-family";
@@ -27,6 +30,10 @@ export const FAMILY_LIMITS = {
   maxContacts: 3,
   /** 聯絡人名稱最多幾個字（以字元計，中文一字算一個） */
   maxName: 10,
+  /** 常坐的公車最多幾組 */
+  maxBuses: 2,
+  /** 公車顯示名稱最多幾個字（「307 往撫遠街・南京三民路口」約 16 字） */
+  maxBusLabel: 40,
 } as const;
 
 /** 一定要有的按鈕：長輩要靠它打給家人，也要靠它重新掃描設定碼 */
@@ -57,6 +64,15 @@ export interface FamilyContact {
   phone: string;
 }
 
+/** 常坐的公車（M16）：一個站牌代碼就代表「某路線、某方向、某一站」 */
+export interface FamilyBus {
+  city: BusCity;
+  routeId: number;
+  stopId: number;
+  /** 首頁顯示的名稱，斷網時也看得到，例如「307 往撫遠街・南京三民路口」 */
+  label: string;
+}
+
 export interface FamilyConfig {
   v: typeof FAMILY_CONFIG_VERSION;
   /** 首頁按鈕的 id（HOME_BUTTONS 裡的），照家人挑的順序 */
@@ -64,6 +80,8 @@ export interface FamilyConfig {
   contacts: FamilyContact[];
   /** 長輩住的行政區，給附近據點等功能使用 */
   town: TaipeiTown;
+  /** 常坐的公車（選填，最多 2 組） */
+  buses?: FamilyBus[];
 }
 
 export type CheckResult = { ok: true; config: FamilyConfig } | { ok: false; reason: string };
@@ -95,6 +113,19 @@ export function checkContact(
   return { ok: true, contact: { name: trimmed, phone } };
 }
 
+/** 檢查一組公車。失敗原因接在「第 N 組公車」後面 */
+export function checkBus(value: unknown): { ok: true; bus: FamilyBus } | { ok: false; reason: string } {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return { ok: false, reason: "格式不對" };
+  const { city, routeId, stopId, label } = value as Record<string, unknown>;
+  if (city !== "tpe" && city !== "ntpc") return { ok: false, reason: "的縣市不對" };
+  const positiveInt = (n: unknown) => typeof n === "number" && Number.isInteger(n) && n > 0 && n < 1e10;
+  if (!positiveInt(routeId) || !positiveInt(stopId)) return { ok: false, reason: "的路線或站牌不對" };
+  const trimmed = typeof label === "string" ? label.trim() : "";
+  if (trimmed.length === 0 || [...trimmed].length > FAMILY_LIMITS.maxBusLabel) return { ok: false, reason: "的名稱太長或是空的" };
+  if (HIDDEN_CHARS.test(trimmed)) return { ok: false, reason: "的名稱有不能用的字" };
+  return { ok: true, bus: { city, routeId: routeId as number, stopId: stopId as number, label: trimmed } };
+}
+
 /**
  * 檢查一份設定是否合法，回傳整理過的設定（名稱去掉前後空白、只留認得的欄位），
  * 或給家人看的中文原因。家人那一端產生 QR 前、長輩那一端存檔前都用這個。
@@ -104,7 +135,7 @@ export function checkFamilyConfig(value: unknown): CheckResult {
   const raw = value as Record<string, unknown>;
   if (raw.v !== FAMILY_CONFIG_VERSION) return fail("版本不對，請兩邊都更新台北通");
 
-  const { buttons, contacts, town } = raw;
+  const { buttons, contacts, town, buses } = raw;
   const { minButtons, maxButtons, minContacts, maxContacts } = FAMILY_LIMITS;
 
   if (!Array.isArray(buttons) || !buttons.every((id) => typeof id === "string" && BUTTON_IDS.has(id))) {
@@ -128,18 +159,31 @@ export function checkFamilyConfig(value: unknown): CheckResult {
 
   if (!isTown(town)) return fail("請選長輩住的行政區");
 
-  return { ok: true, config: { v: FAMILY_CONFIG_VERSION, buttons: [...buttons], contacts: cleanContacts, town } };
+  const cleanBuses: FamilyBus[] = [];
+  if (buses !== undefined) {
+    if (!Array.isArray(buses) || buses.length > FAMILY_LIMITS.maxBuses) return fail(`常坐的公車最多 ${FAMILY_LIMITS.maxBuses} 組`);
+    for (const [i, bus] of buses.entries()) {
+      const result = checkBus(bus);
+      if (!result.ok) return fail(`第 ${i + 1} 組公車${result.reason}`);
+      cleanBuses.push(result.bus);
+    }
+  }
+
+  const config: FamilyConfig = { v: FAMILY_CONFIG_VERSION, buttons: [...buttons], contacts: cleanContacts, town };
+  if (cleanBuses.length > 0) config.buses = cleanBuses;
+  return { ok: true, config };
 }
 
 /** 設定 → 設定碼（放進 QR，也用同一個字串存在 localStorage） */
 export function encodeFamilyConfig(config: FamilyConfig): string {
-  const { v, buttons, contacts, town } = config;
+  const { v, buttons, contacts, town, buses } = config;
   return JSON.stringify({
     kind: FAMILY_CONFIG_KIND,
     v,
     buttons,
     contacts: contacts.map(({ name, phone }) => ({ name, phone })),
     town,
+    ...(buses && buses.length > 0 ? { buses: buses.map(({ city, routeId, stopId, label }) => ({ city, routeId, stopId, label })) } : {}),
   });
 }
 

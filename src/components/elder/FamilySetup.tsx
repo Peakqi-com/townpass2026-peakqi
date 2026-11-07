@@ -13,9 +13,11 @@ import {
   familyButtons,
   formatMobile,
   normalizePhone,
+  type FamilyBus,
   type FamilyConfig,
   type FamilyContact,
 } from "@/lib/elder/familyConfig";
+import { BusPicker } from "./BusPicker";
 import { useElder } from "./ElderProvider";
 import { PageShell } from "./PageShell";
 import { useFocusOnMount } from "./useFocusOnMount";
@@ -39,6 +41,7 @@ export function FamilySetup() {
   const [buttons, setButtons] = useState<string[]>(() => HOME_BUTTONS.map((b) => b.id));
   const [rows, setRows] = useState<Row[]>(EMPTY_ROWS);
   const [town, setTown] = useState("");
+  const [buses, setBuses] = useState<FamilyBus[]>([]);
   const [error, setError] = useState("");
   const [result, setResult] = useState<{ config: FamilyConfig; image: string } | null>(null);
 
@@ -78,7 +81,7 @@ export function FamilySetup() {
       if (!checked.ok) return fail(`第 ${i + 1} 位聯絡人${checked.reason}`);
       contacts.push(checked.contact);
     }
-    const checked = checkFamilyConfig({ v: 1, buttons, contacts, town });
+    const checked = checkFamilyConfig({ v: 1, buttons, contacts, town, ...(buses.length > 0 ? { buses } : {}) });
     if (!checked.ok) return fail(checked.reason);
 
     try {
@@ -202,6 +205,14 @@ export function FamilySetup() {
           </select>
         </div>
 
+        <BusPicker
+          buses={buses}
+          onChange={(next) => {
+            changed();
+            setBuses(next);
+          }}
+        />
+
         {error && <p className="text-elder-body font-bold text-alarm">{error}</p>}
 
         <button
@@ -254,6 +265,14 @@ function QrResult({ config, image }: { config: FamilyConfig; image: string }) {
           <dt className="font-bold">行政區</dt>
           <dd>臺北市{config.town}</dd>
         </div>
+        {config.buses && config.buses.length > 0 && (
+          <div>
+            <dt className="font-bold">常坐的公車</dt>
+            {config.buses.map((b) => (
+              <dd key={`${b.city}-${b.stopId}`}>{b.label}</dd>
+            ))}
+          </div>
+        )}
       </dl>
     </section>
   );

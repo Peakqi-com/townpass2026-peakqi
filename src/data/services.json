@@ -408,5 +408,18 @@
     "owner": "臺北市政府衛生局",
     "source": "https://data.taipei/dataset/detail?id=0db13d34-51e3-497a-a023-286d5ef692ea",
     "verified": "2026-11-07"
+  },
+  {
+    "id": "bus-eta",
+    "title": "公車幾分鐘到",
+    "speak": "公車還有幾分鐘到",
+    "description": "請家人用設定碼幫您設好常坐的公車，首頁就會顯示還有幾分鐘到。",
+    "category": "ride",
+    "phrases": ["公車", "等公車", "公車幾分", "還有幾分鐘", "坐公車", "公車到了沒"],
+    "audience": ["elder", "vision", "hearing"],
+    "action": { "type": "page", "target": "/family" },
+    "owner": "臺北市政府交通局公共運輸處",
+    "source": "https://data.taipei/dataset/detail?id=f11a5af0-7b37-48ef-98cc-f6f102ed43c6",
+    "verified": "2026-11-07"
   }
 ]

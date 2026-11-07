@@ -7,6 +7,7 @@ import { call1999 } from "@/lib/townpass/bridge";
 import { familyButtons } from "@/lib/elder/familyConfig";
 import { doubleNinthGift, greetingFor, MODE_NAME, type GiftInfo } from "@/lib/elder/profile";
 import { useElder } from "./ElderProvider";
+import { BusCard } from "./BusCard";
 import { ServiceAction, ServiceLink } from "./ServiceButton";
 import { useFamilyConfig } from "./useFamilyConfig";
 import { useFocusOnMount } from "./useFocusOnMount";
@@ -59,6 +60,8 @@ export function HomeScreen() {
       <Greeting text={`${greetingFor(now)}${user?.realName ? `，${user.realName}` : ""}`} />
 
       {gift && <GiftCard gift={gift} />}
+
+      {family?.buses && family.buses.length > 0 && <BusCard buses={family.buses} />}
 
       <nav aria-label="常用服務">
         <ul className={`grid gap-4 ${large ? "grid-cols-1" : "grid-cols-2"}`}>
