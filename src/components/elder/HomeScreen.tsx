@@ -98,6 +98,15 @@ export function HomeScreen() {
         className={`border-4 border-grayscale-800 bg-white text-text-primary ${large ? "justify-start px-6 text-left" : ""}`}
       />
 
+      {/* 家人在自己的手機打開「用得了」時，從這裡直接進設定（原本要先進「家人」頁、拉到最下面） */}
+      <ServiceLink
+        href="/family/setup"
+        label="我是家人，幫長輩設定"
+        icon="family"
+        row
+        className={`border-4 border-grayscale-800 bg-white text-text-primary ${large ? "justify-start px-6 text-left" : ""}`}
+      />
+
       {/* 電話與求助：每一頁同樣的位置與順序，長輩不用找（WCAG 3.2.6） */}
       <nav
         aria-label="電話與求助"

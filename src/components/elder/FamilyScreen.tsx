@@ -108,7 +108,7 @@ export function FamilyScreen() {
           <p className="text-elder-body text-text-second">請家人幫忙設定，只要掃一下就好：</p>
           <ol className="flex list-decimal flex-col gap-2 pl-8 text-elder-body text-text-primary">
             <li>家人在他的手機打開台北通的「用得了」，按「打給家人」。</li>
-            <li>家人按最下面的「我是家人，幫長輩設定」，做出一張設定碼。</li>
+            <li>家人在首頁（或這一頁最下面）按「我是家人，幫長輩設定」，做出一張設定碼。</li>
             <li>您按下面的「家人幫我設定」，對準家人手機上的設定碼。</li>
           </ol>
         </section>
