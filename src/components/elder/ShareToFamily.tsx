@@ -18,14 +18,24 @@ import { useFamilyConfig } from "./useFamilyConfig";
  *
  * ⚠️ `sms:號碼?&body=` 能不能帶入內文，Android／iOS 要實機確認（同 M8 的 119 簡訊範本）。
  */
-export function ShareToFamily({ text, title = "傳給家人知道" }: { text: string; title?: string }) {
+export function ShareToFamily({
+  text,
+  title = "傳給家人知道",
+  level = 2,
+}: {
+  text: string;
+  title?: string;
+  /** 放在另一個 h2 段落裡面時用 3，標題層級才不會跳 */
+  level?: 2 | 3;
+}) {
+  const Heading = level === 2 ? "h2" : "h3";
   const { config } = useFamilyConfig();
   const note = useFailNote();
   const contacts = config?.contacts ?? [];
 
   return (
     <section aria-label={title} className="flex flex-col gap-3">
-      <h2 className="text-elder-title font-bold text-text-primary">{title}</h2>
+      <Heading className={`${level === 2 ? "text-elder-button" : "text-elder-body"} font-bold text-text-primary`}>{title}</Heading>
       <p className="text-elder-body text-text-second">會傳出這段文字（送出前可以再改）：</p>
       <p className="whitespace-pre-line rounded-2xl bg-grayscale-50 p-4 text-elder-body text-text-primary">{text}</p>
 

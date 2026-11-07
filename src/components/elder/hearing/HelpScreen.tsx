@@ -138,7 +138,7 @@ export function HelpScreen() {
         />
         <ServiceLink href="/shelter" label="颱風、地震時去哪裡" speak="颱風、地震時去哪裡避難" icon="home" row className="border-4 border-grayscale-800 bg-white text-text-primary" />
 
-        <ShareToFamily title="讓家人知道" text={helpShareText(user?.realName)} />
+        <ShareToFamily level={3} title="讓家人知道" text={helpShareText(user?.realName)} />
       </section>
 
       {/* M11：不確定是不是詐騙時，先到「防詐先問一下」比對看看 */}
