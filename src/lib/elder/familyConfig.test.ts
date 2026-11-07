@@ -12,6 +12,7 @@ import {
   formatMobile,
   normalizePhone,
   type FamilyConfig,
+  readFamilyConfig,
 } from "./familyConfig.ts";
 
 // M7 家人代設定：設定碼由家人的手機產生、長輩的手機掃描。
@@ -232,4 +233,16 @@ test("公車：2 組公車加上最大的設定，設定碼仍在長度上限內
   const text = encodeFamilyConfig(big);
   assert.ok(text.length <= FAMILY_LIMITS.maxInput, `長度 ${text.length}`);
   assert.deepEqual(decodeFamilyConfig(text), big);
+});
+
+test("readFamilyConfig：失敗時說出原因", () => {
+  const r = (text: unknown) => {
+    const result = readFamilyConfig(text);
+    return result.ok ? "ok" : result.reason;
+  };
+  assert.equal(r(""), "沒有讀到內容");
+  assert.equal(r("https://www.gov.taipei/"), "不是用得了做的設定碼");
+  assert.equal(r(JSON.stringify({ kind: "other" })), "不是用得了做的設定碼");
+  assert.equal(r(encodeFamilyConfig(GOOD)), "ok");
+  assert.match(r(tamper({ town: "台中市" })), /行政區/);
 });

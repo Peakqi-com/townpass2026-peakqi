@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRef, useState } from "react";
 import { phoneCall, scanQrCode } from "@/lib/townpass/bridge";
 import { openExternal } from "@/lib/townpass/elder";
-import { decodeFamilyConfig, familyButtons, formatMobile, type FamilyConfig, type FamilyContact } from "@/lib/elder/familyConfig";
+import { familyButtons, readFamilyConfig, formatMobile, type FamilyConfig, type FamilyContact } from "@/lib/elder/familyConfig";
 import { useElder } from "./ElderProvider";
 import { FailNote, useFailNote } from "./FailNote";
 import { PageShell } from "./PageShell";
@@ -48,11 +48,13 @@ export function FamilyScreen() {
       note.fail("沒有掃到。可以再按一次「家人幫我設定」。");
       return;
     }
-    const next = decodeFamilyConfig(text);
-    if (!next) {
-      note.fail("這不是「用得了」的設定碼。請家人重新做一張設定碼。");
+    const result = readFamilyConfig(text);
+    if (!result.ok) {
+      // 說出原因（例如「第 1 位聯絡人的電話要是 3～15 位數字」），家人才知道要改哪裡
+      note.fail(`這張設定碼不能用：${result.reason}。請家人重新做一張設定碼。`);
       return;
     }
+    const next = result.config;
     save(next);
     // 換成一整頁「設定好了」（FamilySavedScreen），長輩一眼就知道成功了；
     // 報讀軟體會唸新頁面的標題，所以開著報讀軟體時不再 say()，避免唸兩次

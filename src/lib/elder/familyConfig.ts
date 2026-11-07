@@ -204,16 +204,24 @@ export function encodeFamilyConfig(config: FamilyConfig): string {
 
 /** 設定碼 → 設定。任何不合法的內容（包括網址、別的 QR、被竄改的碼）都回傳 null */
 export function decodeFamilyConfig(text: unknown): FamilyConfig | null {
-  if (typeof text !== "string" || text.length === 0 || text.length > FAMILY_LIMITS.maxInput) return null;
+  const result = readFamilyConfig(text);
+  return result.ok ? result.config : null;
+}
+
+/** 同 decodeFamilyConfig，但失敗時說出原因（顯示給長輩和家人看，也方便查問題） */
+export function readFamilyConfig(text: unknown): CheckResult {
+  if (typeof text !== "string" || text.length === 0) return fail("沒有讀到內容");
+  if (text.length > FAMILY_LIMITS.maxInput) return fail("內容太長");
   let raw: unknown;
   try {
     raw = JSON.parse(text);
   } catch {
-    return null;
+    return fail("不是用得了做的設定碼");
   }
-  if (typeof raw !== "object" || raw === null || (raw as { kind?: unknown }).kind !== FAMILY_CONFIG_KIND) return null;
-  const result = checkFamilyConfig(raw);
-  return result.ok ? result.config : null;
+  if (typeof raw !== "object" || raw === null || (raw as { kind?: unknown }).kind !== FAMILY_CONFIG_KIND) {
+    return fail("不是用得了做的設定碼");
+  }
+  return checkFamilyConfig(raw);
 }
 
 /**
