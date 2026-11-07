@@ -240,6 +240,8 @@ GET /api/bus/eta?t=tpe:16111:15276,…           預估到站（一次最多 4 �
 
 ## 5. 主要流程
 
+每條流程的情境、政策與 UX 依據、內容設計和參考 commit，整理在 [`docs/flow-scenarios.md`](docs/flow-scenarios.md)。
+
 **① 開啟「用得了」**
 
 ![開啟「用得了」：點服務、WebView 載入網頁、向 App 要 userinfo 與 a11y_state、讀手機裡的設定（模式、語速、家人設定的按鈕與公車）、算年齡並篩出首頁按鈕、權益卡片與公車卡片](docs/diagrams/flow-1-open.svg)
