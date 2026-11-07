@@ -39,6 +39,12 @@
 </picture>
 
 <p align="center">
+  <a href="docs/demo/walk-to-bus-stop.mp4"><img src="docs/demo/walk-to-bus-stop-preview.gif" width="240" alt="實地 Demo 片段：走到路口時 App 震動並念出「現在右轉，進入忠誠路二段，要過馬路，這裡有有聲號誌，聽到嗶嗶聲再走」，右上角是對應的 App 畫面"></a><br>
+  <sub>▶ <a href="docs/demo/walk-to-bus-stop.mp4">實地 Demo（89 秒）</a>：看不清楚螢幕，只靠語音＋震動，過兩個有聲號誌路口走到公車站<br>
+  右上角是重現的 App 畫面；畫面上的公尺數、公車分鐘數是示意值</sub>
+</p>
+
+<p align="center">
   <a href="#1-要解決的問題">問題</a> ・
   <a href="#2-設計原則">原則</a> ・
   <a href="#3-主要功能">功能</a> ・
