@@ -230,8 +230,8 @@ def architecture():
     d.edge([pages.side("b"), (610, bus_y), (170, bus_y), data.side("t")])
     d.edge([(610, bus_y), (420, bus_y), bridge.side("t")])
     d.edge([(610, bus_y), (680, bus_y), api.side("t")], "fetch", (680, 446))
-    d.edge([(api.right, 504), (870, 504), (870, 462), (od.left, 462)], "HTTPS", (870, 483))
-    d.edge([(api.right, 548), (870, 548), (870, 584), (busdb.left, 584)], "HTTPS", (870, 566))
+    d.edge([(api.right, 504), (870, 504), (870, 462), (od.left, 462)], "HTTPS", (837, 504))
+    d.edge([(api.right, 548), (870, 548), (870, 584), (busdb.left, 584)], "HTTPS", (837, 548))
 
     d.group(40, 632, 1100, 268, "③ App 原生能力", "gray")
     lis = d.box(420, 706, ["flutterObject ⇄ TPWebMessageListener", "依訊息名稱分派給 Handler，再回覆網頁"], "official", w=340)
