@@ -1,4 +1,5 @@
 import { BridgeDemo } from "@/components/BridgeDemo";
+import { ElderBridgeDemo } from "@/components/ElderBridgeDemo";
 
 // 城市通 App 的 AppBar 已經顯示服務名稱（<title>），頁面內不要再做重複的標題列（無障礙 ST）。
 export default function Home() {
@@ -8,6 +9,7 @@ export default function Home() {
         這是專案骨架的示範頁。確認雙向溝通與後端 API 都正常之後，換成正式的服務畫面。
       </p>
       <BridgeDemo />
+      <ElderBridgeDemo />
     </main>
   );
 }

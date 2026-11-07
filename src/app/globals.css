@@ -93,6 +93,24 @@
   --color-reminder-hover: #f4b992; /* reminder-color/hover */
   --color-divider: #cad1d5; /* Grey/200 */
 
+  /* 長輩模式色票：城市通 UI Kit 的延伸，只用在長輩模式的服務按鈕。
+     依據與驗算見 TownPass docs/townpass/elder-mode-spec.md §4.1。
+     顏色跟著服務類別固定；紅色只給「求助」。on-* 是該底色上的文字色。 */
+  --color-elder-ride: #fec84b;
+  --color-on-elder-ride: #1d2939;
+  --color-elder-benefit: #17b26a;
+  --color-on-elder-benefit: #1d2939;
+  --color-elder-health: #0e7090;
+  --color-on-elder-health: #ffffff;
+  --color-elder-community: #22ccee;
+  --color-on-elder-community: #1d2939;
+  --color-elder-hearing: #6927da;
+  --color-on-elder-hearing: #ffffff;
+  --color-elder-family: #7a2e0e;
+  --color-on-elder-family: #ffffff;
+  --color-elder-help: #d92d20;
+  --color-on-elder-help: #ffffff;
+
   /* 字體：中文 PingFang TC、英數 Roboto；只用系統字型，不打包字型檔 */
   --font-sans: "PingFang TC", "Roboto", system-ui, -apple-system, "Noto Sans CJK TC", sans-serif;
 

@@ -11,8 +11,8 @@
  * - 同一個 name 的請求不要同時發出，否則無法分辨回覆屬於哪個請求。
  */
 
-import { mockAccount, mockPosition, mockQrCode } from "./mock";
-import type { TownPassAccount, TownPassPosition } from "./types";
+import { mockAccount, mockPosition, mockQrCode } from "./mock.ts";
+import type { TownPassAccount, TownPassPosition } from "./types.ts";
 
 interface FlutterObject {
   postMessage(message: string): void;
