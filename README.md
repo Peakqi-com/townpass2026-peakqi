@@ -140,7 +140,7 @@
 
 ## 4. 系統架構
 
-![「用得了」架構：使用者從城市通 App 的服務頁開啟「用得了」，TPWebView 用 HTTPS 載入本微服務（Next.js，前端頁面 M1～M16），微服務的 bridge 用 postMessage 和 App 的 TPWebMessageListener 雙向溝通，分派給內建 Handler 與本服務新增的 6 個 Handler；後端 /api/opendata 代理 data.taipei 開放資料，/api/bus 讀公運處的公車資料](docs/diagrams/architecture.svg)
+![「用得了」架構：使用者從城市通 App 的服務頁開啟「用得了」，TPWebView 用 HTTPS 載入本微服務（Next.js，前端頁面 M1～M16），微服務的 bridge 用 postMessage 和 App 的 TPWebMessageListener 雙向溝通，分派給內建 Handler 與本服務新增的 6 個 Handler；後端 /api/opendata 代理 data.taipei 開放資料，/api/bus 讀公運處的公車資料。動畫：資料流從使用者開始，一段一段沿著連線亮起來](docs/diagrams/architecture.svg)
 
 <details>
 <summary>文字版</summary>
@@ -175,7 +175,7 @@
 - 傳給家人：`src/components/elder/ShareToFamily.tsx`（回診提醒、補助準備單、求助頁共用）
 - 步行導航：`src/lib/elder/walk.ts`（A* 算路線、提醒判斷，有測試）、`src/components/elder/WalkScreen.tsx`；路網由 `scripts/build-walk-graph.ts` 在開發時產生 `public/walk/tianmu.json`
 
-架構圖與下一節的流程圖，由 `docs/diagrams/build_diagrams.py` 產生（只用 Python 標準函式庫，色票取自城市通 UI Kit）。要改圖時改那支程式再重跑 `python3 docs/diagrams/build_diagrams.py`，不要手改 SVG。README 開頭的橫幅、按鈕、徽章與數字卡片同樣由 `docs/readme/build_readme_art.py` 產生（`python3 docs/readme/build_readme_art.py`）。
+架構圖與下一節的流程圖，由 `docs/diagrams/build_diagrams.py` 產生（只用 Python 標準函式庫，色票取自城市通 UI Kit）。要改圖時改那支程式再重跑 `python3 docs/diagrams/build_diagrams.py`，不要手改 SVG。流程圖的動畫、旁邊的情境手機與逐步說明在 `docs/diagrams/build_flow_motion.py`（手機畫面照 `src/` 的程式畫，共用 `docs/diagrams/phone_kit.py`），跑同一個指令就會一起產生；系統設定「減少動態效果」時停在完整的靜止畫面。README 開頭的橫幅、按鈕、徽章與數字卡片同樣由 `docs/readme/build_readme_art.py` 產生（`python3 docs/readme/build_readme_art.py`）。
 
 ### 新增的 App Handler
 
@@ -244,7 +244,7 @@ GET /api/bus/eta?t=tpe:16111:15276,…           預估到站（一次最多 4 �
 
 **① 開啟「用得了」**
 
-![開啟「用得了」：點服務、WebView 載入網頁、向 App 要 userinfo 與 a11y_state、讀手機裡的設定（模式、語速、家人設定的按鈕與公車）、算年齡並篩出首頁按鈕、權益卡片與公車卡片](docs/diagrams/flow-1-open.svg)
+![開啟「用得了」：點服務、WebView 載入網頁、向 App 要 userinfo 與 a11y_state、讀手機裡的設定（模式、語速、家人設定的按鈕與公車）、算年齡並篩出首頁按鈕、權益卡片與公車卡片。上方的情境手機依序演出：孫子幫金大森在台北通「我的服務」找到「用得了」，點一下後顯示「載入中…」；第一次用先到「先選一個最適合您的方式」，選「我看得到，也聽得到」時跳出大字並唸出來；最後首頁出現「午安，金大森」、重陽禮金卡片（可能可以領 3,000 元，還有 6 天截止）和大按鈕](docs/diagrams/flow-1-open.svg)
 
 <details>
 <summary>文字版</summary>
@@ -297,7 +297,7 @@ GET /api/bus/eta?t=tpe:16111:15276,…           預估到站（一次最多 4 �
 
 **④ 附近據點（M9、M10、M13～M15）**
 
-![附近據點：行政區、里或目前位置，fetch /api/opendata，白名單檢查，有快取就直接回，沒有才抓 data.taipei，再 Big5 轉碼、ODS 解析與座標換算，依距離、行政區或里篩選，回傳前幾筆給畫面顯示一句話摘要與大字電話按鈕](docs/diagrams/flow-4-places.svg)
+![附近據點：行政區、里或目前位置，fetch /api/opendata，白名單檢查，有快取就直接回，沒有才抓 data.taipei，再 Big5 轉碼、ODS 解析與座標換算，依距離、行政區或里篩選，回傳前幾筆給畫面顯示一句話摘要與大字電話按鈕。上方的情境手機依序演出：在看醫生頁按「附近打疫苗、做篩檢」，畫面直接寫「您住在中山區」，按「健康服務中心」後顯示「正在找中山區的健康服務中心…」，接著「中山區有 1 個健康服務中心」和大字電話按鈕；按電話先到「打給中山區健康服務中心」確認頁；讀不到時顯示「資料暫時讀不到」並建議打 1999](docs/diagrams/flow-4-places.svg)
 
 <details>
 <summary>文字版</summary>
@@ -330,7 +330,7 @@ userinfo.addresses[]（行政區・里）或 location
 
 **⑥ 權益提醒（M6）**
 
-![權益提醒：由台北通帳號的生日算年齡、比對資格，顯示權益卡片（最上面是很多人不知道的權益），可以線上申請匯款，或按「提醒我申請」排程手機通知](docs/diagrams/flow-6-benefit.svg)
+![權益提醒：由台北通帳號的生日算年齡、比對資格，顯示權益卡片（最上面是很多人不知道的權益），可以線上申請匯款，或按「提醒我申請」排程手機通知。上方的情境手機依序演出：金大森按「我的權益」，畫面寫「您今年 86 歲」，最上面是「很多人不知道的權益」，再往下是重陽禮金卡片；按「提醒我申請」後顯示已設定 11 月 12 日早上 9 點提醒；當天鎖定畫面跳出「重陽禮金明天截止」；最後按「線上申請匯款」](docs/diagrams/flow-6-benefit.svg)
 
 <details>
 <summary>文字版</summary>
@@ -347,7 +347,7 @@ userinfo.birthday → 年齡（原住民門檻降 10 歲）→ 比對資格
 
 **⑦ 看完醫生之後（M4）**
 
-![看完醫生之後：在看醫生頁選回診或領藥、選日子，提醒時間是前一天晚上 7 點（來不及就改當天早上 7 點），用 reminder 排程手機通知，都來不及就說明；可以再按「傳給家人知道」](docs/diagrams/flow-7-followup.svg)
+![看完醫生之後：在看醫生頁選回診或領藥、選日子，提醒時間是前一天晚上 7 點（來不及就改當天早上 7 點），用 reminder 排程手機通知，都來不及就說明；可以再按「傳給家人知道」。上方的情境手機依序演出：在「看完醫生之後」按「回診」、日期選 2026/11/20，畫面寫「會在 11 月 19 日（星期四）晚上 7 點跳出手機通知」，按「提醒我回診」；19 日晚上 7 點鎖定畫面跳出「明天要回診」；最後在「傳給家人知道」按「傳簡訊給大女兒」](docs/diagrams/flow-7-followup.svg)
 
 <details>
 <summary>文字版</summary>
@@ -364,7 +364,7 @@ userinfo.birthday → 年齡（原住民門檻降 10 歲）→ 比對資格
 
 **⑧ 公車還有幾分鐘到（M16）**
 
-![公車還有幾分鐘到：家人在幫長輩設定時用 /api/bus/routes 找路線、/api/bus/stops 選方向與站牌，連同站牌位置編進 QR 設定碼；長輩掃描後首頁出現公車卡片，畫面看得到時每 30 秒查 /api/bus/eta，顯示還有幾分鐘，按「再查一次」會唸出來；卡片上還有「帶我走到站牌」](docs/diagrams/flow-8-bus.svg)
+![公車還有幾分鐘到：家人在幫長輩設定時用 /api/bus/routes 找路線、/api/bus/stops 選方向與站牌，連同站牌位置編進 QR 設定碼；長輩掃描後首頁出現公車卡片，畫面看得到時每 30 秒查 /api/bus/eta，顯示還有幾分鐘，按「再查一次」會唸出來；卡片上還有「帶我走到站牌」。上方的情境手機先是女兒的手機：「307」一個字一個字打出來、按「找路線」，選「307 往撫遠街」，打「三民」選「南京三民路口」，按「產生設定碼」出現 QR code；再換成金大森的手機：掃描後首頁出現公車卡片，從「正在查…」變成「還有 7 分鐘」，按「再查一次」後變成「快到了」並唸出來](docs/diagrams/flow-8-bus.svg)
 
 <details>
 <summary>文字版</summary>
@@ -382,7 +382,7 @@ userinfo.birthday → 年齡（原住民門檻降 10 歲）→ 比對資格
 
 **⑨ 帶我走到站牌（M16 延伸，`/walk`）**
 
-![帶我走到站牌：從首頁公車卡片進入，取得現在位置，在手機上用 A* 和 OSM 路網算步行路線，比較走路和公車到站時間（趕不上就說等下一班）；走路時轉彎、過馬路前 40 公尺先提醒，過馬路處有有聲號誌就提醒聽嗶嗶聲，偏離超過 35 公尺就重新找路](docs/diagrams/flow-9-walk.svg)
+![帶我走到站牌：從首頁公車卡片進入，取得現在位置，在手機上用 A* 和 OSM 路網算步行路線，比較走路和公車到站時間（趕不上就說等下一班）；走路時轉彎、過馬路前 40 公尺先提醒，過馬路處有有聲號誌就提醒聽嗶嗶聲，偏離超過 35 公尺就重新找路。上方的情境手機依序演出：首頁公車卡片（中山幹線 往青年公園・三玉宮，還有 9 分鐘）按「帶我走到站牌」，顯示「正在找您現在的位置…」「正在找路…」，接著唸出「走到站牌大約 6 分鐘，公車還有 9 分鐘，來得及，慢慢走就好」；按「開始帶我走」後依序提醒「直走 40 公尺，右轉進入天母東路」「現在右轉」「這裡有有聲號誌，聽到嗶嗶聲再走」「好像走偏了，重新找路」，最後「到了，站牌就在附近」](docs/diagrams/flow-9-walk.svg)
 
 <details>
 <summary>文字版</summary>
@@ -429,7 +429,7 @@ userinfo.birthday → 年齡（原住民門檻降 10 歲）→ 比對資格
 
 **M12 補助小幫手：先問幫誰看，再問三題**
 
-![M12 補助小幫手：先問幫誰看；幫自己就自動帶入年齡、原住民身分、行政區，幫家人就問年紀級距（55～64 歲才問是不是原住民）；再問三題（身障證明、家裡收入、需要照顧），結果分成可能可以申請、不用申請會自動入帳、答不知道的提示三塊，每張卡片附打電話時的第一句話，最後固定給 1957、1966、文字聯絡](docs/diagrams/m12-subsidy.svg)
+![M12 補助小幫手：先問幫誰看；幫自己就自動帶入年齡、原住民身分、行政區，幫家人就問年紀級距（55～64 歲才問是不是原住民）；再問三題（身障證明、家裡收入、需要照顧），結果分成可能可以申請、不用申請會自動入帳、答不知道的提示三塊，每張卡片附打電話時的第一句話，最後固定給 1957、1966、文字聯絡。上方的情境手機依序演出：先問「您是幫誰看？」按「幫我自己」，帶入「86 歲・中山區」，三題依序答「沒有」「沒有，但收入不高」「不需要」，結果「您可能可以申請 4 項」第一張是老人生活津貼；卡片裡寫好打電話時的第一句話，按「打給中山區公所社會課」；最後是「沒有找到適合的，或還是不確定？」和 1957 福利](docs/diagrams/m12-subsidy.svg)
 
 <details>
 <summary>文字版</summary>

@@ -22,7 +22,6 @@ import os
 import random
 import re
 import sys
-from html import escape
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "readme"))
 from build_readme_art import ELDER, HOME, TP, R, T, text_width  # noqa: E402

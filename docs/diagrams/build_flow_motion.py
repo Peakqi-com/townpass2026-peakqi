@@ -798,6 +798,488 @@ def ride(d):
     st.frame(t[6] + 2.1, result("hearing").scroll(760), "hearing")
 
 
+@story_for("flow-4-places.svg")
+def flow_places(d):
+    f = d.find
+    src, req, wl, hit = f("行政區、里或目前位置"), f("fetch /api/opendata/…"), f("白名單檢查"), f("快取有就直接回")
+    od, conv, out = f("data.taipei"), f("Big5・ODS 解析・座標換算"), f("一句話摘要＋大字電話按鈕")
+    st = d.story = Story([
+        Step("阿伯想問區裡的健康服務中心：在「看醫生」按「附近打疫苗、做篩檢」", [src], [], 3.4),
+        Step("不用輸入地址：台北通帳號寫中山區，按「健康服務中心」", [src, req], [d.link(src, req)], 3.6),
+        Step("後端只查白名單裡登記過的開放資料；快取有就直接回", [wl, hit], [d.link(req, wl), d.link(wl, hit)], 2.6),
+        Step("沒有快取才去抓 data.taipei：Big5 轉碼、篩出中山區", [od, conv], [d.link(hit, od), d.link(od, conv)], 2.6),
+        Step("一句話摘要「中山區有 1 個健康服務中心」，電話是大字按鈕（資料：臺北市健康服務中心）", [out], [d.link(conv, out)], 3.4),
+        Step("按電話會先問：「打給中山區健康服務中心」，確定才撥", [out], [], 3.2),
+        Step("斷網或讀不到：說清楚，並建議打 1999 問問看", [out], [], 3.0),
+    ])
+    t, m = st.t, st.m
+    # ① 看醫生頁，往下捲到「附近打疫苗、做篩檢」（HealthScreen.tsx）
+    tp = t[0] + 1.6
+    s = ui.Screen(m=m, top=58)
+    s.button("附近打疫苗、做篩檢", "health", icon="health", name="places", press=tp, center=False)
+    s.button("照顧家人：失智、喘息", "family", icon="family", center=False)
+    s.h2("看完醫生之後")
+    s.p("選下次回診或領藥的日子，前一天晚上 7 點手機會跳出通知提醒您。")
+    st.frame(0, s)
+    press(st, tp, s, "places", "附近哪裡可以打疫苗、做篩檢")
+
+    def places_top(press_hc=None, picked=False):
+        """PlacesScreen.tsx：您住在中山區、換一區、要找哪一種？（2 欄分類，選到的加粗外框）"""
+        s = ui.page(m=m, title="打疫苗、做篩檢")
+        s.h2("您住在中山區")
+        s.gap(-8).p("依台北通帳號的地址。想看別區，可以換。")
+        s.gap(-8).button("換一區", "plain")
+        s.h2("要找哪一種？")
+        s.gap(-8)
+        u = s.u
+        w, h = (s.w - 12 * u) / 2, 88 * u
+        for i, label in enumerate(["流感疫苗", "肺炎鏈球菌疫苗", "癌症篩檢", "假牙補助院所", "健康服務中心"]):
+            x = s.x0 + (i % 2) * (w + 12 * u)
+            y = s.y + (i // 2) * (h + 12 * u)
+            parts = R(x, y, w, h, round(16 * u, 1), ui.ELDER["health"][0]) + app_icon("health", x + w / 2 - 12 * u, y + 10 * u, 24 * u, "#FFFFFF")
+            ly = y + 40 * u
+            for line in wrap(label, 20 * u, w - 24 * u):
+                parts += T(x + w / 2, ly + 12 * u + 20 * u * 0.36, line, round(20 * u, 1), "#FFFFFF", 700, "middle")
+                ly += 24 * u
+            if picked and label == "健康服務中心":
+                parts += R(x - 4 * u, y - 4 * u, w + 8 * u, h + 8 * u, round(20 * u, 1), "none", TP["gray900"], round(5 * u, 1))
+            s._emit(parts, press_hc if label == "健康服務中心" else None, label, (x + w / 2, y + h / 2))
+        s.y += 3 * h + 2 * 12 * u
+        s.gap()
+        if picked:
+            s.p("每一區都有一個健康服務中心。")
+        return s
+
+    # ② 選「健康服務中心」→ 正在找
+    tp = t[1] + 1.4
+    s = places_top(press_hc=tp).scroll(150)
+    st.frame(t[0] + 2.2, s)
+    press(st, tp, s, "健康服務中心", "健康服務中心")
+    s = places_top(picked=True)
+    s.h2("正在找中山區的健康服務中心…")
+    st.frame(tp + 0.5, s.scroll(310))
+
+    # ⑤ 結果（資料取自 src/lib/opendata/fixtures/health-centers.big5.csv 的中山區那一筆）
+    def result(press_call=None):
+        s = places_top(picked=True)
+        s.h2("中山區有 1 個健康服務中心")
+        s.gap(-8).p("按電話會先問您要不要打。")
+        s.card(gap=12)
+        s.h2("中山區健康服務中心")
+        s.text("地址：台北市松江路367號7樓", 20, ui.INK)
+        s.button("撥打 (02)2501-4616", "health", icon="phone", name="call", press=press_call)
+        s.button("怎麼去", "plain", icon="search")
+        s.end()
+        return s.scroll(380)
+
+    st.frame(t[4], result())
+    st.toast(t[4] + 0.2, "中山區有 1 個健康服務中心", dur=2.6)
+    tp = t[5] + 0.9
+    s = result(tp)
+    st.frame(t[5], s)
+    press(st, tp, s, "call", "打給中山區健康服務中心")
+    s = ui.page(m=m, title="打疫苗、做篩檢")
+    s.h1("打給中山區健康服務中心")
+    s.text("(02)2501-4616", 40, ui.INK, 700, 50)
+    s.button("撥打 (02)2501-4616", "dark", icon="phone", center=False)
+    s.button("不打了，回到列表", "plain", icon="home", center=False)
+    s.small("電話來自政府開放資料〈臺北市健康服務中心〉，可能已經改號，請以現場為準。")
+    st.frame(tp + 0.5, s)
+    # ⑦ 讀不到
+    s = places_top(picked=True)
+    s.h2("資料暫時讀不到")
+    s.gap(-8).p("請稍後再試一次，或打 1999 問問看。", ui.INK)
+    st.frame(t[6], s.scroll(310))
+    st.toast(t[6] + 0.2, "資料暫時讀不到。請稍後再試，或打 1999 問問看。", dur=2.4)
+
+
+@story_for("flow-6-benefit.svg")
+def flow_benefit(d):
+    f = d.find
+    a, b, c, d1, d2 = f("台北通帳號的生日"), f("算年齡、比對資格"), f("權益卡片"), f("線上申請匯款"), f("提醒我申請")
+    e_d1 = d.link(c, d1)
+    st = d.story = Story([
+        Step("阿伯按「我的權益」；生日從台北通帳號帶入（1940/03/01）", [a], [], 3.0),
+        Step("算出今年 86 歲：「您今年 86 歲，下面是您可能可以用的權益。」", [b], [d.link(a, b)], 2.8),
+        Step("最上面是「很多人不知道的權益」，接著是重陽禮金卡片", [c], [d.link(b, c)], 3.4),
+        Step("今天沒空申請，按「提醒我申請」：11 月 12 日早上 9 點提醒", [d2], [e_d1[:2] + d.into(d2)[1:]], 3.8),
+        Step("11 月 12 日早上 9 點跳出「重陽禮金明天截止」，App 關掉、斷網也會跳", [d2], [], 3.2),
+        Step("打開「用得了」按「線上申請匯款」，到社會局網站申請，12 月 1 日入帳", [d1], [e_d1], 3.4),
+    ])
+    t, m = st.t, st.m
+    tp = t[0] + 1.0
+    s = ui.home(m=m, press={"benefit": tp}).scroll(120)
+    st.frame(0, s)
+    press(st, tp, s, "benefit", "我的權益")
+    s = ui.page(m=m, title="我的權益")
+    s.button("補助小幫手：看看能領什麼", "benefit", icon="benefit", center=False)
+    s.p("您今年 86 歲，下面是您可能可以用的權益。最後以主責機關審核為準。")
+    s.card(border=ui.ELDER["benefit"][0])
+    s.h2("很多人不知道的權益")
+    s.p("這些權益很多人沒聽過。看看您或家人用不用得到。")
+    s.card(border=ui.DIVIDER)
+    s.h2("老人健保費補助：每人每月最多 826 元")
+    s.p("社會局會主動審核，直接繳給健保署。被停補的人可以申請恢復。", ui.INK)
+    s.end()
+    s.end()
+    st.frame(tp + 0.6, s)
+    st.frame(t[2] + 0.2, s.scroll(200))
+
+    def gift(press_at=None, reminded=False, press_apply=None):
+        """BenefitsScreen.tsx 的重陽禮金卡片（示範帳號 86 歲、還有 6 天截止）。"""
+        s = ui.Screen(m=m, top=58)
+        s.card(border=ui.ELDER["benefit"][0])
+        s.h2("還沒收到重陽禮金嗎？")
+        s.p("您今年可能可以領 3,000 元。還有 6 天截止（11/13），12 月 1 日入帳。")
+        s.p("線上申請不用登入，要準備身分證字號、電話和銀行帳戶。也可以到區公所申請。", ui.INK)
+        s.p("中山區公所社會課：臺北市中山區松江路 367 號 1 樓", ui.INK)
+        s.button("線上申請匯款", "benefit", name="apply", press=press_apply)
+        s.button("看怎麼申請", "benefit")
+        s.button("打給中山區公所社會課", "dark", icon="phone")
+        if reminded:
+            s.p("已設定提醒：11 月 12 日（星期四）早上 9 點會跳出手機通知。", ui.INK)
+            s.button("取消提醒", "plain")
+        else:
+            s.button("提醒我申請", "plain", icon="bell", name="remind", press=press_at)
+            s.p("會在 11 月 12 日（星期四）早上 9 點跳出手機通知。")
+        s.end()
+        return s
+
+    tp = t[3] + 1.3
+    s = gift(press_at=tp).scroll(250)
+    st.frame(t[3], s)
+    st.tap(tp, s, "remind")
+    st.buzz(tp + 0.05)
+    st.frame(tp + 0.4, gift(reminded=True).scroll(250))
+    st.toast(tp + 0.5, "好了，11 月 12 日（星期四）早上 9 點會跳出通知提醒您。", dur=1.9)
+    # ⑤ 通知（App 用 flutter_local_notifications 排的系統通知；鎖定畫面是手機自己的）
+    st.frame(t[4], ui.lock_screen("09:00", "11月12日 星期四", night=False))
+    st.over.append(f'<g{HID} class="{m.slide(t[4] + 0.5, t[5] - 0.1)}">'
+                   f'{ui.notification("重陽禮金明天截止", "還沒申請的話，打開台北通的「用得了」就能線上申請匯款，也可以到區公所申請。", 240)}</g>')
+    st.buzz(t[4] + 0.6)
+    # ⑥ 線上申請匯款
+    tp = t[5] + 1.0
+    s = gift(press_apply=tp).scroll(40)
+    st.frame(t[5], s, hero=True)
+    press(st, tp, s, "apply", "線上申請匯款")
+
+
+@story_for("flow-7-followup.svg")
+def flow_followup(d):
+    f = d.find
+    s1, s2, s3, s4, s5 = f("看醫生頁"), f("選回診或領藥"), f("選日子"), f("算提醒時間"), f("reminder 排程")
+    share = f("傳給家人知道")
+    st = d.story = Story([
+        Step("阿伯在聯醫看完高血壓，醫生說 11 月 20 日回診；他打開「看醫生」頁的「看完醫生之後」", [s1], [], 3.2),
+        Step("「要提醒什麼？」按「回診」", [s2], [d.link(s1, s2)], 2.6),
+        Step("「哪一天？」選 2026/11/20", [s3], [d.link(s2, s3)], 2.8),
+        Step("算好提醒時間：前一天（11 月 19 日）晚上 7 點", [s4], [d.link(s3, s4)], 2.6),
+        Step("按「提醒我回診」，交給手機排好通知", [s5], [d.link(s4, s5)], 3.2),
+        Step("11 月 19 日晚上 7 點，手機跳出「明天要回診」：記得帶健保卡和藥袋", [s5], [], 3.2),
+        Step("再按「傳簡訊給大女兒」：簡訊內文寫好了，阿伯自己按送出", [share], [d.link(s5, share)], 3.4),
+    ])
+    t, m = st.t, st.m
+
+    def follow(kind=None, date="", press=None, reminded=False):
+        """HealthScreen.tsx 的「看完醫生之後」。日期是原生的日期欄位，畫出選好的值。"""
+        press = press or {}
+        s = ui.Screen(m=m, top=44)
+        s.h2("看完醫生之後")
+        s.gap(-4).p("選下次回診或領藥的日子，前一天晚上 7 點手機會跳出通知提醒您。")
+        s.label("要提醒什麼？")
+        s.gap(-8)
+        s.choice("回診", pressed=kind == "回診", check=True, press=press.get("回診"), name="回診")
+        s.gap(-8).choice("領慢性病連續處方箋的藥", name="藥")
+        s.label("哪一天？")
+        s.input(date, name="date")
+        if kind and date:
+            if reminded:
+                s.p("已設定提醒：11 月 19 日（星期四）晚上 7 點會跳出手機通知。", ui.INK)
+                s.button("取消提醒", "plain")
+            else:
+                s.button("提醒我回診", "plain", icon="bell", name="remind", press=press.get("remind"))
+                s.p("會在 11 月 19 日（星期四）晚上 7 點跳出手機通知。")
+        return s
+
+    st.frame(0, follow())
+    tp = t[1] + 0.9
+    s = follow(press={"回診": tp})
+    st.frame(t[1] - 0.05, s)
+    press(st, tp, s, "回診", "回診")
+    st.frame(tp + 0.35, follow("回診"))
+    tp = t[2] + 0.8
+    st.tap(tp, follow("回診"), "date")
+    st.buzz(tp + 0.05)
+    st.frame(tp + 0.6, follow("回診", "2026/11/20").scroll(150))
+    tp = t[4] + 0.9
+    s = follow("回診", "2026/11/20", press={"remind": tp}).scroll(150)
+    st.frame(t[4] - 0.05, s)
+    st.tap(tp, s, "remind")
+    st.buzz(tp + 0.05)
+    st.frame(tp + 0.4, follow("回診", "2026/11/20", reminded=True).scroll(150))
+    st.toast(tp + 0.5, "好了，11 月 19 日（星期四）晚上 7 點會跳出通知提醒您。", dur=1.7)
+    # ⑥ 前一天晚上 7 點的通知
+    st.frame(t[5], ui.lock_screen("19:00", "11月19日 星期四"), hero=True)
+    st.over.append(f'<g{HID} class="{m.slide(t[5] + 0.4, t[6] - 0.1)}">'
+                   f'{ui.notification("明天要回診", "11 月 20 日（星期五）要回診，記得帶健保卡和藥袋。", 240)}</g>')
+    st.buzz(t[5] + 0.5)
+    # ⑦ 傳給家人知道（ShareToFamily.tsx；家人是 flow-5 設定的「大女兒」）
+    tp = t[6] + 1.3
+    s = ui.Screen(m=m, top=44)
+    s.h2("傳給家人知道")
+    s.gap(-4).p("會傳出這段文字（送出前可以再改）：")
+    s.gray("我 11 月 20 日（星期五）要回診，記得提醒我帶健保卡。— 金大森")
+    s.button("傳簡訊給大女兒", "family", icon="text", name="sms", press=tp, center=False)
+    s.button("複製這段文字", "plain", center=False)
+    st.frame(t[6], s)
+    press(st, tp, s, "sms", "傳簡訊給大女兒")
+
+
+def bus_section(m):
+    """FamilySetup.tsx 的第 4 段（BusPicker.tsx）。"""
+    s = ui.Screen(m=m, top=44)
+    s.h2("4. 長輩常坐的公車（可以不設）")
+    s.gap(-4).p("設好後，長輩的首頁會顯示「還有幾分鐘到」。最多 2 組，臺北市、新北市的公車都可以。")
+    return s
+
+
+@story_for("flow-8-bus.svg")
+def flow_bus(d):
+    f = d.find
+    f1, f2, f3 = f("「我是家人」→ 幫長輩設定"), f("選方向、選站牌：/api/bus/stops"), f("編進設定碼（QR）")
+    e1, e2, e3 = f("掃 QR 存在手機裡"), f("/api/bus/eta"), f("還有 7 分鐘")
+    label = "307 往撫遠街・南京三民路口"
+    st = d.story = Story([
+        Step("女兒在「幫長輩設定」加爸爸常坐的公車：打「307」，按「找路線」", [f1], [], 3.6),
+        Step("選方向「307 往撫遠街」", [f2], [d.link(f1, f2)], 2.8),
+        Step("一個字一個字打「三民」找站牌，選「南京三民路口」", [f2], [], 3.4),
+        Step("按「產生設定碼」：路線、站牌代號和站牌位置都編進 QR code", [f3], [d.link(f2, f3)], 3.0),
+        Step("阿伯掃設定碼，首頁出現公車卡片", [e1], [d.link(f3, e1)], 3.4),
+        Step("畫面看得到時每 30 秒查一次：「還有 7 分鐘」", [e2], [d.link(e1, e2)], 3.0),
+        Step("按「再查一次」會唸出來：「307 往撫遠街・南京三民路口，快到了」", [e3], [d.link(e2, e3)], 3.8),
+    ])
+    t, m = st.t, st.m
+    # ① 打 307、找路線
+    tp = t[0] + 2.4
+    s = bus_section(m)
+    s.input("307", "路線，例如 307", button="找路線", typing=(t[0] + 0.8, t[0] + 1.6), name="route", press=tp)
+    st.frame(0, s, "family")
+    press(st, tp, s, "route-btn", "找 307")
+    # ② 方向（略過「找到 n 條路線」：真實資料的筆數會變）
+    tp = t[1] + 1.0
+    s = bus_section(m)
+    s.text("307 要往哪個方向？", 20, ui.INK, 700)
+    s.button("307 往撫遠街", "plain", name="dir", press=tp)
+    s.button("307 往板橋", "plain")
+    s.button("重新找", "light", px=20, min_h=56)
+    st.frame(t[0] + 2.9, s, "family")
+    press(st, tp, s, "dir", "307 往撫遠街")
+    # ③ 站牌
+    tp = t[2] + 2.0
+    s = bus_section(m)
+    s.text("307 往撫遠街：在哪一站上車？", 20, ui.INK, 700)
+    s.input("三民", "打站名的幾個字，例如 三民", typing=(t[2] + 0.5, t[2] + 1.2))
+    s.button("南京三民路口", "plain", name="stop", press=tp)
+    st.frame(t[1] + 1.5, s, "family")
+    st.tap(tp, s, "stop")
+    st.buzz(tp + 0.05)
+    # ④ 加好了 → 產生設定碼 → QR
+    tp = t[3] + 0.9
+    s = bus_section(m)
+    s.p(f"加好了：{label}", ui.INK, bold=True)
+    s.button("刪掉", "plain", min_h=56)
+    s.button("產生設定碼", "dark", name="gen", press=tp)
+    st.frame(t[2] + 2.4, s, "family")
+    st.toast(t[2] + 2.5, f"加好了：{label}", dur=1.3)
+    press(st, tp, s, "gen", "產生設定碼")
+    st.frame(tp + 0.5, qr_page(m, seed=11), "family")
+    # ⑤ 掃描 → 首頁出現公車卡片
+    st.frame(t[4], ui.camera(qr_seed=11))
+    scan_line(st, t[4], t[4] + 1.8)
+    st.frame(t[4] + 1.8, ui.home(m=m, bus=[(label, "正在查…")]).scroll(180))
+    # ⑥ 還有 7 分鐘
+    st.frame(t[5] + 0.3, ui.home(m=m, bus=[(label, "還有 7 分鐘")]).scroll(180), hero=True)
+    # ⑦ 再查一次
+    tp = t[6] + 0.8
+    s = ui.home(m=m, bus=[(label, "還有 7 分鐘")], press={"refresh": tp}).scroll(180)
+    st.frame(t[6] - 0.05, s)
+    press(st, tp, s, "refresh", "再查一次公車")
+    st.frame(tp + 1.2, ui.home(m=m, bus=[(label, "快到了")]).scroll(180))
+    st.toast(tp + 1.3, f"{label}，快到了", dur=1.6)
+
+
+@story_for("flow-9-walk.svg")
+def flow_walk(d):
+    f = d.find
+    s1, s2, s3, s4 = f("首頁公車卡片"), f("取得現在位置"), f("在手機上算步行路線"), f("比較走路與公車")
+    g1, g2, g3 = f("轉彎、過馬路前 40 公尺先提醒"), f("過馬路處 30 公尺內有有聲號誌"), f("偏離路線超過 35 公尺")
+    gs = [d.into(g) for g in (g1, g2, g3)]
+    fy = gs[0][0][1]
+    # 天母的站牌：臺北市公車站牌資料（GetStop.gz）裡「三玉宮」有停中山幹線（天母－青年公園）
+    label = "中山幹線 往青年公園・三玉宮"
+    st = d.story = Story([
+        Step("阿伯到天母找老朋友，要搭公車回家：首頁公車卡片按「帶我走到站牌」", [s1], [], 3.0),
+        Step("取得現在的位置", [s2], [d.link(s1, s2)], 2.4),
+        Step("在手機上算走路的路線（不用網路，盡量避開樓梯）", [s3], [d.link(s2, s3)], 2.4),
+        Step("「走到站牌大約 6 分鐘，公車還有 9 分鐘，來得及，慢慢走就好。」", [s4], [d.link(s3, s4)], 3.6),
+        Step("按「開始帶我走」：轉彎前 40 公尺先提醒，到了震動並說「現在右轉」", [g1],
+             [[(s4.cx, s4.bottom), (s4.cx, fy), (g1.cx, fy)], gs[0]], 4.4),
+        Step("過馬路的地方有有聲號誌：「聽到嗶嗶聲再走」", [g2], [gs[1]], 4.0),
+        Step("走過頭超過 35 公尺（連續 2 次）就重新找路，帶回站牌：「到了，站牌就在附近」", [g3],
+             [[(s4.cx, fy), (g3.cx, fy)], gs[2]], 4.8),
+    ])
+    t, m = st.t, st.m
+    tp = t[0] + 1.2
+    s = ui.home(m=m, bus=[(label, "還有 9 分鐘")], press={"walk": tp}).scroll(180)
+    st.frame(0, s)
+    press(st, tp, s, "walk", "帶我走到站牌")
+
+    def walk_page(status=None, sentence=None, step_title=None, step=None, progress=None, walking=False, press_go=None):
+        """WalkScreen.tsx。句子的格式照 src/lib/elder/walk.ts 與 walk.test.ts。"""
+        s = ui.page(m=m, title="走到站牌")
+        s.gap(-8).p(label)
+        if status:
+            s.p(status, ui.INK)
+            return s
+        if sentence:
+            s.p(sentence, ui.INK, bold=True)
+        s.card(border=ui.ELDER["ride"][0], gap=8)
+        s.text(step_title, 20, ui.INK2, 700)
+        s.text(step, 28, ui.INK, 700, 36)
+        if progress:
+            s.text(progress, 20, ui.INK2)
+        s.end()
+        if walking:
+            s.button("停下來", "plain")
+        else:
+            s.button("開始帶我走", "ride", name="go", press=press_go)
+            s.gap(-8).p("走路時手機拿在手上，螢幕不要關，聲音開大一點。")
+            s.button("模擬走一次", "plain")
+        return s
+
+    st.frame(tp + 0.5, walk_page("正在找您現在的位置…"))
+    st.frame(t[2], walk_page("正在找路…"))
+    timing = "走到站牌大約 6 分鐘，公車還有 9 分鐘，來得及，慢慢走就好。"
+    first = "直走 150 公尺，右轉進入天母東路"
+    st.frame(t[3], walk_page(sentence=timing, step_title="第一步", step=first))
+    st.toast(t[3] + 0.2, timing + first + "。", dur=3.2)
+    tp = t[4] + 0.5
+    s = walk_page(sentence=timing, step_title="第一步", step=first, press_go=tp)
+    st.frame(t[4] - 0.05, s)
+    press(st, tp, s, "go", "開始帶您走")
+    st.frame(tp + 0.4, walk_page(step_title="下一步", step="直走 40 公尺，右轉進入天母東路",
+                                 progress="走了 110 公尺，還有 290 公尺", walking=True), hero=True)
+    st.toast(t[4] + 1.4, "直走 40 公尺，右轉進入天母東路", dur=1.3)
+    st.buzz(t[4] + 3.0)
+    st.toast(t[4] + 3.0, "現在右轉，進入天母東路", dur=1.3)
+    cross = "直走 40 公尺，要過馬路，這裡有有聲號誌，聽到嗶嗶聲再走"
+    st.frame(t[5], walk_page(step_title="下一步", step=cross, progress="走了 190 公尺，還有 210 公尺", walking=True))
+    st.buzz(t[5] + 1.6)
+    st.toast(t[5] + 1.6, "現在要過馬路，這裡有有聲號誌，聽到嗶嗶聲再走", dur=2.2)
+    st.frame(t[6], walk_page(step_title="下一步", step="直走 50 公尺，就到站牌", progress="走了 360 公尺，還有 40 公尺", walking=True))
+    st.toast(t[6] + 0.9, "好像走偏了，重新找路。直走 50 公尺，就到站牌", dur=2.0)
+    st.frame(t[6] + 3.3, walk_page(step_title="完成", step="到了，站牌就在附近", walking=True))
+
+
+# =====================================================================
+# M12 補助小幫手
+# =====================================================================
+@story_for("m12-subsidy.svg")
+def subsidy(d):
+    f = d.find
+    who, auto = f("您是幫誰看？"), f("自動帶入（不用問）")
+    qb = [f("① 有身心障礙證明嗎？"), f("② 家裡收入"), f("③ 家裡有人需要別人照顧嗎？")]
+    rb = [f("您可能可以申請"), f("不用申請，會自動入帳或減免")]
+    card, last = f("每張卡片"), f("最後固定一段")
+    ea = d.into(auto)
+    qe = [d.into(b) for b in qb]
+    re_ = [d.into(b) for b in rb]
+    y1, y2, y3 = ea[0][1], qe[0][0][1], re_[0][0][1]
+    st = d.story = Story([
+        Step("阿伯不知道自己能領什麼：在「我的權益」按「補助小幫手」，先問「您是幫誰看？」", [who], [], 3.4),
+        Step("按「幫我自己」：年齡、行政區從台北通帶入（86 歲・中山區），不用再問", [auto],
+             [[(who.cx, who.bottom), (who.cx, y1), ea[0]] + ea[1:]], 3.2),
+        Step("第 2 題「您有身心障礙證明嗎？」按「沒有」", [qb[0]], [[(auto.cx, auto.bottom), (auto.cx, y2), qe[0][0]] + qe[0][1:]], 2.8),
+        Step("第 3 題「家裡有低收入戶或中低收入戶證明嗎？」按「沒有，但收入不高」", [qb[1]], [[qe[0][0], qe[1][0]] + qe[1][1:]], 3.0),
+        Step("第 4 題「家裡有人需要別人照顧嗎？」按「不需要」", [qb[2]], [[qe[1][0], qe[2][0]] + qe[2][1:]], 2.8),
+        Step("「您可能可以申請 4 項」，第一張是老人生活津貼；也列出會自動減免的", rb,
+             [[(qb[0].cx, qb[0].bottom), re_[0][0]] + re_[0][1:], [re_[0][0], re_[1][0]] + re_[1][1:]], 3.4),
+        Step("每張卡片都寫好打電話時的第一句話，也可以直接打給區公所社會課", [card], [d.link(rb[0], card)], 3.4),
+        Step("最後固定給 1957 福利諮詢、1966 長照、文字聯絡", [last], [d.link(card, last)], 3.0),
+    ])
+    t, m = st.t, st.m
+    note = "您的回答只存在這支手機裡，不會上傳。"
+
+    def q_page(intro, progress, title, hint, options, pick=None, press_at=None, back=True):
+        """SubsidyHelper.tsx 的題目頁。"""
+        s = ui.page(m=m, title="補助小幫手")
+        s.p(intro + note)
+        s.text(progress, 20, ui.INK2, 700)
+        s.gap(-4).text(title, 32, ui.INK, 700, 40)
+        if hint:
+            s.gap(-4).p(hint, ui.INK)
+        for o in options:
+            s.gap(-4).button(o, "plain", name=o, press=press_at if o == pick else None)
+        if back:
+            s.button("回上一題", "light", px=20, min_h=56, x1=s.x0 + 150 * s.u)
+        return s
+
+    tp = t[0] + 1.8
+    s = q_page("先問幫誰看，再問三個問題，幫您看看可能可以申請哪些補助。每一題都可以選「不知道」。", "第 1 題", "您是幫誰看？",
+               "幫家人看的話，會再問他（她）的年紀。", ["幫我自己", "幫另一半或家人"], "幫我自己", tp, back=False)
+    st.frame(0, s)
+    press(st, tp, s, "幫我自己", "幫我自己")
+    qs = [
+        ("第 2 題，共 4 題", "您有身心障礙證明嗎？", None, ["有", "沒有", "不知道"], "沒有"),
+        ("第 3 題，共 4 題", "家裡有低收入戶或中低收入戶證明嗎？", "沒有證明，但家裡收入不高，也可能可以申請。",
+         ["有低收或中低收證明", "沒有，但收入不高", "不知道"], "沒有，但收入不高"),
+        ("第 4 題，共 4 題", "家裡有人需要別人照顧嗎？", "例如走路、洗澡、吃飯需要有人幫忙。也可以是您自己。", ["需要", "不需要", "不知道"], "不需要"),
+    ]
+    prev = tp
+    for i, (prog, title, hint, opts, pick) in enumerate(qs):
+        tq = t[2 + i] + 1.3
+        s = q_page("從台北通帶入：86 歲・中山區。", prog, title, hint, opts, pick, tq)
+        if i:
+            s.scroll(70)
+        st.frame(prev + 0.5, s, hero=i == 0)
+        press(st, tq, s, pick, pick)
+        prev = tq
+    # 結果（SubsidyHelper.tsx 的 SubsidyCard；內容來自 src/data/subsidies.json）
+    s = ui.page(m=m, title="補助小幫手")
+    s.text("您可能可以申請 4 項", 32, ui.INK, 700, 40)
+    s.gap(-8).p("最後由社會局審核，這裡只是幫您先看看。", ui.INK, bold=True)
+    s.card(border=ui.ELDER["benefit"][0], gap=16)
+    s.h2("老人生活津貼")
+    s.p("65 歲以上、家裡收入不高的長輩，每個月可以領生活津貼。不用先有中低收入戶身分。", ui.INK)
+    s.p("大約金額：每月 8,329 元或 4,164 元（115 年）", ui.INK, bold=True)
+    s.card(border=ui.BGDARK, bw=0, pad=12, fill=ui.BGDARK)
+    s.text("要注意：要看家裡收入", 20, ui.INK, 700)
+    s.end()
+    s.end()
+    st.frame(prev + 0.5, s)
+    # 同一張卡片往下捲：第一句話＋打電話的按鈕（ChannelButtons.tsx：講電話的深色、文字的紫色）
+    tp = t[6] + 1.6
+    s = ui.Screen(m=m, top=58)
+    s.x0 += 20 * s.u
+    s.x1 -= 20 * s.u
+    s.card(border=ui.DIVIDER, pad=12, gap=4)
+    s.text("打電話或用文字問時，可以先這樣說：", 20, ui.INK, 700)
+    s.text("您好，我想問「老人生活津貼」怎麼申請。我住在中山區，今年 86 歲。", 20, ui.INK)
+    s.end()
+    s.gap(-8).button("打給中山區公所社會課", "dark", icon="phone", name="office", press=tp)
+    s.gap(-8).button("打 1999", "dark", icon="phone")
+    s.gap(-8).button("用文字問 1999", "hearing", icon="text")
+    st.frame(t[6], s)
+    press(st, tp, s, "office", "打給中山區公所社會課")
+    # 最後一段
+    s = ui.Screen(m=m, top=44)
+    s.h2("沒有找到適合的，或還是不確定？")
+    s.gap(-8).p("不知道可以領什麼，可以問 1957；家裡有人需要照顧，可以問 1966；不方便講電話，可以用文字聯絡。", ui.INK)
+    s.service("benefit", "1957 福利", "不知道可以領什麼，可以問 1957。每天早上 8 點到晚上 10 點，免付費；也可以線上用文字問。",
+              [("撥 1957", "phone"), ("線上用文字問", "link")])
+    st.frame(t[7], s)
+
+
 # =====================================================================
 def main() -> None:
     import build_diagrams as bd
