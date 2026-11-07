@@ -187,7 +187,7 @@
 **情境**：「我腳不方便，要怎麼去醫院？」
 
 **流程**：最多問兩個問題，用大按鈕回答。
-![M5 叫車分流：有身障證明→復康巴士；沒有或不知道→問長照 2 級以上嗎？是→長照交通接送，不是→敬老愛心計程車，不知道→先問 1966 並列出敬老計程車](diagrams/m5-ride.svg)
+![M5 叫車分流：有身障證明→復康巴士；沒有或不知道→問長照 2 級以上嗎？是→長照交通接送，不是→敬老愛心計程車，不知道→先問 1966 並列出敬老計程車；每個結果都有「訂不到車怎麼辦？」，依序退到長照交通接送、敬老計程車、打給家人](diagrams/m5-ride.svg)
 
 <details>
 <summary>文字版</summary>
@@ -199,7 +199,9 @@
     ├ 是 → 長照交通接送（每月給付上限 1,680 元）
     ├ 不是 → 敬老愛心計程車：撥 55850，接通後按 0；每趟最多扣 85 點
     └ 不知道 → 先問 1966，也先列出敬老計程車
-聽不清楚模式：結果是只能打電話的服務時，另外給「手語視訊轉譯」
+訂不到車怎麼辦？（每個結果都有，從自己的下一格開始往下退）
+    復康巴士 → 長照交通接送（沒回答過長照「不是／不知道」才列）→ 敬老計程車 → 打給家人
+聽不清楚模式：結果或退路有敬老計程車（只能打電話）時，另外給「手語視訊轉譯」
 ```
 
 </details>
@@ -293,19 +295,25 @@
 **情境**：「我不知道自己能領什麼補助。」「我想幫我媽申請，要帶什麼？」
 
 **流程**
-![M12 補助小幫手：自動帶入年齡、原住民身分、行政區，再問三題（身障證明、家裡收入、需要照顧），結果分成可能可以申請、不用申請會自動入帳、答不知道的提示三塊](diagrams/m12-subsidy.svg)
+![M12 補助小幫手：先問幫誰看；幫自己就自動帶入年齡、原住民身分、行政區，幫家人就問年紀級距（55～64 歲才問是不是原住民）；再問三題（身障證明、家裡收入、需要照顧），結果分成可能可以申請、不用申請會自動入帳、答不知道的提示三塊，每張卡片附打電話時的第一句話，最後固定給 1957、1966、文字聯絡](diagrams/m12-subsidy.svg)
 
 <details>
 <summary>文字版</summary>
 
 ```
-自動帶入（不用問）：年齡、原住民身分（門檻降 10 歲）、行政區 ← 台北通帳號
-→ 三題大按鈕，都有「不知道」：
+您是幫誰看？
+├ 幫我自己 → 自動帶入（不用問）：年齡、原住民身分（門檻降 10 歲）、行政區 ← 台北通帳號
+└ 幫另一半或家人 → 他（她）今年幾歲？未滿 55 歲／55～64 歲／65 歲以上／不知道
+                  → 選 55～64 歲才問：是原住民嗎？（級距會影響結果時才問）
+                  → 行政區、市民身分沿用您的（當作住同一戶）
+→ 三題大按鈕，都有「不知道」（幫家人時主詞改成「他（她）」）：
    1. 有身心障礙證明嗎？（有 → 看不清楚／聽不清楚／其他）
    2. 家裡收入：有低收或中低收證明／沒有，但收入不高／不知道
    3. 家裡有人需要別人照顧嗎？
 → 結果分三塊：您可能可以申請／不用申請，會自動入帳或減免／答「不知道」的提示
-→ 每張卡片：一句話＋大約金額、要準備什麼、戶籍地社會課、家人能不能代辦、申請準備單
+→ 每張卡片：一句話＋大約金額、要準備什麼、戶籍地社會課、打電話時的第一句話、家人能不能代辦、
+   申請準備單（可以傳給家人）
+→ 最後固定一段「沒有找到適合的，或還是不確定？」：1957、1966、文字聯絡；一筆都沒有時，這一段移到最前面
 ```
 
 </details>
@@ -438,27 +446,29 @@
 
 圖由 `docs/diagrams/build_diagrams.py` 產生（色票取自城市通 UI Kit）；內容要改時改那支程式再重跑。
 
-![「用得了」架構：使用者從城市通 App 的服務頁開啟「用得了」，TPWebView 用 HTTPS 載入「用得了」微服務（Next.js），微服務的 bridge 用 postMessage 和 App 的 TPWebMessageListener 雙向溝通，分派給內建 Handler 與本服務新增的 6 個 Handler；後端 /api/opendata 代理 data.taipei 開放資料](diagrams/architecture.svg)
+![「用得了」架構：使用者從城市通 App 的服務頁開啟「用得了」，TPWebView 用 HTTPS 載入本微服務（Next.js，前端頁面 M1～M16），微服務的 bridge 用 postMessage 和 App 的 TPWebMessageListener 雙向溝通，分派給內建 Handler 與本服務新增的 6 個 Handler；後端 /api/opendata 代理 data.taipei 開放資料，/api/bus 讀公運處的公車資料](diagrams/architecture.svg)
 
 <details>
 <summary>文字版</summary>
 
 ```
 使用者：長輩・視障者・聽障者
-① 城市通 App（TownPass fork・Flutter 3.47.6）
+① 城市通 App（townpass/・TownPass fork・Flutter 3.47.6）
    服務頁「用得了」（my_service_model.dart，預設置頂）→ TPWebView（flutter_inappwebview）
         │ HTTPS 載入網頁
-② 「用得了」微服務（townpass2026-peakqi・Next.js 16・React 19・Tailwind 4・Vercel 東京）
-   前端頁面 M1～M12
+② 「用得了」微服務（根目錄・Next.js 16・React 19・Tailwind 4・Vercel 東京）
+   前端頁面 M1～M16
    ├ services.json：M3 服務清單 31 筆（打包在前端，斷網可用）
    ├ bridge.ts・elder.ts：呼叫 App 能力；一般瀏覽器改用 mock
-   └ 後端 /api/opendata：白名單代理、Big5 轉碼、ODS 解析、TWD97 換算、CDN 快取 ──HTTPS──► data.taipei（37 個來源）
+   └ 後端 Route Handlers
+       ├ /api/opendata：白名單代理、Big5 轉碼、ODS 解析、TWD97 換算、CDN 快取 ──HTTPS──► data.taipei（37 個來源）
+       └ /api/bus：路線、站牌、預估到站（M16）──HTTPS──► 公運處公車資料（白名單 6 個網址）
         │ postMessage 雙向溝通
 ③ App 原生能力：flutterObject ⇄ TPWebMessageListener，依訊息名稱分派
    內建（官方）：userinfo・location・phone_call・1999agree・open_link・launch_map・notify・qr_code_scan
    新增：speak（flutter_tts）・a11y_state（報讀軟體、字級）・haptic（震動）
-         open_external（url_launcher：LINE、簡訊）・listen（speech_to_text，只在手機上辨識）
-         reminder（flutter_local_notifications：排程手機通知）
+         open_external（url_launcher：LINE、簡訊，含「傳給家人知道」）・listen（speech_to_text，只在手機上辨識）
+         reminder（flutter_local_notifications：重陽禮金、回診、領藥的手機通知）
 ```
 
 </details>
@@ -466,7 +476,7 @@
 ### 5.2 主要流程
 
 **① 開啟「用得了」**
-![開啟「用得了」：點服務、WebView 載入網頁、向 App 要 userinfo 與 a11y_state、讀手機裡的設定、算年齡並篩出首頁按鈕與權益卡片](diagrams/flow-1-open.svg)
+![開啟「用得了」：點服務、WebView 載入網頁、向 App 要 userinfo 與 a11y_state、讀手機裡的設定（模式、語速、家人設定的按鈕與公車）、算年齡並篩出首頁按鈕、權益卡片與公車卡片](diagrams/flow-1-open.svg)
 
 <details>
 <summary>文字版</summary>
@@ -474,8 +484,8 @@
 ```
 台北通「我的服務」→ 點「用得了」→ WebView 載入 Vercel 網址
 → bridge：userinfo（姓名、生日、行政區）、a11y_state（報讀軟體、字級）
-→ 讀手機裡的設定（模式、語速、家人設定的按鈕）
-→ 算年齡 → 篩出首頁按鈕和權益卡片 → 畫面
+→ 讀手機裡的設定（模式、語速、家人設定的按鈕與公車）
+→ 算年齡 → 篩出首頁按鈕、權益卡片、公車卡片 → 畫面
 第一次使用會先到「選模式」頁；打開時在首頁前墊一筆「選模式」紀錄（返回鍵可以回去換模式），並預載全部頁面
 ```
 
@@ -515,29 +525,31 @@
 
 </details>
 
-**④ 附近據點（M9、M10）**
-![附近據點：行政區或目前位置，fetch /api/opendata，白名單檢查，有快取就直接回，沒有才抓 data.taipei，再 Big5 轉碼與座標換算，回傳前幾筆給畫面顯示一句話摘要與大字電話按鈕](diagrams/flow-4-places.svg)
+**④ 附近據點（M9、M10、M13～M15）**
+![附近據點：行政區、里或目前位置，fetch /api/opendata，白名單檢查，有快取就直接回，沒有才抓 data.taipei，再 Big5 轉碼、ODS 解析與座標換算，依距離、行政區或里篩選，回傳前幾筆給畫面顯示一句話摘要與大字電話按鈕](diagrams/flow-4-places.svg)
 
 <details>
 <summary>文字版</summary>
 
 ```
-userinfo.addresses[].town 或 location
+userinfo.addresses[]（行政區・里）或 location
 → fetch /api/opendata/{source}?q=中山區（或 near=緯度,經度）
-→ Route Handler：白名單 → 快取命中就直接回 → 否則抓 data.taipei → Big5 轉碼、座標轉換
-→ 回傳前幾筆 → 一句話摘要＋大字電話按鈕（斷網或讀不到：說明並給 1999）
+→ Route Handler：白名單 → 快取命中就直接回 → 否則抓 data.taipei → Big5 轉碼、ODS 解析、座標轉換
+→ 依距離、行政區或里篩選，回傳前幾筆 → 一句話摘要＋大字電話按鈕（斷網或讀不到：說明並給 1999）
+用到的頁面：M9 附近吃飯上課、M10 視障出門、M13 颱風地震時去哪裡（用里找負責的避難所）、M14 照顧家人、M15 打疫苗做篩檢
 ```
 
 </details>
 
 **⑤ 家人代設定（M7）**
-![家人代設定：家人的手機勾選按鈕、填電話與行政區後產生 QR code；長輩的手機按「家人幫我設定」掃描、檢查格式後存在手機裡，全程不經過伺服器](diagrams/flow-5-family.svg)
+![家人代設定：家人的手機勾選按鈕、填電話與行政區、選公車路線與站牌後產生 QR code；長輩的手機按「家人幫我設定」掃描、檢查格式後存在手機裡，全程不經過伺服器](diagrams/flow-5-family.svg)
 
 <details>
 <summary>文字版</summary>
 
 ```
-家人手機：「用得了」→「我是家人」→ 勾首頁按鈕、填電話與行政區 → 產生 QR（設定內容在 QR 裡）
+家人手機：「用得了」→「我是家人」→ 勾首頁按鈕、填電話與行政區、選公車路線與站牌（最多 2 組）
+         → 產生 QR（設定內容在 QR 裡）
 長輩手機：「家人幫我設定」→ qr_code_scan → 檢查格式、版本、隱藏字元 → 存在手機裡 → 唸「設定好了」
 （全程不經過伺服器）
 ```
@@ -545,16 +557,51 @@ userinfo.addresses[].town 或 location
 </details>
 
 **⑥ 權益提醒（M6）**
-![權益提醒：由台北通帳號的生日算年齡、比對資格，顯示權益卡片，可以線上申請匯款，或按「提醒我申請」排程手機通知](diagrams/flow-6-benefit.svg)
+![權益提醒：由台北通帳號的生日算年齡、比對資格，顯示權益卡片（最上面是很多人不知道的權益），可以線上申請匯款，或按「提醒我申請」排程手機通知](diagrams/flow-6-benefit.svg)
 
 <details>
 <summary>文字版</summary>
 
 ```
 userinfo.birthday → 年齡（原住民門檻降 10 歲）→ 比對資格
-→ 權益卡片「可能可以領 3,000 元，還有 6 天截止」
+→ 最上面「很多人不知道的權益」：老人健保費補助、長照交通接送、照顧家人
+→ 重陽禮金卡「還沒收到重陽禮金嗎？您今年可能可以領 3,000 元。」
 → 「線上申請匯款」→ open_external 開社會局網站
 → 「提醒我申請」→ reminder（11/12 早上 9 點跳出手機通知，App 關掉也會跳）
+```
+
+</details>
+
+**⑦ 看完醫生之後（M4）**
+
+![看完醫生之後：在看醫生頁選回診或領藥、選日子，提醒時間是前一天晚上 7 點（來不及就改當天早上 7 點），用 reminder 排程手機通知，都來不及就說明；可以再按「傳給家人知道」](diagrams/flow-7-followup.svg)
+
+<details>
+<summary>文字版</summary>
+
+```
+看醫生頁「看完醫生之後」→ 選回診，或領慢性病連續處方箋的藥 → 選日子
+→ 提醒時間：前一天晚上 7 點；剩不到 5 分鐘就改當天早上 7 點；都過了 → 說明，不排通知
+→ reminder：「明天要回診」手機通知（App 關掉、斷網也會跳）
+   內文只提醒要帶健保卡、藥袋、處方箋，不寫未查證的健保領藥規則
+→ 「傳給家人知道」：簡訊帶好內文，不自動送出；沒設定家人就複製貼到 LINE
+```
+
+</details>
+
+**⑧ 公車還有幾分鐘到（M16）**
+
+![公車還有幾分鐘到：家人在幫長輩設定時用 /api/bus/routes 找路線、/api/bus/stops 選方向與站牌，編進 QR 設定碼；長輩掃描後首頁出現公車卡片，畫面看得到時每 30 秒查 /api/bus/eta，顯示還有幾分鐘，按「再查一次」會唸出來](diagrams/flow-8-bus.svg)
+
+<details>
+<summary>文字版</summary>
+
+```
+家人手機：「我是家人」→ 輸入路線名稱（/api/bus/routes）→ 選方向、站牌（/api/bus/stops）
+         → 最多 2 組，臺北、新北都可以 → 編進設定碼（只存路線與站牌代號）
+長輩手機：掃 QR → 首頁出現公車卡片
+         → 畫面看得到時每 30 秒查 /api/bus/eta →「307 往撫遠街・南京三民路口，還有 7 分鐘」
+         → 按「再查一次」會唸出來；斷網時顯示「查不到時間」（路線名稱仍看得到）
 ```
 
 </details>

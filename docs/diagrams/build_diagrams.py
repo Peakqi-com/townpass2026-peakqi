@@ -209,27 +209,29 @@ class Diagram:
 # 5.1 架構圖
 # =====================================================================
 def architecture():
-    d = Diagram(1180, 954, "「用得了」架構", "① 城市通 App 開啟 → ②「用得了」微服務 → ③ App 原生能力；資料來自 data.taipei")
+    d = Diagram(1180, 954, "「用得了」架構", "① 城市通 App 開啟 → ②「用得了」微服務 → ③ App 原生能力；資料來自 data.taipei 與公運處公車資料")
     user = d.box(250, 110, ["長輩・視障者・聽障者"], "user", pill=True, w=230)
 
     d.group(40, 150, 780, 128, "① 城市通 App", "gray")
-    svc = d.box(250, 222, ["服務頁「用得了」", "my_service_model.dart，預設置頂"], "ours", w=300)
+    svc = d.box(250, 222, ["服務頁「用得了」", "townpass/・my_service_model.dart"], "ours", w=300)
     wv = d.box(610, 222, ["TPWebView", "TownPass fork・Flutter 3.47.6"], "official", w=300)
     d.edge([user.side("b"), svc.side("t")])
     d.edge([svc.side("r"), wv.side("l")])
 
-    d.group(40, 330, 780, 250, "②「用得了」微服務")
-    pages = d.box(610, 400, ["前端頁面 M1～M12", "townpass2026-peakqi・Next.js 16", "React 19・Tailwind 4・Vercel 東京"], "ours", w=330)
+    d.group(40, 330, 780, 266, "②「用得了」微服務")
+    pages = d.box(610, 400, ["前端頁面 M1～M16", "根目錄・Next.js 16", "React 19・Tailwind 4・Vercel 東京"], "ours", w=330)
     data = d.box(170, 515, ["services.json", "M3 服務清單 31 筆", "打包在前端，斷網可用"], "ours", w=220)
     bridge = d.box(420, 515, ["bridge.ts・elder.ts", "呼叫 App 能力", "一般瀏覽器改用 mock"], "ours", w=220)
-    api = d.box(680, 515, ["後端 /api/opendata", "白名單代理・Big5 轉碼", "TWD97 換算・CDN 快取"], "ours", w=230)
-    od = d.db(1000, 515, ["data.taipei", "開放資料 37 個來源"], w=220)
+    api = d.box(680, 526, ["後端 Route Handlers", "/api/opendata：白名單代理", "Big5・ODS・TWD97・CDN 快取", "/api/bus：公車預估到站"], "ours", w=250)
+    od = d.db(1000, 462, ["data.taipei", "開放資料 37 個來源"], w=220)
+    busdb = d.db(1000, 584, ["公運處公車資料", "路線・站牌・預估到站"], w=220)
     d.edge([wv.side("b"), pages.side("t")], "HTTPS 載入網頁", (610, 304))
     bus_y = 466
     d.edge([pages.side("b"), (610, bus_y), (170, bus_y), data.side("t")])
     d.edge([(610, bus_y), (420, bus_y), bridge.side("t")])
     d.edge([(610, bus_y), (680, bus_y), api.side("t")], "fetch", (680, 446))
-    d.edge([api.side("r"), (od.left, 515)], "HTTPS", (840, 497))
+    d.edge([(api.right, 504), (870, 504), (870, 462), (od.left, 462)], "HTTPS", (870, 483))
+    d.edge([(api.right, 548), (870, 548), (870, 584), (busdb.left, 584)], "HTTPS", (870, 566))
 
     d.group(40, 632, 1100, 268, "③ App 原生能力", "gray")
     lis = d.box(420, 706, ["flutterObject ⇄ TPWebMessageListener", "依訊息名稱分派給 Handler，再回覆網頁"], "official", w=340)
@@ -255,7 +257,7 @@ def architecture():
 # M5 叫車分流
 # =====================================================================
 def ride():
-    d = Diagram(1080, 470, "M5 我要叫車：最多兩題就分流", "復康巴士只限有身障證明的人搭；不知道也有路可走")
+    d = Diagram(1080, 640, "M5 我要叫車：最多兩題就分流", "復康巴士只限有身障證明的人搭；不知道也有路可走；訂不到車也有下一步")
     q1 = d.box(170, 190, ["有身心障礙證明嗎？", "有／沒有／不知道"], "decision", pill=True, w=250)
     q2 = d.box(170, 340, ["家裡申請過長照，", "2 級以上嗎？", "是／不是／不知道"], "decision", w=250)
     r1 = d.box(820, 140, ["復康巴士", "預約網站・電話訂車（8:00–17:00 受理）"], "result", w=380)
@@ -267,7 +269,18 @@ def ride():
     d.edge([q2.side("r"), (470, 340), (470, 250), r2.side("l")], "是", (530, 250))
     d.edge([(470, 340), r3.side("l")], "不是", (560, 340))
     d.edge([(470, 340), (470, 430), r4.side("l")], "不知道", (545, 430))
-    d.note(40, 452, "聽不清楚模式：結果是只能打電話的服務時，另外給「手語視訊轉譯」", "start")
+    d.group(40, 480, 1000, 128, "每個結果都有「訂不到車怎麼辦？」：從自己的下一格開始，往右一格一格退", "gray")
+    chain = [
+        (["復康巴士"], "result"),
+        (["長照交通接送", "沒回答過長照「不是／不知道」才列"], "result"),
+        (["敬老愛心計程車"], "result"),
+        (["打給家人", "請家人來接或幫忙叫車"], "warn"),
+    ]
+    cx = [150, 410, 680, 910]
+    cb = [d.box(x, 556, lines, kind, w=230 if i == 1 else 190) for i, (x, (lines, kind)) in enumerate(zip(cx, chain))]
+    for a, b in zip(cb, cb[1:]):
+        d.edge([a.side("r"), b.side("l")], "訂不到")
+    d.note(40, 625, "聽不清楚模式：結果或退路有敬老計程車（只能打電話）時，旁邊另外給「手語視訊轉譯」", "start")
     d.save("m5-ride.svg")
 
 
@@ -275,28 +288,37 @@ def ride():
 # M12 補助小幫手
 # =====================================================================
 def subsidy():
-    d = Diagram(1080, 560, "M12 補助小幫手：三題篩出「可能可以申請」的補助", "答案只存在手機的記憶體裡，不上傳；最後由社會局審核")
-    auto = d.box(540, 125, ["自動帶入（不用問）", "年齡・原住民身分（門檻降 10 歲）・行政區 ← 台北通帳號"], "official", w=560)
+    d = Diagram(1080, 860, "M12 補助小幫手：先問幫誰看，再用三題篩出「可能可以申請」", "答案只存在手機裡，不上傳；只說「可能可以申請」，最後由社會局審核")
+    who = d.box(540, 118, ["您是幫誰看？", "幫我自己／幫另一半或家人"], "decision", pill=True, w=300)
+    auto = d.box(270, 250, ["自動帶入（不用問）", "年齡・原住民身分（門檻降 10 歲）", "行政區・市民身分 ← 台北通帳號"], "official", w=400)
+    age = d.box(810, 236, ["他（她）今年幾歲？", "未滿 55 歲／55～64 歲／65 歲以上／不知道", "行政區、市民身分沿用您的（當作住同一戶）"], "decision", w=420)
+    native = d.box(810, 330, ["選 55～64 歲時才問：是原住民嗎？", "原住民有些補助 55 歲就可以申請"], "decision", w=420)
+    d.edges.append(f'<path d="M540,{who.bottom} V172 M270,172 H810" fill="none" stroke="{C["gray400"]}" stroke-width="1.8"/>')
+    d.edge([(270, 172), auto.side("t")], "幫我自己", (270, 191))
+    d.edge([(810, 172), age.side("t")], "幫另一半或家人", (810, 184))
+    d.edge([age.side("b"), native.side("t")])
     qs = [
         (190, ["① 有身心障礙證明嗎？", "有 → 看不清楚／聽不清楚／其他", "沒有・不知道"]),
         (540, ["② 家裡收入", "有低收或中低收證明", "沒有，但收入不高・不知道"]),
         (890, ["③ 家裡有人需要別人照顧嗎？", "要・不要・不知道"]),
     ]
-    qb = [d.box(x, 255, lines, "decision", w=320) for x, lines in qs]
-    d.edges.append(f'<path d="M540,{auto.bottom} V190 M190,190 H890" fill="none" stroke="{C["gray400"]}" stroke-width="1.8"/>')
+    qb = [d.box(x, 455, lines, "decision", w=320) for x, lines in qs]
+    d.edges.append(f'<path d="M270,{auto.bottom} V392 M810,{native.bottom} V392 M190,392 H890" fill="none" stroke="{C["gray400"]}" stroke-width="1.8"/>')
     for b in qb:
-        d.edge([(b.cx, 190), b.side("t")])
+        d.edge([(b.cx, 392), b.side("t")])
     rs = [
-        (190, ["您可能可以申請", "老人津貼・身障生活補助・長照…", "收入「不知道」也列出，標「要看家裡收入」"], "result"),
+        (190, ["您可能可以申請", "老人津貼・身障生活補助・假牙…", "收入「不知道」也列出，標「要看家裡收入」"], "result"),
         (540, ["不用申請，會自動入帳或減免", "例如已是低收、中低收的身障生活補助"], "ours"),
         (890, ["答「不知道」的提示", "例如照顧題附 1966 按鈕"], "warn"),
     ]
-    rb = [d.box(x, 400, lines, kind, w=320) for x, lines, kind in rs]
-    d.edges.append(f'<path d="M190,{qb[0].bottom} V318 M540,{qb[1].bottom} V318 M890,{qb[2].bottom} V318 M190,318 H890" fill="none" stroke="{C["gray400"]}" stroke-width="1.8"/>')
+    rb = [d.box(x, 600, lines, kind, w=320) for x, lines, kind in rs]
+    d.edges.append(f'<path d="M190,{qb[0].bottom} V528 M540,{qb[1].bottom} V528 M890,{qb[2].bottom} V528 M190,528 H890" fill="none" stroke="{C["gray400"]}" stroke-width="1.8"/>')
     for b in rb:
-        d.edge([(b.cx, 318), b.side("t")])
-    card = d.box(540, 505, ["每張卡片：一句話＋大約金額・要準備什麼（勾選）・戶籍地社會課地址電話・家人能不能代辦・申請準備單（可複製傳給家人）"], "plain", w=1000)
-    d.edge([rb[0].side("b"), (190, 470)])
+        d.edge([(b.cx, 528), b.side("t")])
+    card = d.box(540, 700, ["每張卡片：一句話＋大約金額・要準備什麼・戶籍地社會課・打電話時的第一句話・家人能不能代辦・申請準備單（可以傳給家人）"], "plain", w=1000)
+    d.edge([rb[0].side("b"), (190, card.top)])
+    last = d.box(540, 790, ["最後固定一段：沒有找到適合的，或還是不確定？", "1957 福利諮詢・1966 長照・文字聯絡；一筆都沒有時，這一段移到最前面"], "warn", w=640)
+    d.edge([card.side("b"), last.side("t")])
     d.save("m12-subsidy.svg")
 
 
@@ -309,8 +331,8 @@ def flow_open():
         (["台北通「我的服務」", "點「用得了」"], "official"),
         (["WebView 載入網頁", "Vercel 東京"], "official"),
         (["向 App 要資料", "userinfo：姓名・生日・行政區", "a11y_state：報讀軟體・字級"], "ours"),
-        (["讀手機裡的設定", "模式・語速・家人設定的按鈕"], "ours"),
-        (["算年齡、篩選", "首頁按鈕・權益卡片 → 畫面"], "result"),
+        (["讀手機裡的設定", "模式・語速", "家人設定的按鈕與公車"], "ours"),
+        (["算年齡、篩選", "首頁按鈕・權益卡片", "公車卡片 → 畫面"], "result"),
     ]
     xs = [140 + i * 225 for i in range(5)]
     bs = [d.box(x, 175, lines, kind, w=200, step=i + 1) for i, (x, (lines, kind)) in enumerate(zip(xs, steps))]
@@ -365,13 +387,13 @@ def flow_find():
 
 
 def flow_places():
-    d = Diagram(1180, 380, "④ 附近據點（M9 吃飯上課、M10 視障出門）", "開放資料由後端代理：解決跨網域、Big5 亂碼、TWD97 座標與檔案太大的問題")
-    src = d.box(150, 150, ["行政區或目前位置", "userinfo 地址・location"], "official", w=230)
+    d = Diagram(1180, 380, "④ 附近據點（M9、M10、M13 避難、M14 照顧、M15 疫苗篩檢）", "開放資料由後端代理：解決跨網域、Big5 亂碼、ODS 試算表、TWD97 座標與檔案太大的問題")
+    src = d.box(150, 150, ["行政區、里或目前位置", "userinfo 地址・location"], "official", w=230)
     req = d.box(430, 150, ["fetch /api/opendata/…", "?q=中山區 或 ?near=緯度,經度"], "ours", w=270)
     wl = d.box(720, 150, ["白名單檢查", "只代理登記過的 37 個來源"], "ours", w=240)
     hit = d.box(1010, 150, ["快取有就直接回", "CDN 快取"], "ours", w=230)
     od = d.db(1010, 290, ["data.taipei", "沒有快取才抓"], w=230)
-    conv = d.box(720, 290, ["Big5 轉碼・座標換算", "依距離或行政區篩選"], "ours", w=240)
+    conv = d.box(720, 290, ["Big5・ODS 解析・座標換算", "依距離、行政區或里篩選"], "ours", w=280)
     out = d.box(330, 290, ["一句話摘要＋大字電話按鈕", "斷網或讀不到：說明並給 1999"], "result", w=330)
     d.edge([src.side("r"), req.side("l")])
     d.edge([req.side("r"), wl.side("l")])
@@ -387,7 +409,7 @@ def flow_family():
     d.group(40, 86, 1100, 124, "家人的手機", "gray")
     d.group(40, 246, 1100, 124, "長輩的手機")
     f1 = d.box(200, 162, ["「用得了」→「我是家人」", "幫長輩設定"], "ours", w=240)
-    f2 = d.box(520, 162, ["勾首頁按鈕", "填家人電話與行政區"], "ours", w=240)
+    f2 = d.box(520, 162, ["勾首頁按鈕・填家人電話與行政區", "選公車路線、方向、站牌（最多 2 組）"], "ours", w=300)
     f3 = d.box(860, 162, ["產生 QR code", "設定內容在 QR 裡"], "result", w=240)
     e1 = d.box(200, 322, ["「家人幫我設定」"], "ours", w=240)
     e2 = d.box(520, 322, ["qr_code_scan 掃描", "檢查格式、版本、隱藏字元"], "ours", w=260)
@@ -400,17 +422,50 @@ def flow_family():
 
 def flow_benefit():
     d = Diagram(1180, 330, "⑥ 權益提醒（M6）", "由生日自動判斷資格；重陽禮金可以設定手機通知，App 關掉也會跳出來")
-    a = d.box(150, 165, ["台北通帳號的生日", "userinfo"], "official", w=210)
-    b = d.box(400, 165, ["算年齡、比對資格", "原住民門檻降 10 歲"], "ours", w=220)
-    c = d.box(680, 165, ["權益卡片", "「可能可以領 3,000 元，還有 6 天截止」"], "result", w=300)
-    d1 = d.box(1010, 110, ["線上申請匯款", "open_external 開社會局網站"], "ours", w=250)
-    d2 = d.box(1010, 220, ["提醒我申請", "reminder：11/12 早上 9 點通知"], "ours", w=250)
+    a = d.box(140, 165, ["台北通帳號的生日", "userinfo"], "official", w=200)
+    b = d.box(375, 165, ["算年齡、比對資格", "原住民門檻降 10 歲"], "ours", w=210)
+    c = d.box(665, 165, ["權益卡片", "最上面：很多人不知道的權益", "「還沒收到重陽禮金嗎？可能可以領 3,000 元」"], "result", w=340)
+    d1 = d.box(1020, 110, ["線上申請匯款", "open_external 開社會局網站"], "ours", w=240)
+    d2 = d.box(1020, 220, ["提醒我申請", "reminder：11/12 早上 9 點通知"], "ours", w=240)
     d.edge([a.side("r"), b.side("l")])
     d.edge([b.side("r"), c.side("l")])
-    d.edge([c.side("r"), (860, 165), (860, 110), d1.side("l")])
-    d.edge([(860, 165), (860, 220), d2.side("l")])
-    d.note(40, 300, "也可以打給戶籍地的區公所社會課（撥號前有確認頁）。", "start")
+    d.edge([c.side("r"), (868, 165), (868, 110), d1.side("l")])
+    d.edge([(868, 165), (868, 220), d2.side("l")])
+    d.note(40, 300, "很多人不知道的權益：老人健保費補助、長照交通接送、照顧家人。也可以打給戶籍地的區公所社會課（撥號前有確認頁）。", "start")
     d.save("flow-6-benefit.svg")
+
+
+def flow_followup():
+    d = Diagram(1180, 380, "⑦ 看完醫生之後（M4）：回診、領藥提醒", "通知由 App 排程，App 關掉、斷網也會跳出來；內文只提醒要帶的東西")
+    s1 = d.box(120, 160, ["看醫生頁", "「看完醫生之後」"], "ours", w=180, step=1)
+    s2 = d.box(330, 160, ["選回診或領藥", "慢性病連續處方箋"], "decision", w=200, step=2)
+    s3 = d.box(530, 160, ["選日子"], "ours", w=150, step=3)
+    s4 = d.box(760, 160, ["算提醒時間", "前一天晚上 7 點", "來不及 → 當天早上 7 點"], "ours", w=230, step=4)
+    s5 = d.box(1030, 160, ["reminder 排程", "「明天要回診」手機通知"], "result", w=220, step=5)
+    for a, b in [(s1, s2), (s2, s3), (s3, s4), (s4, s5)]:
+        d.edge([a.side("r"), b.side("l")])
+    late = d.box(760, 290, ["都來不及", "說明已經過了，不排通知"], "warn", w=230)
+    d.edge([s4.side("b"), late.side("t")])
+    share = d.box(1030, 290, ["傳給家人知道", "簡訊帶好內文，不自動送出", "沒設定家人：複製貼到 LINE"], "ours", w=240)
+    d.edge([s5.side("b"), share.side("t")], "可以再按", (1030, 225))
+    d.note(40, 352, "通知內文：「11 月 20 日（星期五）要回診，記得帶健保卡和藥袋。」不寫未查證的健保領藥規則。", "start")
+    d.save("flow-7-followup.svg")
+
+
+def flow_bus():
+    d = Diagram(1180, 400, "⑧ 公車還有幾分鐘到（M16）", "家人選好站牌，長輩首頁直接看；斷網時顯示「查不到時間」，不會把舊時間當新的")
+    d.group(40, 86, 1100, 124, "家人的手機", "gray")
+    d.group(40, 246, 1100, 124, "長輩的手機")
+    f1 = d.box(200, 162, ["「我是家人」→ 幫長輩設定", "輸入路線名稱：/api/bus/routes"], "ours", w=270)
+    f2 = d.box(540, 162, ["選方向、選站牌：/api/bus/stops", "最多 2 組，臺北、新北都可以"], "ours", w=290)
+    f3 = d.box(880, 162, ["編進設定碼（QR）", "只存路線與站牌代號"], "result", w=240)
+    e1 = d.box(200, 322, ["掃 QR 存在手機裡", "首頁出現公車卡片"], "ours", w=270)
+    e2 = d.box(540, 322, ["/api/bus/eta", "每 30 秒，畫面看得到時才查"], "ours", w=290)
+    e3 = d.box(880, 322, ["還有 7 分鐘", "307 往撫遠街・南京三民路口", "按「再查一次」會唸出來"], "result", w=280)
+    for a, b in [(f1, f2), (f2, f3), (e1, e2), (e2, e3)]:
+        d.edge([a.side("r"), b.side("l")])
+    d.edge([(f3.right, 162), (1080, 162), (1080, 228), (200, 228), e1.side("t")], "長輩的手機對準 QR 掃描", (640, 228), dashed=True)
+    d.save("flow-8-bus.svg")
 
 
 if __name__ == "__main__":
@@ -423,3 +478,5 @@ if __name__ == "__main__":
     flow_places()
     flow_family()
     flow_benefit()
+    flow_followup()
+    flow_bus()

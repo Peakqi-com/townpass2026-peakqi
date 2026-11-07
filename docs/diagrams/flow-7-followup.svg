@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="380" viewBox="0 0 1180 380" font-family="'PingFang TC','Noto Sans TC','Microsoft JhengHei',system-ui,sans-serif" role="img" aria-label="⑦ 看完醫生之後（M4）：回診、領藥提醒">
+<title>⑦ 看完醫生之後（M4）：回診、領藥提醒</title>
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#738995"/></marker>
+  <marker id="arrow-start" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M10,0 L0,5 L10,10 z" fill="#738995"/></marker>
+</defs>
+<rect x="1" y="1" width="1178" height="378" rx="20" fill="white" stroke="#E3E7E9" stroke-width="2"/>
+<rect x="1" y="1" width="1178" height="6" rx="3" fill="#5AB4C5"/>
+<text x="32.0" y="38.0" font-size="20" font-weight="700" fill="#30383D" text-anchor="start" dominant-baseline="central">⑦ 看完醫生之後（M4）：回診、領藥提醒</text><text x="32.0" y="64.0" font-size="13" font-weight="400" fill="#738995" text-anchor="start" dominant-baseline="central">通知由 App 排程，App 關掉、斷網也會跳出來；內文只提醒要帶的東西</text>
+<path d="M210.0,160.0 L230.0,160.0" fill="none" stroke="#91A0A8" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M430.0,160.0 L455.0,160.0" fill="none" stroke="#91A0A8" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M605.0,160.0 L645.0,160.0" fill="none" stroke="#91A0A8" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M875.0,160.0 L920.0,160.0" fill="none" stroke="#91A0A8" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M760.0,199.5 L760.0,259.5" fill="none" stroke="#91A0A8" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M1030.0,190.5 L1030.0,250.5" fill="none" stroke="#91A0A8" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<rect x="30.0" y="129.5" width="180.0" height="61.0" rx="12.0" fill="#EDF8FA" stroke="#5AB4C5" stroke-width="2"/>
+<text x="120.0" y="151.0" font-size="15" font-weight="700" fill="#30383D" text-anchor="middle" dominant-baseline="central">看醫生頁</text>
+<text x="120.0" y="170.5" font-size="12.5" font-weight="400" fill="#356C77" text-anchor="middle" dominant-baseline="central">「看完醫生之後」</text>
+<circle cx="30.0" cy="129.5" r="12" fill="#468D9B" stroke="white" stroke-width="2"/>
+<text x="30.0" y="129.5" font-size="12" font-weight="700" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central">1</text>
+<rect x="230.0" y="129.5" width="200.0" height="61.0" rx="12.0" fill="#FDF8ED" stroke="#F5BA4B" stroke-width="2"/>
+<text x="330.0" y="151.0" font-size="15" font-weight="700" fill="#3C2B0B" text-anchor="middle" dominant-baseline="central">選回診或領藥</text>
+<text x="330.0" y="170.5" font-size="12.5" font-weight="400" fill="#AD7B2B" text-anchor="middle" dominant-baseline="central">慢性病連續處方箋</text>
+<circle cx="230.0" cy="129.5" r="12" fill="#468D9B" stroke="white" stroke-width="2"/>
+<text x="230.0" y="129.5" font-size="12" font-weight="700" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central">2</text>
+<rect x="455.0" y="138.5" width="150.0" height="43.0" rx="12.0" fill="#EDF8FA" stroke="#5AB4C5" stroke-width="2"/>
+<text x="530.0" y="160.0" font-size="15" font-weight="700" fill="#30383D" text-anchor="middle" dominant-baseline="central">選日子</text>
+<circle cx="455.0" cy="138.5" r="12" fill="#468D9B" stroke="white" stroke-width="2"/>
+<text x="455.0" y="138.5" font-size="12" font-weight="700" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central">3</text>
+<rect x="645.0" y="120.5" width="230.0" height="79.0" rx="12.0" fill="#EDF8FA" stroke="#5AB4C5" stroke-width="2"/>
+<text x="760.0" y="142.0" font-size="15" font-weight="700" fill="#30383D" text-anchor="middle" dominant-baseline="central">算提醒時間</text>
+<text x="760.0" y="161.5" font-size="12.5" font-weight="400" fill="#356C77" text-anchor="middle" dominant-baseline="central">前一天晚上 7 點</text>
+<text x="760.0" y="179.5" font-size="12.5" font-weight="400" fill="#356C77" text-anchor="middle" dominant-baseline="central">來不及 → 當天早上 7 點</text>
+<circle cx="645.0" cy="120.5" r="12" fill="#468D9B" stroke="white" stroke-width="2"/>
+<text x="645.0" y="120.5" font-size="12" font-weight="700" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central">4</text>
+<rect x="920.0" y="129.5" width="220.0" height="61.0" rx="12.0" fill="#5AB4C5" stroke="#5AB4C5" stroke-width="2"/>
+<text x="1030.0" y="151.0" font-size="15" font-weight="700" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central">reminder 排程</text>
+<text x="1030.0" y="170.5" font-size="12.5" font-weight="400" fill="#EDF8FA" text-anchor="middle" dominant-baseline="central">「明天要回診」手機通知</text>
+<circle cx="920.0" cy="129.5" r="12" fill="#468D9B" stroke="white" stroke-width="2"/>
+<text x="920.0" y="129.5" font-size="12" font-weight="700" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central">5</text>
+<rect x="645.0" y="259.5" width="230.0" height="61.0" rx="12.0" fill="#FDF3EC" stroke="#FD853A" stroke-width="2"/>
+<text x="760.0" y="281.0" font-size="15" font-weight="700" fill="#30383D" text-anchor="middle" dominant-baseline="central">都來不及</text>
+<text x="760.0" y="300.5" font-size="12.5" font-weight="400" fill="#AE501F" text-anchor="middle" dominant-baseline="central">說明已經過了，不排通知</text>
+<rect x="910.0" y="250.5" width="240.0" height="79.0" rx="12.0" fill="#EDF8FA" stroke="#5AB4C5" stroke-width="2"/>
+<text x="1030.0" y="272.0" font-size="15" font-weight="700" fill="#30383D" text-anchor="middle" dominant-baseline="central">傳給家人知道</text>
+<text x="1030.0" y="291.5" font-size="12.5" font-weight="400" fill="#356C77" text-anchor="middle" dominant-baseline="central">簡訊帶好內文，不自動送出</text>
+<text x="1030.0" y="309.5" font-size="12.5" font-weight="400" fill="#356C77" text-anchor="middle" dominant-baseline="central">沒設定家人：複製貼到 LINE</text>
+<rect x="998.0" y="214.0" width="64.0" height="22" rx="11" fill="white" stroke="#E3E7E9"/>
+<text x="1030.0" y="225.0" font-size="12.5" font-weight="600" fill="#5E6D76" text-anchor="middle" dominant-baseline="central">可以再按</text>
+<text x="40.0" y="352.0" font-size="12.5" font-weight="400" fill="#738995" text-anchor="start" dominant-baseline="central">通知內文：「11 月 20 日（星期五）要回診，記得帶健保卡和藥袋。」不寫未查證的健保領藥規則。</text>
+</svg>

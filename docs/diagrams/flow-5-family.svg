@@ -11,17 +11,17 @@
 <text x="60.0" y="108.0" font-size="14" font-weight="700" fill="#5E6D76" text-anchor="start" dominant-baseline="central">家人的手機</text>
 <rect x="40" y="246" width="1100" height="124" rx="18" fill="#EDF8FA" fill-opacity="0.55" stroke="#B4E2EA" stroke-width="1.5" stroke-dasharray="6 5"/>
 <text x="60.0" y="268.0" font-size="14" font-weight="700" fill="#356C77" text-anchor="start" dominant-baseline="central">長輩的手機</text>
-<path d="M320.0,162.0 L400.0,162.0" fill="none" stroke="#91A0A8" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow)"/>
-<path d="M640.0,162.0 L740.0,162.0" fill="none" stroke="#91A0A8" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M320.0,162.0 L370.0,162.0" fill="none" stroke="#91A0A8" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M670.0,162.0 L740.0,162.0" fill="none" stroke="#91A0A8" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow)"/>
 <path d="M320.0,322.0 L390.0,322.0" fill="none" stroke="#91A0A8" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow)"/>
 <path d="M650.0,322.0 L730.0,322.0" fill="none" stroke="#91A0A8" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow)"/>
 <path d="M980.0,162.0 L1060.0,162.0 L1060.0,228.0 L520.0,228.0 L520.0,291.5" fill="none" stroke="#91A0A8" stroke-width="1.8" stroke-linejoin="round" stroke-dasharray="5 5" marker-end="url(#arrow)"/>
 <rect x="80.0" y="131.5" width="240.0" height="61.0" rx="12.0" fill="#EDF8FA" stroke="#5AB4C5" stroke-width="2"/>
 <text x="200.0" y="153.0" font-size="15" font-weight="700" fill="#30383D" text-anchor="middle" dominant-baseline="central">「用得了」→「我是家人」</text>
 <text x="200.0" y="172.5" font-size="12.5" font-weight="400" fill="#356C77" text-anchor="middle" dominant-baseline="central">幫長輩設定</text>
-<rect x="400.0" y="131.5" width="240.0" height="61.0" rx="12.0" fill="#EDF8FA" stroke="#5AB4C5" stroke-width="2"/>
-<text x="520.0" y="153.0" font-size="15" font-weight="700" fill="#30383D" text-anchor="middle" dominant-baseline="central">勾首頁按鈕</text>
-<text x="520.0" y="172.5" font-size="12.5" font-weight="400" fill="#356C77" text-anchor="middle" dominant-baseline="central">填家人電話與行政區</text>
+<rect x="370.0" y="131.5" width="300.0" height="61.0" rx="12.0" fill="#EDF8FA" stroke="#5AB4C5" stroke-width="2"/>
+<text x="520.0" y="153.0" font-size="15" font-weight="700" fill="#30383D" text-anchor="middle" dominant-baseline="central">勾首頁按鈕・填家人電話與行政區</text>
+<text x="520.0" y="172.5" font-size="12.5" font-weight="400" fill="#356C77" text-anchor="middle" dominant-baseline="central">選公車路線、方向、站牌（最多 2 組）</text>
 <rect x="740.0" y="131.5" width="240.0" height="61.0" rx="12.0" fill="#5AB4C5" stroke="#5AB4C5" stroke-width="2"/>
 <text x="860.0" y="153.0" font-size="15" font-weight="700" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central">產生 QR code</text>
 <text x="860.0" y="172.5" font-size="12.5" font-weight="400" fill="#EDF8FA" text-anchor="middle" dominant-baseline="central">設定內容在 QR 裡</text>

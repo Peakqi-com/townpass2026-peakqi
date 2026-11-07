@@ -1,17 +1,22 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="470" viewBox="0 0 1080 470" font-family="'PingFang TC','Noto Sans TC','Microsoft JhengHei',system-ui,sans-serif" role="img" aria-label="M5 我要叫車：最多兩題就分流">
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="640" viewBox="0 0 1080 640" font-family="'PingFang TC','Noto Sans TC','Microsoft JhengHei',system-ui,sans-serif" role="img" aria-label="M5 我要叫車：最多兩題就分流">
 <title>M5 我要叫車：最多兩題就分流</title>
 <defs>
   <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#738995"/></marker>
   <marker id="arrow-start" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M10,0 L0,5 L10,10 z" fill="#738995"/></marker>
 </defs>
-<rect x="1" y="1" width="1078" height="468" rx="20" fill="white" stroke="#E3E7E9" stroke-width="2"/>
+<rect x="1" y="1" width="1078" height="638" rx="20" fill="white" stroke="#E3E7E9" stroke-width="2"/>
 <rect x="1" y="1" width="1078" height="6" rx="3" fill="#5AB4C5"/>
-<text x="32.0" y="38.0" font-size="20" font-weight="700" fill="#30383D" text-anchor="start" dominant-baseline="central">M5 我要叫車：最多兩題就分流</text><text x="32.0" y="64.0" font-size="13" font-weight="400" fill="#738995" text-anchor="start" dominant-baseline="central">復康巴士只限有身障證明的人搭；不知道也有路可走</text>
+<text x="32.0" y="38.0" font-size="20" font-weight="700" fill="#30383D" text-anchor="start" dominant-baseline="central">M5 我要叫車：最多兩題就分流</text><text x="32.0" y="64.0" font-size="13" font-weight="400" fill="#738995" text-anchor="start" dominant-baseline="central">復康巴士只限有身障證明的人搭；不知道也有路可走；訂不到車也有下一步</text>
+<rect x="40" y="480" width="1000" height="128" rx="18" fill="#F1F3F4" fill-opacity="0.55" stroke="#CAD1D5" stroke-width="1.5" stroke-dasharray="6 5"/>
+<text x="60.0" y="502.0" font-size="14" font-weight="700" fill="#5E6D76" text-anchor="start" dominant-baseline="central">每個結果都有「訂不到車怎麼辦？」：從自己的下一格開始，往右一格一格退</text>
 <path d="M295.0,190.0 L470.0,190.0 L470.0,140.0 L630.0,140.0" fill="none" stroke="#91A0A8" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow)"/>
 <path d="M170.0,220.5 L170.0,300.5" fill="none" stroke="#91A0A8" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow)"/>
 <path d="M295.0,340.0 L470.0,340.0 L470.0,250.0 L630.0,250.0" fill="none" stroke="#91A0A8" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow)"/>
 <path d="M470.0,340.0 L630.0,340.0" fill="none" stroke="#91A0A8" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow)"/>
 <path d="M470.0,340.0 L470.0,430.0 L630.0,430.0" fill="none" stroke="#91A0A8" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M245.0,556.0 L295.0,556.0" fill="none" stroke="#91A0A8" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M525.0,556.0 L585.0,556.0" fill="none" stroke="#91A0A8" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M775.0,556.0 L815.0,556.0" fill="none" stroke="#91A0A8" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow)"/>
 <rect x="45.0" y="159.5" width="250.0" height="61.0" rx="30.5" fill="#FDF8ED" stroke="#F5BA4B" stroke-width="2"/>
 <text x="170.0" y="181.0" font-size="15" font-weight="700" fill="#3C2B0B" text-anchor="middle" dominant-baseline="central">有身心障礙證明嗎？</text>
 <text x="170.0" y="200.5" font-size="12.5" font-weight="400" fill="#AD7B2B" text-anchor="middle" dominant-baseline="central">有／沒有／不知道</text>
@@ -31,6 +36,16 @@
 <rect x="630.0" y="399.5" width="380.0" height="61.0" rx="12.0" fill="#FDF3EC" stroke="#FD853A" stroke-width="2"/>
 <text x="820.0" y="421.0" font-size="15" font-weight="700" fill="#30383D" text-anchor="middle" dominant-baseline="central">先問 1966，也先列出敬老計程車</text>
 <text x="820.0" y="440.5" font-size="12.5" font-weight="400" fill="#AE501F" text-anchor="middle" dominant-baseline="central">長照等級不確定時，由 1966 幫忙查</text>
+<rect x="55.0" y="534.5" width="190.0" height="43.0" rx="12.0" fill="#5AB4C5" stroke="#5AB4C5" stroke-width="2"/>
+<text x="150.0" y="556.0" font-size="15" font-weight="700" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central">復康巴士</text>
+<rect x="295.0" y="525.5" width="230.0" height="61.0" rx="12.0" fill="#5AB4C5" stroke="#5AB4C5" stroke-width="2"/>
+<text x="410.0" y="547.0" font-size="15" font-weight="700" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central">長照交通接送</text>
+<text x="410.0" y="566.5" font-size="12.5" font-weight="400" fill="#EDF8FA" text-anchor="middle" dominant-baseline="central">沒回答過長照「不是／不知道」才列</text>
+<rect x="585.0" y="534.5" width="190.0" height="43.0" rx="12.0" fill="#5AB4C5" stroke="#5AB4C5" stroke-width="2"/>
+<text x="680.0" y="556.0" font-size="15" font-weight="700" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central">敬老愛心計程車</text>
+<rect x="815.0" y="525.5" width="190.0" height="61.0" rx="12.0" fill="#FDF3EC" stroke="#FD853A" stroke-width="2"/>
+<text x="910.0" y="547.0" font-size="15" font-weight="700" fill="#30383D" text-anchor="middle" dominant-baseline="central">打給家人</text>
+<text x="910.0" y="566.5" font-size="12.5" font-weight="400" fill="#AE501F" text-anchor="middle" dominant-baseline="central">請家人來接或幫忙叫車</text>
 <rect x="516.8" y="129.0" width="26.5" height="22" rx="11" fill="white" stroke="#E3E7E9"/>
 <text x="530.0" y="140.0" font-size="12.5" font-weight="600" fill="#5E6D76" text-anchor="middle" dominant-baseline="central">有</text>
 <rect x="125.5" y="251.0" width="89.0" height="22" rx="11" fill="white" stroke="#E3E7E9"/>
@@ -41,5 +56,11 @@
 <text x="560.0" y="340.0" font-size="12.5" font-weight="600" fill="#5E6D76" text-anchor="middle" dominant-baseline="central">不是</text>
 <rect x="519.2" y="419.0" width="51.5" height="22" rx="11" fill="white" stroke="#E3E7E9"/>
 <text x="545.0" y="430.0" font-size="12.5" font-weight="600" fill="#5E6D76" text-anchor="middle" dominant-baseline="central">不知道</text>
-<text x="40.0" y="452.0" font-size="12.5" font-weight="400" fill="#738995" text-anchor="start" dominant-baseline="central">聽不清楚模式：結果是只能打電話的服務時，另外給「手語視訊轉譯」</text>
+<rect x="244.2" y="545.0" width="51.5" height="22" rx="11" fill="white" stroke="#E3E7E9"/>
+<text x="270.0" y="556.0" font-size="12.5" font-weight="600" fill="#5E6D76" text-anchor="middle" dominant-baseline="central">訂不到</text>
+<rect x="529.2" y="545.0" width="51.5" height="22" rx="11" fill="white" stroke="#E3E7E9"/>
+<text x="555.0" y="556.0" font-size="12.5" font-weight="600" fill="#5E6D76" text-anchor="middle" dominant-baseline="central">訂不到</text>
+<rect x="769.2" y="545.0" width="51.5" height="22" rx="11" fill="white" stroke="#E3E7E9"/>
+<text x="795.0" y="556.0" font-size="12.5" font-weight="600" fill="#5E6D76" text-anchor="middle" dominant-baseline="central">訂不到</text>
+<text x="40.0" y="625.0" font-size="12.5" font-weight="400" fill="#738995" text-anchor="start" dominant-baseline="central">聽不清楚模式：結果或退路有敬老計程車（只能打電話）時，旁邊另外給「手語視訊轉譯」</text>
 </svg>
