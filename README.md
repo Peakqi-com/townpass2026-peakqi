@@ -133,6 +133,11 @@ docker build -t townpass2026-peakqi . && docker run -p 8080:8080 --env-file .env
 
 服務清單（M3）裡的電話、網址、補助資格與金額，是隊員從市府官網整理後寫入的，每筆都附 `source` 與 `verified`（查證日期）。
 
+聽障者求助相關（M8）：
+- 119 簡訊範本照[臺北市政府消防局宣導單](https://www-ws.gov.taipei/001/Upload/691/relfile/61747/8937655/b275fc3e-70f8-4e5b-83da-f7fdb9a77e18.pdf)的官方格式。
+- 119／110 簡訊報案號碼：消防署開放資料 [data.gov.tw/dataset/7917](https://data.gov.tw/dataset/7917)、警政署 [data.gov.tw/dataset/7916](https://data.gov.tw/dataset/7916)。**119 簡訊號碼在官方來源中有兩個版本，畫面上兩個都列並標示待確認。**
+- 求助卡、看診溝通卡的文字是隊員預先寫好的固定內容，不是 AI 產生。
+
 > 核心資料使用合法開放資料；如有模擬資料會在此標示。
 
 ## 6. 第三方套件
