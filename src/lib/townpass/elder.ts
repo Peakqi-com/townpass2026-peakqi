@@ -1,6 +1,6 @@
 /**
  * 長輩模式專用的 App 能力（對應 TownPass lib/util/web_message_handler/elder_mode_message_handlers.dart）。
- * 規格見 TownPass docs/townpass/elder-mode-spec.md 的 M0。
+ * 規格見 docs/elder-mode-spec.md 的 M0。
  *
  * 和 bridge.ts 一樣，只能在瀏覽器端呼叫。一般瀏覽器（不在城市通 App 內）時，
  * 會盡量用瀏覽器本身的功能代替，方便在電腦上開發。

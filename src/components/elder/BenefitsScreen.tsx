@@ -13,7 +13,7 @@ import { ServiceCard } from "./ServiceCard";
 import { ServiceLink } from "./ServiceButton";
 
 /*
- * 出處（都在 TownPass docs/townpass/taipei-elderly-services.md B.1、B.5、B.7 標 ✅，2026-11-07 查證）
+ * 出處（都在 docs/taipei-elderly-services.md B.1、B.5、B.7 標 ✅，2026-11-07 查證）
  */
 const VERIFIED = "2026-11-07";
 /** 重陽禮金匯款申請：不用登入，身分證字號＋電話＋銀行帳戶 */

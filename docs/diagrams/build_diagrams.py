@@ -1,9 +1,9 @@
 """產生 elder-mode-spec.md 的架構圖與流程圖（SVG）。
 
-只用 Python 標準函式庫。色彩、字型取自城市通 UI Kit（lib/util/tp_colors.dart、PingFang TC）。
+只用 Python 標準函式庫。色彩、字型取自城市通 UI Kit（townpass/lib/util/tp_colors.dart、PingFang TC）。
 圖的內容要改時，改這支程式再重跑：
 
-    python3 docs/townpass/diagrams/build_diagrams.py
+    python3 docs/diagrams/build_diagrams.py
 
 每張圖畫在白色圓角卡片上，GitHub 深色模式也看得清楚。
 """

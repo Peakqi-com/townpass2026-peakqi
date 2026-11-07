@@ -34,7 +34,7 @@
 | 往屆整併作品 README 的五個共同點：需求一句話、開放資料、主流程單純、善用 App 原生能力、README 完整（功能、API、資料來源、架構圖、環境變數、AI 聲明） | p.45 | 見 §4.2 |
 | 行為守則：TownPass 的 CODE_OF_CONDUCT.md（改編自 Contributor Covenant 2.1） | p.7 | 見 §3.3 |
 | 發表：初選約 2 分鐘、決選約 5 分鐘＋問答，投影實機畫面，不使用簡報 | p.60 | — |
-| 版本：Flutter 3.47.6、iOS 最低 15（UIScene、SPM）、AGP 9.1.0、Handler 基底類別改名 `TPWebMessageHandler` | p.10、p.14、p.20 | App repo 已跟上 |
+| 版本：Flutter 3.47.6、iOS 最低 15（UIScene、SPM）、AGP 9.1.0、Handler 基底類別改名 `TPWebMessageHandler` | p.10、p.14、p.20 | App 端已跟上 |
 
 
 ## 0.2 先從長輩關心的事出發
@@ -397,7 +397,7 @@
 
 ## 2. 法源依據
 
-查證方式：2026-11-07 逐條打開全國法規資料庫（law.moj.gov.tw）、臺北市法規查詢系統（laws.gov.taipei，舊網址 www.laws.taipei.gov.tw）、主辦官網與機關原頁；引號內是原文摘錄，修正日期以資料庫頁首為準。WCAG 2.2 成功準則與平台指南數字見 TownPass repo `docs/townpass/accessibility-research.md` §2，這裡不重複。
+查證方式：2026-11-07 逐條打開全國法規資料庫（law.moj.gov.tw）、臺北市法規查詢系統（laws.gov.taipei，舊網址 www.laws.taipei.gov.tw）、主辦官網與機關原頁；引號內是原文摘錄，修正日期以資料庫頁首為準。WCAG 2.2 成功準則與平台指南數字見 `docs/accessibility-research.md` §2，這裡不重複。
 
 ### 2.1 競賽須知（115.08.27 版）
 
@@ -532,7 +532,7 @@
 
 ### 3.1 授權相容性
 
-微服務 repo 用 AGPL-3.0，App repo（TownPass fork）用 GPL-3.0。下表列直接依賴與值得注意的間接依賴；完整依賴樹掃描見 §3.4。授權欄位取自本機 `node_modules/*/package.json` 與 `package-lock.json`（2026-11-07）。
+網頁端（根目錄）用 AGPL-3.0，App 端（`townpass/`，TownPass fork）用 GPL-3.0。下表列直接依賴與值得注意的間接依賴；完整依賴樹掃描見 §3.4。授權欄位取自本機 `node_modules/*/package.json` 與 `package-lock.json`（2026-11-07）。
 
 | 元件 | 授權 | 能否納入 AGPL-3.0／GPL-3.0 | 出處 |
 |---|---|---|---|
@@ -572,7 +572,7 @@
 1. 在 `/mode`（選模式頁）或首頁最下方加一個看得到的「原始碼與授權（AGPL-3.0）」連結，用 `openLink()` 開 GitHub（WebView 不支援 `target="_blank"`）。連結要有可見文字，報讀軟體才念得到。
 2. 連結指向「部署版本對應的程式碼」：可以連到 repo，同時在頁面上顯示版本號或 commit。
 3. （選做）`GET /api/opendata` 回傳的 JSON 加一個 `source` 欄位，讓直接呼叫 API 的人也看得到原始碼位置。
-4. README「授權」段寫明：Corresponding Source＝本 repo；App 端原始碼＝Peakqi-com/TownPass。
+4. README「授權」段寫明：Corresponding Source＝本 repo；App 端原始碼＝本 repo 的 `townpass/`。
 
 ### 3.3 開源治理標準對照
 
@@ -597,7 +597,7 @@ GitHub 社群健康度（`gh api …/community/profile`）目前是 37%：只有
 | [CITATION.cff](https://citation-file-format.github.io/)（1.2.0） | `cff-version`、`message`、`title`、`authors`；GitHub 會在 repo 首頁顯示引用資訊 | 缺 | 低優先，選做 |
 | [SECURITY.md](https://docs.github.com/en/code-security/getting-started/adding-a-security-policy-to-your-repository) | 支援哪些版本、怎麼回報漏洞 | 缺 | 寫私下回報的信箱，或開啟 GitHub 私下回報漏洞功能 |
 | [CONTRIBUTING](https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/setting-guidelines-for-repository-contributors) | 放在根目錄、`docs/` 或 `.github/`；開 issue 或 PR 時 GitHub 會自動顯示 | 缺 | 同第 4 條；另加 `.github/ISSUE_TEMPLATE` |
-| [Contributor Covenant 2.1](https://www.contributor-covenant.org/version/2/1/code_of_conduct/) | 「Enforcement」段要填受理聯絡方式 | 微服務 repo 沒有行為守則；App repo 有繁中改編版，但「[插入聯繫方法]」還沒填（第 39 行） | 微服務 repo 也放一份；兩邊都填上聯絡信箱 |
+| [Contributor Covenant 2.1](https://www.contributor-covenant.org/version/2/1/code_of_conduct/) | 「Enforcement」段要填受理聯絡方式 | 網頁端沒有行為守則；App 端（`townpass/CODE_OF_CONDUCT.md`）有繁中改編版，但「[插入聯繫方法]」還沒填（第 39 行） | 根目錄也放一份；兩邊都填上聯絡信箱 |
 
 
 ### 3.4 現有依賴授權掃描（2026-11-07）

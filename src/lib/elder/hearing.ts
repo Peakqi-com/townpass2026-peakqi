@@ -2,8 +2,8 @@
  * M8 聽不清楚的資料：文字聯絡管道、119／110 簡訊號碼、求助卡、看診問答卡。
  *
  * 號碼、時段、網址只用 TownPass 研究文件標 ✅ 的資料：
- * - docs/townpass/taipei-disability-services.md B.1（1999 文字與手語視訊、119／110 簡訊、手語翻譯與聽打、VRS）
- * - docs/townpass/taipei-subsidies.md B.2（1957 線上文字諮詢）
+ * - docs/taipei-disability-services.md B.1（1999 文字與手語視訊、119／110 簡訊、手語翻譯與聽打、VRS）
+ * - docs/taipei-subsidies.md B.2（1957 線上文字諮詢）
  * 能按的動作（線上申辦、VRS、1957 網站）放在 services.json，這裡用 serviceId 連過去，
  * 由 useRunAction 執行，不在元件裡直接呼叫 bridge。
  *

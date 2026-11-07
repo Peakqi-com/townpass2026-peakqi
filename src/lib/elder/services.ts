@@ -1,5 +1,5 @@
 /**
- * M3 服務清單：跨局處整合的核心（規格見 TownPass docs/townpass/elder-mode-spec.md M3）。
+ * M3 服務清單：跨局處整合的核心（規格見 docs/elder-mode-spec.md M3）。
  *
  * 資料在 src/data/services.json，設計成讓各局處自己維護自己那幾筆：
  * - phrases：長輩的說法，給「找服務」比對用（M2）

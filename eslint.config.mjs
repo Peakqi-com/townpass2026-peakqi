@@ -11,6 +11,8 @@ const eslintConfig = defineConfig([
     ".next/**",
     "out/**",
     "build/**",
+    // Flutter App（城市通 fork），不是網頁的一部分
+    "townpass/**",
     "next-env.d.ts",
   ]),
 ]);

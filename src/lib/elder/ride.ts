@@ -1,5 +1,5 @@
 /**
- * M5 我要叫車：最多問兩題，分流到三種車（規格見 TownPass docs/townpass/elder-mode-spec.md M5）。
+ * M5 我要叫車：最多問兩題，分流到三種車（規格見 docs/elder-mode-spec.md M5）。
  *
  * 為什麼要分流：小型復康巴士只限持身心障礙證明的人搭乘，很多長輩以為自己也能叫
  * （taipei-elderly-services.md B.3 ✅）。所以先問身障證明，再問長照等級：

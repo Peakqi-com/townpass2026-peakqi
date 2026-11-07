@@ -1,3 +1,15 @@
+# 城市通 App（「用得了」修改版）
+
+> 這個資料夾是「用得了」參賽作品裡**修改過的城市通 App**，fork 自 [taipei-doit/TownPass](https://github.com/taipei-doit/TownPass) main（2026/10，Flutter 3.47.6），授權沿用 GPL-3.0（[`LICENSE`](LICENSE)）。
+>
+> - 建置與執行：見根目錄 [README「執行方式」](../README.md#7-執行方式)（`cd townpass && fvm flutter run`）
+> - 本隊修改的內容：新增 6 個 Handler（`lib/util/web_message_handler/elder_mode_message_handlers.dart`）、權限設定、「用得了」服務卡片（`lib/page/city_service/model/my_service_model.dart`），見 [`../docs/elder-mode-spec.md`](../docs/elder-mode-spec.md) M0
+> - 開發規則與文件：根目錄 [`CLAUDE.md`](../CLAUDE.md)、[`docs/`](../docs/)
+>
+> 以下是市府原版的說明。
+
+---
+
 # What is Town Pass?
 
 Town Pass is an open-source project developed by the Taipei City Government. With the growth of smart cities, the demand for digitalization in city management and citizen services continues to rise. As we enter a new digital era, our goal is to involve citizens in the process, combining third-party expertise and innovation to make digital life in Taipei more convenient.

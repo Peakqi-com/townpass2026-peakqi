@@ -1,6 +1,6 @@
 # 把自己的微服務加進城市通
 
-> 整理自《2026 城市通入門指引》投影片 #13、#15～#28（含講者備註），並逐項對照本 repo 的原始碼（taipei-doit/TownPass main，2026/10）。
+> 整理自《2026 城市通入門指引》投影片 #13、#15～#28（含講者備註），並逐項對照 `townpass/` 的原始碼（fork 自 taipei-doit/TownPass main，2026/10）。
 > 標 **⚠️ 程式碼實測** 的項目是投影片沒提、但讀原始碼時發現的坑。
 
 ---
@@ -198,7 +198,7 @@ class GreetingMessageHandler extends TPWebMessageHandler {
 - **不要用 `window.open()`／`target="_blank"`**：`TPWebView` 沒有實作 `onCreateWindow`，新視窗不會開。要開連結請改用 `open_link`（App 內）或 `launch_map`（外部）。
 - **避免 `alert()`／`confirm()`**：在 App 內的行為不一致，請用網頁內自己做的 Dialog（照 UI Kit 樣式）。
 - **WebView 標題**：沒設 `forceWebViewTitle` 時，AppBar 會顯示網頁的 `<title>`，所以 `<title>` 要寫成正式的服務名稱。
-- **網址必須是 HTTPS**：Android 9+ 預設擋明文 HTTP，iOS 有 ATS，而本 repo 沒有放寬任何一邊。開發時要讓手機連到本機的 dev server，請用 **ngrok 之類的 HTTPS tunnel**，或部署到 Firebase Hosting 的 preview channel（`firebase hosting:channel:deploy dev`），不要用 `http://192.168.x.x`。
+- **網址必須是 HTTPS**：Android 9+ 預設擋明文 HTTP，iOS 有 ATS，而 App（`townpass/`）沒有放寬任何一邊。開發時要讓手機連到本機的 dev server，請用 **ngrok 之類的 HTTPS tunnel**，或部署到 Firebase Hosting 的 preview channel（`firebase hosting:channel:deploy dev`），不要用 `http://192.168.x.x`。
 - **定位權限**：`onGeolocationPermissionsShowPrompt` 一律自動允許，網頁也可以直接用 `navigator.geolocation`。不過建議統一走 `location` Handler，雙平台的行為比較一致。
 - 要用 chrome://inspect 或 Safari Web Inspector 除錯網頁時，可以在 `TPInAppWebView` 的 `initialSettings` 設 `InAppWebViewSettings(isInspectable: kDebugMode)`。
 

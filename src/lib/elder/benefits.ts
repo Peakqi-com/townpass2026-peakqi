@@ -1,12 +1,12 @@
 /**
  * M6 我的權益：依台北通帳號的生日、市民、原住民身分，主動列出長輩可以用的權益（純函式）。
- * 規格見 TownPass docs/townpass/elder-mode-spec.md M6；事實出處見 taipei-elderly-services.md B.1、B.5、B.7。
+ * 規格見 docs/elder-mode-spec.md M6；事實出處見 taipei-elderly-services.md B.1、B.5、B.7。
  *
  * 只是幫長輩「先看看」，最後以主責機關審核為準。
  *
  * 排序：最上面放「很多人不知道的權益」（老人健保費補助、長照交通接送、照顧家人）；
  * 重陽禮金、敬老卡幾乎每位長輩都知道，重陽禮金改成寫給「還沒收到」的人。
- * 依據見 TownPass docs/townpass/research-basis.md §0.2（畫面上不放調查的百分比）。
+ * 依據見 docs/research-basis.md §0.2（畫面上不放調查的百分比）。
  */
 import { ageOn, doubleNinthGift, type GiftInfo, type GiftPerson } from "./profile.ts";
 import { SUBSIDIES, type Subsidy } from "./subsidy.ts";

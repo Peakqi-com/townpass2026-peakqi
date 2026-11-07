@@ -2,7 +2,7 @@
 
 8 種條件＝正常、紅色盲、綠色盲、藍黃色盲（Machado 2009，嚴重度 1.0），各自再加上「水晶體老化」。
 水晶體老化是粗略近似（減弱短波長），不是臨床模型；結果用來比較配色的相對好壞。
-執行：python3 docs/townpass/elder-palette/check_palette.py
+執行：python3 docs/elder-palette/check_palette.py
 """
 import math, itertools, sys
 def hx(h): h=h.lstrip('#'); return [int(h[i:i+2],16)/255 for i in (0,2,4)]

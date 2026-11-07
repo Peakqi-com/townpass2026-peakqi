@@ -1,6 +1,6 @@
 # 用戶研究：聽障、視障、高齡者（子題「用不了 #身體限制」）
 
-> 整理日期：2026-11-07（比賽當天）。範圍：本屆題目「數位平權 × 友善共融」的子題「用不了 #身體限制」，聚焦**聽障、視障、高齡者**三類客群，對照隊伍提案《台北通長輩模式》（repo 根目錄 `台北通長輩模式_提案簡報_AI城市起風_兩分鐘版_v2.pdf`）。
+> 整理日期：2026-11-07（比賽當天）。範圍：本屆題目「數位平權 × 友善共融」的子題「用不了 #身體限制」，聚焦**聽障、視障、高齡者**三類客群，對照隊伍提案《台北通長輩模式》（`docs/台北通長輩模式_提案簡報_AI城市起風_兩分鐘版_v2.pdf`）。
 >
 > 原則：只引用一手來源（政府統計原始頁面、論文本身、W3C／Apple／Google／MDN／Chromium／WebKit 官方文件、套件原始碼）。標記方式：**✅** 表示已親自打開原始頁面、PDF 或原始碼確認；**⚠️** 表示只看到搜尋摘要、頁面擋爬蟲，或尚未查證，引用前要再確認。
 >
@@ -274,7 +274,7 @@ TownPass 用 `flutter_inappwebview` **6.1.5**（`pubspec.lock`），`TPWebView` 
   - 一般訊息用 `role="status"`（建議同時加 `aria-live="polite"`）；`assertive` 只用在緊急訊息
   - `role="alert"` **不要**再加 `aria-live`，否則 iOS VoiceOver 會念兩次
   - live region 只會念出純文字
-- 作品 repo 的 `src/components/BridgeDemo.tsx` 已經有 `aria-live="polite"`，可以沿用這個寫法。
+- `src/components/BridgeDemo.tsx` 已經有 `aria-live="polite"`，可以沿用這個寫法。
 
 ### 5.6 建議：哪些能力改走 App 端自訂 Handler
 
@@ -303,7 +303,7 @@ TownPass 用 `flutter_inappwebview` **6.1.5**（`pubspec.lock`），`TPWebView` 
 - 沿著馬路逐步導航（「前面路口右轉」）：要有路線規劃服務，不在 CLAUDE.md 允許清單（見 §6.3）。
 - 辨識真實物體（「這是醫院大門」）：需要 ML 模型，而且推論必須在裝置端。
 
-**WebView 現況**（✅ 原始碼：TownPass `lib/util/tp_web_view.dart`、本機 flutter_inappwebview_android 1.1.3、flutter_inappwebview_ios 1.1.2、mobile_scanner 7.4.2）：
+**WebView 現況**（✅ 原始碼：`townpass/lib/util/tp_web_view.dart`、本機 flutter_inappwebview_android 1.1.3、flutter_inappwebview_ios 1.1.2、mobile_scanner 7.4.2）：
 
 | 需要的能力 | 目前狀態 | 要怎麼打開 |
 |---|---|---|
@@ -322,7 +322,7 @@ TownPass 用 `flutter_inappwebview` **6.1.5**（`pubspec.lock`），`TPWebView` 
 
 抓不到的話，要改成新增一個 `heading` Handler，在 App 端讀羅盤。注意 geolocator 的 `Position.heading` 是 GPS 算出的**移動方向**，站著不動時沒有意義，不能當羅盤用。
 
-**資料面的限制**：導引需要目的地的經緯度（✅ 作品 repo `src/lib/opendata/sources.ts`）。
+**資料面的限制**：導引需要目的地的經緯度（✅ `src/lib/opendata/sources.ts`）。
 - **有座標**：公廁、AED、飲水機、藥局、圖書館、運動中心、捷運無障礙電梯、友善店家、YouBike、停車場等（`geo` 設定或自行轉換座標的來源）。
 - **沒有座標**：避難所、失智篩檢醫院、喘息服務單位、樂齡學習據點等（`hasGeo: false`），以及 M9 的長輩服務據點（只有地址或行政區）。
 - **公車站牌**：M16 的程式沒有讀座標欄位，公運處 `GetStop` 檔有沒有經緯度 ⚠️ 未確認。

@@ -6,7 +6,7 @@
 >
 > | 來源 | 貢獻 |
 > |---|---|
-> | 《台北通長輩模式：服務研究與微服務規劃》（PeakQi，PDF，未進版控） | **骨架**：服務地圖、服務清單規格、介面規範、家人代設定、風險 |
+> | 《台北通長輩模式：服務研究與微服務規劃》（PeakQi，PDF，`docs/` 裡） | **骨架**：服務地圖、服務清單規格、介面規範、家人代設定、風險 |
 > | [`accessibility-research.md`](accessibility-research.md) | WebView 技術限制、介面與互動層證據 |
 > | [`taipei-elderly-services.md`](taipei-elderly-services.md) | 長輩數位習慣、市府長者服務（市府原頁查證）、資料集 |
 > | [`taipei-disability-services.md`](taipei-disability-services.md) | 視障與聽障的管道、溝通需求、資料集 |
@@ -83,7 +83,7 @@
 
 **字級為什麼由網頁處理**：城市通的 WebView 不跟隨系統字級（Android 的 flutter_inappwebview 固定 `textZoom=100`，iOS 不跟隨 Dynamic Type）。曾考慮在 App 端改 Android 的 `textZoom`，但網頁同時依 `textScale` 放大時，Android 會被放大兩次，所以統一由網頁依 `a11y_state.textScale` 設定根字級，全站字級用 `rem`。App 端因此完全不用改 `tp_web_view.dart`。
 
-**實作位置**：`lib/util/web_message_handler/elder_mode_message_handlers.dart`（邏輯，單元測試在 `test/elder_mode/`）、`elder_mode_platform.dart`（接套件的薄層）、`lib/util/elder_mode_config.dart`（信任網域）。網頁端是作品 repo 的 `src/lib/townpass/elder.ts`。
+**實作位置**：`lib/util/web_message_handler/elder_mode_message_handlers.dart`（邏輯，單元測試在 `test/elder_mode/`）、`elder_mode_platform.dart`（接套件的薄層）、`lib/util/elder_mode_config.dart`（信任網域）。網頁端是`src/lib/townpass/elder.ts`。
 
 **主程式要補的設定**：
 
@@ -112,7 +112,7 @@
 
 **技術**：Next.js（App Router）＋Tailwind 4（城市通色票）；模式和設定存 `localStorage`，所有讀寫都用 try/catch（⚠️ WebView 重啟後是否保留要實機確認）。
 
-**實作（2026-11-07）**：作品 repo 的 `src/components/elder/`（`ElderProvider`、`HomeScreen`、`ModePicker`、`ServiceButton`、`PageShell`、`CallConfirm`）、`src/lib/elder/`（`profile.ts` 年齡、問候、重陽禮金規則，有單元測試；`home.ts` 按鈕與電話設定）。
+**實作（2026-11-07）**：`src/components/elder/`（`ElderProvider`、`HomeScreen`、`ModePicker`、`ServiceButton`、`PageShell`、`CallConfirm`）、`src/lib/elder/`（`profile.ts` 年齡、問候、重陽禮金規則，有單元測試；`home.ts` 按鈕與電話設定）。
 - 看不清楚模式的字級至少 1.3 倍。字級達 1.25 倍以上時，大按鈕改成單欄、圖示在左；1999／1966／求助改放在頁面最下方（不固定在畫面上，避免擋住三分之一的螢幕），求助獨佔一排。
 - 撥號確認頁 `/call/[id]` 只接受 `home.ts` 登記的號碼，網址帶其他號碼一律 404。1999 走 App 內建的 `1999agree`（自帶確認對話框），不另做確認頁。
 - 按鈕回饋：震動＋大字（`role="status"`）＋唸出；螢幕閱讀器開啟時只震動；聽不清楚模式不出聲。
@@ -164,7 +164,7 @@
 - `action.type` 只能是既有或 M0 新增的 Handler 名稱（`phone_call`、`1999agree`、`open_link`、`open_external`、`launch_map`），本服務不自己發明動作。
 - 每筆都要有 `fallback`；只能打電話的服務，**一定要有 `alt_channels`**，沒有就在畫面上寫「這項服務目前只能打電話，可以請家人代打」。
 - `source` 和 `verified` 必填。電話號碼一律寫死在清單裡，不從網路即時抓。
-- 清單是一個 JSON 檔，放在作品 repo，以 AGPL 授權開源，對應簡報 p.7「各局處自助上架」。
+- 清單是一個 JSON 檔（`src/data/services.json`），以 AGPL 授權開源，對應簡報 p.7「各局處自助上架」。
 
 **設計亮點**：這份規格就是跨局處的整合層。局處只要維護自己那幾筆，不用改系統；`audience` 和 `alt_channels` 讓同一份清單同時服務三類人。
 
@@ -264,7 +264,7 @@
 
 **做法**：長輩服務類的資料集**幾乎都沒有經緯度**，所以改用 `userinfo.addresses[].town` 的行政區篩選，呼叫代理：`/api/opendata/elder-meals?q=中山區`。結果列出名稱、地址和大字電話，按一下就撥；「怎麼去」用 `open_external` 開 OpenStreetMap 搜尋網址。
 
-**資料**（都要登記到作品 repo 的 `sources.ts`）：老人共餐 `fe55795c…`、社區照顧關懷據點 `d082dc87…`、長青學苑 `67b63404…`、樂齡學習 `ca59e66b…`、老人服務中心 `78dfc9a2…`。
+**資料**（都要登記到`sources.ts`）：老人共餐 `fe55795c…`、社區照顧關懷據點 `d082dc87…`、長青學苑 `67b63404…`、樂齡學習 `ca59e66b…`、老人服務中心 `78dfc9a2…`。
 
 **設計亮點**：真的用到開放資料，而且會自動個人化，不用長輩輸入地址。
 
@@ -282,7 +282,7 @@
 
 說出或打出對方講了什麼 → 本機比對常見詐騙說法 → 一鍵打給家人或 165。**永遠不說「這不是詐騙」**，只說「這很像詐騙，先問家人或 165」，避免長輩誤以為安全。
 
-實作（作品 repo `src/lib/elder/antifraud.ts`、`src/data/antifraud.json`、查證紀錄 `docs/antifraud-research.md`）：
+實作（`src/lib/elder/antifraud.ts`、`src/data/antifraud.json`、查證紀錄 `docs/antifraud-research.md`）：
 - 6 種手法：假檢警（監管帳戶）、解除分期付款、假中獎、假投資、假親友借錢、要密碼／驗證碼／提款卡。說法與提醒文字都來自內政部警政署 165 全民防騙網的文章（逐篇讀原文，附出處與查證日期）。
 - 比對不到時說「我們不確定，請先停下來」，不會說「安全」。
 - 下一步：先掛電話自己打 165、不要轉帳、不給密碼；問家人（M7 設定的聯絡人，走撥號確認）；問 165。
@@ -337,7 +337,7 @@
 
 ### 後端：開放資料代理（已完成）
 
-作品 repo 的 `GET /api/opendata/{source}`：處理 CORS、Big5 轉碼、TWD97 座標轉換、白名單（不能當成任意轉址的跳板）、記憶體加 Vercel CDN 快取，支援 `near`、`radius`、`q`、`limit`。目前有 37 個來源（M9、M10、M13～M15 都已接上）。
+`GET /api/opendata/{source}`：處理 CORS、Big5 轉碼、TWD97 座標轉換、白名單（不能當成任意轉址的跳板）、記憶體加 Vercel CDN 快取，支援 `near`、`radius`、`q`、`limit`。目前有 37 個來源（M9、M10、M13～M15 都已接上）。
 
 ---
 
@@ -392,7 +392,7 @@
 
 驗證：
 - 2026-11-07（Playwright，390px）：13 個功能頁面加上撥號確認頁，在三種模式下（共 45 種組合）都檢查過：每頁一個 h1、載入後焦點在標題、所有可互動元素都有名稱、沒有正數 tabindex、焦點順序和視覺順序一致、圖示都隱藏、沒有重複 id、觸控範圍 ≥ 48。修掉 2 處會唸兩次的地方（`ServiceCard`、`VisionScreen` 的錯誤訊息同時有 `role="alert"` 和 `say()`）。
-- 檢查腳本：作品 repo 的 `scripts/a11y-check.js`，貼到 Chrome DevTools 的 Console 執行；App 裡的 WebView 可以用 `chrome://inspect` 連上去跑。
+- 檢查腳本：`scripts/a11y-check.js`，貼到 Chrome DevTools 的 Console 執行；App 裡的 WebView 可以用 `chrome://inspect` 連上去跑。
 - ⚠️ 仍需用實機開 VoiceOver／TalkBack 實測。
 
 ### 4.1 色彩：給辨色能力退化的長輩
@@ -436,7 +436,7 @@
 
 ### 5.1 架構圖
 
-圖由 `docs/townpass/diagrams/build_diagrams.py` 產生（色票取自城市通 UI Kit）；內容要改時改那支程式再重跑。
+圖由 `docs/diagrams/build_diagrams.py` 產生（色票取自城市通 UI Kit）；內容要改時改那支程式再重跑。
 
 ![「用得了」架構：使用者從城市通 App 的服務頁開啟「用得了」，TPWebView 用 HTTPS 載入「用得了」微服務（Next.js），微服務的 bridge 用 postMessage 和 App 的 TPWebMessageListener 雙向溝通，分派給內建 Handler 與本服務新增的 6 個 Handler；後端 /api/opendata 代理 data.taipei 開放資料](diagrams/architecture.svg)
 
@@ -582,17 +582,17 @@ userinfo.birthday → 年齡（原住民門檻降 10 歲）→ 比對資格
 
 ## 7. 今天的開發順序
 
-| 順序 | 工作 | repo | 模組 |
+| 順序 | 工作 | 位置 | 模組 |
 |---|---|---|---|
-| 1 | 服務清單 `services.json` 第一版（約 20 筆，含 `phrases`、`alt_channels`、`source`） | 作品 | M3 |
-| 2 | 首頁、模式、權益卡片、我要看醫生、我要叫車、聽不清楚的文字替代與求助卡 | 作品 | M1、M4、M5、M6、M8 |
-| 3 | 打字找服務＋關鍵字比對 | 作品 | M2 |
-| 2'（同時） | `speak`、`a11y_state`、`haptic`、`open_external`、`listen`、權限與 `<queries>` | TownPass | M0 |
-| 4 | 家人代設定（QR） | 作品 | M7 |
-| 5 | `listen`＋飛航模式實測 zh-TW 離線辨識 | TownPass | M0、M2 |
-| 6 | 附近共餐、視障出門（新增資料來源） | 作品 | M9、M10 |
-| 7 | 補助小幫手（和 M6 共用年齡與資格判斷） | 作品 | M12 |
-| Demo 前 | ✅ `account.json` 生日已改成 1940/03/01（86 歲，示範 3,000 元級距），要重新 `fvm flutter run`；先開服務再開飛航模式，完整跑一次；預熱 TTS | TownPass | — |
+| 1 | 服務清單 `services.json` 第一版（約 20 筆，含 `phrases`、`alt_channels`、`source`） | 網頁（根目錄） | M3 |
+| 2 | 首頁、模式、權益卡片、我要看醫生、我要叫車、聽不清楚的文字替代與求助卡 | 網頁（根目錄） | M1、M4、M5、M6、M8 |
+| 3 | 打字找服務＋關鍵字比對 | 網頁（根目錄） | M2 |
+| 2'（同時） | `speak`、`a11y_state`、`haptic`、`open_external`、`listen`、權限與 `<queries>` | App（`townpass/`） | M0 |
+| 4 | 家人代設定（QR） | 網頁（根目錄） | M7 |
+| 5 | `listen`＋飛航模式實測 zh-TW 離線辨識 | App（`townpass/`） | M0、M2 |
+| 6 | 附近共餐、視障出門（新增資料來源） | 網頁（根目錄） | M9、M10 |
+| 7 | 補助小幫手（和 M6 共用年齡與資格判斷） | 網頁（根目錄） | M12 |
+| Demo 前 | ✅ `account.json` 生日已改成 1940/03/01（86 歲，示範 3,000 元級距），要重新 `fvm flutter run`；先開服務再開飛航模式，完整跑一次；預熱 TTS | App（`townpass/`） | — |
 
 ## 8. Demo 劇本（2 分鐘）
 
@@ -601,7 +601,7 @@ userinfo.birthday → 年齡（原住民門檻降 10 歲）→ 比對資格
 3. **分流**（0:45）：按「叫車」→「有身障證明嗎？沒有」→ 敬老計程車，說明「復康巴士其實只限身障者」。
 4. **切換聽不清楚模式**（1:05）：同一個首頁，撥號按鈕旁出現「用文字」→ 打開緊急求助卡。
 5. **家人代設定**（1:30）：另一支手機產生 QR → 長輩手機一掃，按鈕換好。
-6. **斷網**（1:45）：開飛航模式，打字找服務仍然可以用，按鈕仍然會唸出來。⚠️ **一定要先在有網路時打開服務，再開飛航模式**：斷網後重新打開服務會打不開（iOS WebView 不支援 Service Worker）。頁面打開時會預載全部頁面，所以斷網後各頁都能切換；只有附近據點、捷運即時資料讀不到（作品 repo README「斷網」）。
+6. **斷網**（1:45）：開飛航模式，打字找服務仍然可以用，按鈕仍然會唸出來。⚠️ **一定要先在有網路時打開服務，再開飛航模式**：斷網後重新打開服務會打不開（iOS WebView 不支援 Service Worker）。頁面打開時會預載全部頁面，所以斷網後各頁都能切換；只有附近據點、捷運即時資料讀不到（README「斷網」）。
 
 ## 9. 規劃書的修正對照
 

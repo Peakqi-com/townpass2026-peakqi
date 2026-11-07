@@ -1,5 +1,5 @@
 /**
- * M7 家人代設定的設定碼（規格見 TownPass docs/townpass/elder-mode-spec.md M7）。
+ * M7 家人代設定的設定碼（規格見 docs/elder-mode-spec.md M7）。
  *
  * 流程：家人的手機產生 QR code → 長輩的手機用 qr_code_scan 掃描 → 驗證 → 存在本機。
  * 設定內容直接編在 QR 裡，**不經過伺服器**。

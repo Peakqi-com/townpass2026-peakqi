@@ -6,3 +6,6 @@ node_modules
 Dockerfile
 .dockerignore
 npm-debug.log*
+# Flutter App 和文件不進網頁的映像檔
+townpass
+docs

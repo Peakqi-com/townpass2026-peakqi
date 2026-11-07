@@ -226,9 +226,9 @@
 
 ### C.0 長輩服務相關的 data.taipei 資料集（2026-11-07 實際下載確認）
 
-> 用 `docs/townpass/open-data/verify_datasets.py` 實際下載了 28 個資料集，授權都是「政府資料開放授權條款-第1版」。
+> 用 `docs/open-data/verify_datasets.py` 實際下載了 28 個資料集，授權都是「政府資料開放授權條款-第1版」。
 > **最大的坑：長輩服務類資料集幾乎都沒有經緯度**，只有地址和「行政區代碼」（例如士林區 `63000110`）。要做「附近的據點」有兩個辦法：(a) 事先把地址轉成座標，並在 README 標明轉換方式；(b) 用 `userinfo` 回傳的 `addresses[].town`（例如「中山區」）篩選同區的據點。**(b) 今天就做得完。**
-> 這些來源還沒登記到作品 repo 的 `src/lib/opendata/sources.ts`，需要新增。Big5 的資料集要用 `TextDecoder('big5')` 解碼。
+> 這些來源還沒登記到`src/lib/opendata/sources.ts`，需要新增。Big5 的資料集要用 `TextDecoder('big5')` 解碼。
 
 | 資料集 | ID | 機關 | 筆數 | 編碼 | 座標 | 主要欄位 | 資源更新 |
 |---|---|---|---|---|---|---|---|

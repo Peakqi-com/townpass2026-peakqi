@@ -6,8 +6,8 @@
 > **說一句話，城市就聽懂。** 長輩、視障者、聽障者用同一個入口，依「需求」而不是「機關」找到市府服務；每條路都有不靠聲音、也不靠眼睛的替代方式。
 
 - 微服務網頁：https://townpass2026-peakqi.vercel.app/
-- 修改後的城市通 App：[Peakqi-com/TownPass](https://github.com/Peakqi-com/TownPass)（新增 Handler 與權限，不改既有流程）
-- 功能規格（開發以此為準）：[TownPass `docs/townpass/elder-mode-spec.md`](https://github.com/Peakqi-com/TownPass/blob/main/docs/townpass/elder-mode-spec.md)
+- 修改後的城市通 App：本 repo 的 [`townpass/`](townpass/)（新增 Handler 與權限，不改既有流程）
+- 功能規格（開發以此為準）：[`docs/elder-mode-spec.md`](docs/elder-mode-spec.md)
 
 ---
 
@@ -20,7 +20,7 @@
   - 長輩卡在流程：用過健保快易通的長輩，42.2% 是靠別人幫忙操作（數發部 111 年調查）；「不知道有這個服務」約占 17／100。
   - 很多服務只能打電話，聽障者用不了；地圖和小字對視障者讀不到。
 
-研究與出處見 TownPass repo 的 `docs/townpass/`（`accessibility-research.md`、`taipei-elderly-services.md`、`taipei-disability-services.md`、`taipei-subsidies.md`）。
+研究與出處見 `docs/`（`accessibility-research.md`、`taipei-elderly-services.md`、`taipei-disability-services.md`、`taipei-subsidies.md`）。
 
 ## 2. 設計原則
 
@@ -89,10 +89,10 @@
 
 ```
 使用者：長輩・視障者・聽障者
-① 城市通 App（TownPass fork・Flutter 3.47.6）
+① 城市通 App（townpass/・TownPass fork・Flutter 3.47.6）
    服務頁「用得了」（my_service_model.dart，預設置頂）→ TPWebView（flutter_inappwebview）
         │ HTTPS 載入網頁
-② 「用得了」微服務（本 repo・Next.js 16・React 19・Tailwind 4・Vercel 東京）
+② 「用得了」微服務（根目錄・Next.js 16・React 19・Tailwind 4・Vercel 東京）
    前端頁面 M1～M12
    ├ services.json：M3 服務清單 31 筆（打包在前端，斷網可用）
    ├ bridge.ts・elder.ts：呼叫 App 能力；一般瀏覽器改用 mock
@@ -112,11 +112,11 @@
 - 呼叫 App：`src/lib/townpass/bridge.ts`（內建 Handler）、`src/lib/townpass/elder.ts`（新增 Handler）；一般瀏覽器會自動改用 mock
 - 後端：`src/app/api/opendata/[source]/route.ts`（開放資料代理）
 
-架構圖與下一節的流程圖，由 TownPass repo 的 `docs/townpass/diagrams/build_diagrams.py` 產生（色票取自城市通 UI Kit）；本 repo 的 `docs/diagrams/` 是複本。要改圖時改那支程式，重跑後再把 SVG 複製過來。
+架構圖與下一節的流程圖，由 `docs/diagrams/build_diagrams.py` 產生（只用 Python 標準函式庫，色票取自城市通 UI Kit）。要改圖時改那支程式再重跑 `python3 docs/diagrams/build_diagrams.py`，不要手改 SVG。
 
 ### 新增的 App Handler
 
-App 端程式在 TownPass 的 `lib/util/web_message_handler/elder_mode_message_handlers.dart`；網頁端呼叫方式在 `src/lib/townpass/elder.ts`。
+App 端程式在 `townpass/lib/util/web_message_handler/elder_mode_message_handlers.dart`；網頁端呼叫方式在 `src/lib/townpass/elder.ts`。
 
 | name | 網頁送出 | App 回覆 | 說明 |
 |---|---|---|---|
@@ -340,6 +340,20 @@ userinfo.birthday → 年齡（原住民門檻降 10 歲）→ 比對資格
 
 ## 7. 執行方式
 
+### Repo 結構
+
+網頁、App、文件都在這個 repo：
+
+| 位置 | 內容 | 授權 |
+|---|---|---|
+| 根目錄（`src/`、`package.json`…） | 「用得了」微服務網頁（Next.js，前端＋後端 Route Handlers）。Vercel 從根目錄部署 | AGPL-3.0 |
+| [`townpass/`](townpass/) | 修改過的城市通 App（fork 自 [taipei-doit/TownPass](https://github.com/taipei-doit/TownPass)，保留完整 git 歷史） | GPL-3.0 |
+| [`docs/`](docs/) | 規格、研究、開放資料、設計系統、架構圖與流程圖 | — |
+
+> 文件裡 App 端的路徑（`lib/`、`assets/`、`ios/`、`android/`、`test/`、`pubspec.yaml`）都相對於 `townpass/`；網頁端的路徑都以 `src/` 開頭。
+
+### 網頁（根目錄）
+
 需求：Node.js 24 以上。
 
 ```bash
@@ -352,16 +366,31 @@ npx tsc --noEmit
 npm run build
 ```
 
-在城市通 App 內測試：
+### 城市通 App（`townpass/`）
 
-1. 部署到 HTTPS 網址（App 的 WebView 無法開啟 http），或用 ngrok 對外提供本機服務
-2. 新網域要加進 TownPass 的 `lib/util/elder_mode_config.dart` 的 `trustedHosts`，否則 `listen` 會回 `forbidden`
-3. TownPass 已在 `my_service_model.dart` 登記本服務並預設置頂；`fvm flutter run` 後到「服務」頁開啟
+需求：[FVM](https://fvm.app/documentation/getting-started/installation)（或 Flutter 3.47.6）、Xcode（iOS 最低 15）、Android SDK（Java 17）。官方開發文件見 [Town Pass guideline](https://tpe-guideline.web.app/en/docs/)。
+
+```bash
+cd townpass
+fvm install                                                   # 依 .fvmrc 安裝 Flutter 3.47.6
+fvm flutter pub get
+fvm dart run build_runner build --delete-conflicting-outputs  # 產生 lib/gen/*.gen.dart
+fvm flutter run                                               # 模擬器或實機
+fvm flutter analyze && fvm flutter test
+```
+
+沒有 FVM 的話，把指令開頭的 `fvm` 拿掉，並確認 `flutter --version` 是 3.47.6。
+
+### 在城市通 App 內測試網頁
+
+1. 網頁要部署到 HTTPS 網址（App 的 WebView 無法開啟 http），或用 ngrok 對外提供本機服務
+2. 新網域要加進 `townpass/lib/util/elder_mode_config.dart` 的 `trustedHosts`，否則 `listen` 會回 `forbidden`
+3. 本服務已在 `townpass/lib/page/city_service/model/my_service_model.dart` 登記並預設置頂；`fvm flutter run` 後到「服務」頁開啟「用得了」
 4. 開發用測試頁在 `/dev`，可以逐一測試新增的 Handler。語音辨識請開飛航模式再測一次
 
 ### 評審試用路徑（約 2 分鐘）
 
-測試帳號在 TownPass 的 `assets/mock_data/account.json`（生日 1940/03/01，86 歲，示範重陽禮金 3,000 元級距）。
+測試帳號在 `townpass/assets/mock_data/account.json`（生日 1940/03/01，86 歲，示範重陽禮金 3,000 元級距）。
 
 1. 台北通 →「服務」→「用得了」。首頁顯示「午安，陳阿嬤」和「重陽禮金 3,000 元，還有 6 天截止」。
 2. 按「說話或打字找服務」，輸入「我要去看醫生」→ 出現聯醫掛號、叫車、1966 三個大按鈕，跨三個機關。
@@ -372,7 +401,7 @@ npm run build
 
 ### 部署
 
-**Vercel**（目前使用）：匯入本 repo 即可。Function 區域設定在 `vercel.json`（`hnd1` 東京）。
+**Vercel**（目前使用）：匯入本 repo 即可，Root Directory 維持根目錄（不要設成 `townpass/`）。Function 區域設定在 `vercel.json`（`hnd1` 東京）。
 
 **容器（Cloud Run 或其他）**：本 repo 附 `Dockerfile`（Next.js standalone 輸出），可以不依賴 Vercel 自行部署：
 
@@ -447,7 +476,7 @@ docker build -t townpass2026-peakqi . && docker run -p 8080:8080 --env-file .env
 | qrcode 1.5.4（M7 家人代設定產生 QR code） | MIT |
 | @types/qrcode | MIT |
 
-**TownPass fork 新增的 Flutter 套件**
+**城市通 App（`townpass/`）新增的 Flutter 套件**
 
 | 套件 | 授權 | 用途 |
 |---|---|---|
@@ -484,7 +513,7 @@ docker build -t townpass2026-peakqi . && docker run -p 8080:8080 --env-file .env
 ## 12. 維運說明
 
 - **資料由誰更新**：開放資料由各局處在 data.taipei 更新，代理即時抓取。服務清單（電話、網址、補助資格）是一份 JSON，規劃由各局處自行維護；每筆都有查證日期，方便定期檢查。
-- **問題由誰處理**：得獎後協助資訊局整併；程式架構與測試說明見本 README 與 TownPass `docs/townpass/`。
+- **問題由誰處理**：得獎後協助資訊局整併；程式架構與測試說明見本 README 與 `docs/`。
 
 ### 已知限制與待確認
 
@@ -504,7 +533,7 @@ docker build -t townpass2026-peakqi . && docker run -p 8080:8080 --env-file .env
 
 ## 授權
 
-本專案以 [GNU AGPL-3.0-or-later](LICENSE) 授權（SPDX：`AGPL-3.0-or-later`）。修改後的城市通 App（[Peakqi-com/TownPass](https://github.com/Peakqi-com/TownPass)）沿用原專案的 GPL-3.0。
+本專案以 [GNU AGPL-3.0-or-later](LICENSE) 授權（SPDX：`AGPL-3.0-or-later`）。修改後的城市通 App（[`townpass/`](townpass/)）沿用原專案的 GPL-3.0（[`townpass/LICENSE`](townpass/LICENSE)）；GPLv3 第 13 條允許它和 AGPL-3.0 的程式放在同一個 repo。
 
 依《競賽須知》（115.08.27 版）捌、一、(二)，載明主辦指定的 AGPL 授權條款（`< >` 欄位依 GNU 慣例填入程式名稱、年份、作者，其餘照抄原文）：
 

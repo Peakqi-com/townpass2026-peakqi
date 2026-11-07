@@ -94,7 +94,7 @@
   --color-divider: #cad1d5; /* Grey/200 */
 
   /* 長輩模式色票：城市通 UI Kit 的延伸，只用在長輩模式的服務按鈕。
-     依據與驗算見 TownPass docs/townpass/elder-mode-spec.md §4.1。
+     依據與驗算見 docs/elder-mode-spec.md §4.1。
      顏色跟著服務類別固定；紅色只給「求助」。on-* 是該底色上的文字色。 */
   --color-elder-ride: #fec84b;
   --color-on-elder-ride: #1d2939;

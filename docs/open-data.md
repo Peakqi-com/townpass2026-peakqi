@@ -9,7 +9,7 @@
 
 ---
 
-> **作品 repo 已經做好代理**：`townpass2026-peakqi` 的 `/api/opendata/<id>` 已處理下面所有問題（CORS、Big5、CSV/XML、TWD97、快取、找附近），第 2、3 節裡 21 個來源都已登記，網頁端用 `getOpenData()` 呼叫即可。新增來源見該 repo 的 `src/lib/opendata/sources.ts`。
+> **網頁端已經做好代理**：`/api/opendata/<id>` 已處理下面所有問題（CORS、Big5、CSV/XML、TWD97、快取、找附近），第 2、3 節裡 21 個來源都已登記，網頁端用 `getOpenData()` 呼叫即可。新增來源見 `src/lib/opendata/sources.ts`。
 
 ## 1. 共通結論（寫程式前先看）
 
@@ -75,7 +75,7 @@ curl -L 'https://data.taipei/api/frontstage/tpeod/dataset/resource.download?rid=
 | [防空疏散避難設施](https://data.taipei/dataset/detail?id=70a6216e-3730-4d1d-b334-62fca2dd71cd) | 22,443，3MB | UTF-8 | 「緯經度」單一欄位 | 可容納人數、地下樓層數 |
 | [河濱自行車租借站](https://data.taipei/dataset/detail?id=f63886b7-7627-4e2a-94c0-27a2c0f55c60) | 9 | UTF-8 | 同時有 TWD97 與 WGS84 | 營業時間、租借費率、免費飲水／打氣（**可以拿來驗證座標轉換**） |
 
-### 3.1 長輩服務：避難、照顧家人、打疫苗做篩檢（2026-11-07 實際下載，作品 repo 已接進代理）
+### 3.1 長輩服務：避難、照顧家人、打疫苗做篩檢（2026-11-07 實際下載，已接進代理）
 
 都沒有座標，用行政區（或里）篩選。代理 id 寫在括號裡。
 
@@ -91,7 +91,7 @@ curl -L 'https://data.taipei/api/frontstage/tpeod/dataset/resource.download?rid=
 | [五癌篩檢醫療院所](https://data.taipei/dataset/detail?id=ae20d75c-dffb-4d4f-85e1-9c512189005c)（`cancer-screening`） | 481 | UTF-8 BOM | 「行政區」欄位是代碼 | 子宮頸癌、口腔癌、大腸癌、乳癌、肺癌各一欄（Y／空白），「貼心小提醒」是官方提醒文字 |
 | [假牙補助醫療院所名單](https://data.taipei/dataset/detail?id=76b8b514-e793-4cca-8dcf-065d5af4b760)（`denture-clinics`） | 6 | Big5 | 地址（「區域」欄位是院區所在區） | 聯醫 6 院區；資格與流程見 `taipei-subsidies.md` A.12 |
 
-### 3.2 公車預估到站（M16，2026-11-07 實測，作品 repo 的 `/api/bus/*`）
+### 3.2 公車預估到站（M16，2026-11-07 實測，`/api/bus/*`）
 
 data.taipei 的資料集頁面只放一份說明用的小 CSV，真正的資料在臺北市公運處的 blob（gzip 壓縮的 UTF-8 JSON，回應沒有 `Content-Encoding`，也沒有 CORS 標頭，只能從伺服器端抓再自己解壓）。臺北是 `https://tcgbusfs.blob.core.windows.net/blobbus/<檔名>`，新北把 `blobbus` 換成 `ntpcbus`。
 

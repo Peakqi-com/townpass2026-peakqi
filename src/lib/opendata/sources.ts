@@ -2,7 +2,7 @@
  * 開放資料來源白名單
  *
  * 代理（/api/opendata/[source]）只會抓這裡登記的網址，不接受任意 URL，避免被當成跳板（SSRF）。
- * 每個來源都在 2026-11-06 實際下載驗證過，細節見 TownPass repo 的 docs/townpass/open-data.md。
+ * 每個來源都在 2026-11-06 實際下載驗證過，細節見 docs/open-data.md。
  *
  * 新增來源的步驟：
  * 1. 在 data.taipei 找到資料集，用 dataset.view 取得 rid，實際下載確認格式、編碼、座標欄位

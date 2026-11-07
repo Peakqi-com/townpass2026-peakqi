@@ -31,7 +31,7 @@
 
 （資料來源：[Figma MCP rate limits](https://developers.figma.com/docs/figma-mcp-server/rate-limits-access/)，2026/11 查詢；數字可能變動，以官方頁面為準。）
 
-**所以策略是：每個節點只讀一次，讀到的結果全部存進 `docs/townpass/figma/`，之後一律讀快取，不要重複呼叫 MCP。**
+**所以策略是：每個節點只讀一次，讀到的結果全部存進 `docs/figma/`，之後一律讀快取，不要重複呼叫 MCP。**
 
 ### 2.2 方法 A：官方 Figma MCP（推薦，要有額度）
 
@@ -55,7 +55,7 @@ claude mcp add --transport http figma https://mcp.figma.com/mcp
 # Figma → Settings → Security → Personal access tokens（只勾 file_content:read）
 export FIGMA_TOKEN=...   # 不要 commit
 curl -s -H "X-Figma-Token: $FIGMA_TOKEN" \
-  "https://api.figma.com/v1/files/lIjV2gObcion4O2nbOvEe1" > docs/townpass/figma/file.json
+  "https://api.figma.com/v1/files/lIjV2gObcion4O2nbOvEe1" > docs/figma/file.json
 # 匯出指定節點的圖片
 curl -s -H "X-Figma-Token: $FIGMA_TOKEN" \
   "https://api.figma.com/v1/images/lIjV2gObcion4O2nbOvEe1?ids=1:2&format=png&scale=2"
@@ -73,7 +73,7 @@ curl -s -H "X-Figma-Token: $FIGMA_TOKEN" \
 
 ## 3. 建立設計系統的步驟（第一次）
 
-產出放在 `docs/townpass/figma/`：
+產出放在 `docs/figma/`：
 
 1. **盤點**：`get_metadata(fileKey, nodeId='1:2')`，或用 REST API 抓 `file.json`
    → 產出 `inventory.md`：每個頁面／frame／元件的名稱、node id、用途。實作時要回頭查的 node id 都記在這裡

@@ -1,6 +1,6 @@
 /**
  * M9 附近吃飯上課：把共餐、關懷據點、長青學苑、樂齡學習四個開放資料集整理成同一種「地點」。
- * 規格見 TownPass docs/townpass/elder-mode-spec.md M9。
+ * 規格見 docs/elder-mode-spec.md M9。
  *
  * 這些資料集都沒有座標，所以用台北通帳號裡的行政區（addresses[].town）篩選同一區，
  * 同一里的排在前面；長輩不用輸入地址。
@@ -127,7 +127,7 @@ export const HEALTH_PLACE_CATEGORIES: readonly CommunityCategory[] = [
     id: "denture",
     label: "假牙補助院所",
     speak: "申請假牙補助，先去做口腔檢查的醫院",
-    // 申請流程取自 TownPass docs/townpass/taipei-subsidies.md A.12（社會局原頁，2026-11-07 查證）
+    // 申請流程取自 docs/taipei-subsidies.md A.12（社會局原頁，2026-11-07 查證）
     description: "低收、中低收入的長輩申請假牙補助，先到這些醫院做口腔檢查，由醫院送件。全市 6 處。",
     source: "denture-clinics",
     owner: "臺北市政府社會局",

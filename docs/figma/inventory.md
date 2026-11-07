@@ -53,7 +53,7 @@
 | 插圖 | `3:5683` | `illustration_icon_*`：booking（L/M/S）、location_lost、mailbox、gov、sales、ticket sales、phone_upload、wallet、info、box、satisfy、mobile pay（多為 160×160） |
 
 > 地圖大頭針和小圖示可以直接拿來當 Leaflet／MapLibre 的 marker，風格就會和城市通一致。
-> repo 的 `assets/svg/` 已經有其中一部分（例如 `icon_location_search`、`illustrations_gov`）。要匯出新圖示時，先比對 `ls assets/svg`。
+> `townpass/assets/svg/` 已經有其中一部分（例如 `icon_location_search`、`illustrations_gov`）。要匯出新圖示時，先比對 `ls townpass/assets/svg`。
 
 ## MCP 呼叫紀錄（Starter 方案，每月約 6 次）
 

@@ -1,6 +1,6 @@
 /**
  * M12 補助小幫手：資格規則（純函式，可以在 node --test 測試）。
- * 規格見 TownPass docs/townpass/elder-mode-spec.md M12；資料與出處見 taipei-subsidies.md。
+ * 規格見 docs/elder-mode-spec.md M12；資料與出處見 taipei-subsidies.md。
  *
  * 資料在 src/data/subsidies.json，只放研究文件裡標 ✅ 的項目。市府調整資格或金額時只改 JSON。
  * 規則：
