@@ -125,6 +125,14 @@
   --text-body: 0.875rem; /* 14 */
   --text-body--line-height: 1.25rem; /* 20 */
   --text-caption: 0.75rem; /* 12 */
+
+  /* 長輩模式字級（elder-mode-spec.md §4）：全部用 rem，根字級依 a11y_state.textScale 放大 */
+  --text-elder-title: 2rem; /* 32 */
+  --text-elder-title--line-height: 2.5rem;
+  --text-elder-button: 1.75rem; /* 28：按鈕文字 */
+  --text-elder-button--line-height: 2.25rem;
+  --text-elder-body: 1.25rem; /* 20：說明文字 */
+  --text-elder-body--line-height: 1.875rem;
 }
 
 html {

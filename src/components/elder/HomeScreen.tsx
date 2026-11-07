@@ -1,0 +1,120 @@
+"use client";
+
+import Link from "next/link";
+import { call1999 } from "@/lib/townpass/bridge";
+import { HOME_BUTTONS } from "@/lib/elder/home";
+import { doubleNinthGift, greetingFor, type GiftInfo } from "@/lib/elder/profile";
+import { useElder } from "./ElderProvider";
+import { ModePicker } from "./ModePicker";
+import { ServiceAction, ServiceLink } from "./ServiceButton";
+
+/** M1 首頁：問候、權益提醒、6 個大按鈕、找服務、固定的 1999／1966／求助 */
+export function HomeScreen() {
+  const { mode, ready, now, user, textScale } = useElder();
+
+  if (!ready || !now) return <p className="p-6 text-elder-body text-text-second">載入中…</p>;
+  if (mode === null) return <ModePicker />;
+
+  const gift = user
+    ? doubleNinthGift({ birthday: user.birthday, citizen: user.citizen, nativePeople: user.nativePeople }, now)
+    : null;
+  // 字放大到 1.25 倍以上，四個字的標籤在兩欄會斷行：改成單欄、圖示在左，
+  // 底部的電話與求助也改放在頁面最下方，不固定在畫面上（避免擋住三分之一的螢幕）
+  const large = textScale >= 1.25;
+  const hearing = mode === "hearing";
+
+  return (
+    <main className={`mx-auto flex w-full max-w-md flex-1 flex-col gap-5 px-4 pt-5 ${large ? "pb-6" : "pb-44"}`}>
+      <h1 className="text-elder-title font-bold text-text-primary">
+        {greetingFor(now)}
+        {user?.realName ? `，${user.realName}` : ""}
+      </h1>
+
+      {gift && <GiftCard gift={gift} />}
+
+      <nav aria-label="常用服務">
+        <ul className={`grid gap-4 ${large ? "grid-cols-1" : "grid-cols-2"}`}>
+          {HOME_BUTTONS.map((button) => (
+            <li key={button.id} className="grid">
+              <ServiceLink
+                href={button.href}
+                label={button.label}
+                speak={button.speak}
+                icon={button.icon}
+                row={large}
+                className={`${large ? "min-h-[5rem] justify-start px-6" : "min-h-[9rem]"} ${button.className}`}
+              />
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      <ServiceLink
+        href="/find"
+        label={hearing ? "打字找服務" : "說話或打字找服務"}
+        icon="search"
+        row
+        className="border-4 border-grayscale-800 bg-white text-text-primary"
+      />
+
+      <Link href="/mode" className="self-center py-3 text-elder-body text-text-second underline underline-offset-4">
+        換成其他模式（看不清楚、聽不清楚）
+      </Link>
+
+      {/* 電話與求助：每一頁同樣的位置與順序，長輩不用找（WCAG 3.2.6） */}
+      <nav
+        aria-label="電話與求助"
+        className={
+          large
+            ? ""
+            : "fixed inset-x-0 bottom-0 z-40 border-t border-divider bg-white/95 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3"
+        }
+      >
+        <div className={`mx-auto grid max-w-md gap-3 ${large ? "grid-cols-2" : "grid-cols-3"}`}>
+          {hearing ? (
+            <ServiceLink href="/text" label="1999 文字" speak="1999 文字服務" icon="text" className="bg-grayscale-800 text-white" />
+          ) : (
+            <ServiceAction onPress={call1999} label="1999" speak="打給 1999 市民熱線" icon="phone" className="bg-grayscale-800 text-white" />
+          )}
+          <ServiceLink href="/call/1966" label="1966" speak="1966 長照專線" icon="phone" className="bg-grayscale-800 text-white" />
+          <ServiceLink
+            href="/help"
+            label="求助"
+            speak="求助"
+            icon="help"
+            row={large}
+            className={`bg-elder-help text-on-elder-help ${large ? "col-span-2" : ""}`}
+          />
+        </div>
+      </nav>
+    </main>
+  );
+}
+
+function GiftCard({ gift }: { gift: GiftInfo }) {
+  const amount = gift.amount.toLocaleString("zh-TW");
+  const deadline =
+    gift.phase === "apply"
+      ? gift.daysLeft === 0
+        ? "今天（11/13）截止申請"
+        : `還有 ${gift.daysLeft} 天截止（11/13）`
+      : `申請期已過，12/31 前可以申請補發`;
+
+  return (
+    <section
+      aria-labelledby="gift-heading"
+      className="flex flex-col gap-3 rounded-2xl border-4 border-elder-benefit bg-white p-4"
+    >
+      <h2 id="gift-heading" className="text-elder-button font-bold text-text-primary">
+        重陽禮金：您今年可能可以領 {amount} 元
+      </h2>
+      <p className="text-elder-body text-text-second">{deadline}。最後以社會局審核為準。</p>
+      <ServiceLink
+        href="/benefits"
+        label="看怎麼申請"
+        speak="重陽禮金，看怎麼申請"
+        className="bg-elder-benefit text-on-elder-benefit"
+      />
+    </section>
+  );
+}

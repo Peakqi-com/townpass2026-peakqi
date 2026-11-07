@@ -129,6 +129,18 @@ export async function launchMap(url: string): Promise<boolean> {
   return callApp<boolean>("launch_map", url);
 }
 
+/**
+ * 撥打 1999。App 會先顯示同意條款（第一次）與「立即撥號」對話框，所以網頁不需要再做確認頁。
+ * 成功時 App 不會回覆，所以不等待。
+ */
+export function call1999(): void {
+  if (!isInTownPass()) {
+    window.location.href = "tel:1999";
+    return;
+  }
+  postToApp("1999agree", true);
+}
+
 /** 撥打電話，回傳是否能撥打 */
 export async function phoneCall(phoneNumber: string): Promise<boolean> {
   if (!isInTownPass()) {
