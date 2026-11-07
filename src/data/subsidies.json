@@ -1,0 +1,258 @@
+{
+  "districtSource": "https://ca.gov.taipei/cp.aspx?n=049791E823A04A70",
+  "districtVerified": "2026-11-07",
+  "districts": [
+    { "id": "songshan", "name": "松山區", "phone": "0287878787", "ext": "707、712、714～716", "address": "臺北市松山區八德路 4 段 692 號 7 樓" },
+    { "id": "xinyi", "name": "信義區", "phone": "0227239777", "ext": "407", "address": "臺北市信義區福德街 86 號 9／10 樓" },
+    { "id": "daan", "name": "大安區", "phone": "0223511711", "ext": "8401～8417", "address": "臺北市大安區新生南路 2 段 86 號 8 樓" },
+    { "id": "zhongshan", "name": "中山區", "phone": "0225031369", "ext": "524～530", "address": "臺北市中山區松江路 367 號 1 樓" },
+    { "id": "zhongzheng", "name": "中正區", "phone": "0223416721", "ext": "309～312", "address": "臺北市中正區羅斯福路 1 段 8 號 6 樓" },
+    { "id": "datong", "name": "大同區", "phone": "0225975323", "ext": "401～415", "address": "臺北市大同區昌吉街 57 號 4 樓" },
+    { "id": "wanhua", "name": "萬華區", "phone": "0223064468", "ext": "239", "address": "臺北市萬華區和平西路 3 段 120 號 11 樓" },
+    { "id": "wenshan", "name": "文山區", "phone": "0229365522", "ext": "260～266", "address": "臺北市文山區木柵路 3 段 220 號 8 樓" },
+    { "id": "nangang", "name": "南港區", "phone": "0227831343", "ext": "221～232", "address": "臺北市南港區南港路 1 段 360 號 2 樓" },
+    { "id": "neihu", "name": "內湖區", "phone": "0227925828", "ext": "280", "address": "臺北市內湖區民權東路 6 段 99 號 4 樓" },
+    { "id": "shilin", "name": "士林區", "phone": "0228826200", "ext": "6100～6111 或 6401～6403", "address": "臺北市士林區中正路 439 號 9 樓" },
+    { "id": "beitou", "name": "北投區", "phone": "0228912105", "ext": "321～326", "address": "臺北市北投區立功街 9 號 11 樓之 2" }
+  ],
+  "related": {
+    "vision": ["vision-rehab", "blind-library"],
+    "hearing": ["sign-language", "vrs"],
+    "care": ["ltc-ride"]
+  },
+  "subsidies": [
+    {
+      "id": "elder-allowance",
+      "title": "老人生活津貼",
+      "summary": "65 歲以上、家裡收入不高的長輩，每個月可以領生活津貼。不用先有中低收入戶身分。",
+      "amount": "每月 8,329 元或 4,164 元（115 年）",
+      "rule": { "ageMin": 65, "meansTested": true, "cityOnly": true },
+      "documents": ["申請表", "身分證正本", "戶口名簿影本", "租約或借住證明", "申請人本人的郵局或台北富邦存摺封面影本"],
+      "apply": { "counter": "district_social", "call1999": "1609～1613", "how": "到戶籍所在地的區公所社會課申請。" },
+      "proxy": { "allowed": true, "bring": ["代申請人（家人）的身分證明文件影本"] },
+      "notes": [
+        "全家平均每人每月收入 29,635 元以下領 8,329 元；39,960 元以下領 4,164 元（115 年）。",
+        "還要看存款和房地產。"
+      ],
+      "exclusiveWith": ["disability-living"],
+      "owner": "臺北市政府社會局（受理：戶籍地區公所社會課）",
+      "source": "https://dosw.gov.taipei/cp.aspx?n=FCF3DAE98DDA289F",
+      "verified": "2026-11-07"
+    },
+    {
+      "id": "disability-living",
+      "title": "身障生活補助",
+      "summary": "有身心障礙證明、家裡收入不高的人，每個月可以領生活補助。",
+      "amount": "每月 4,049～9,485 元，依障礙等級和家裡身分（115 年）",
+      "rule": { "disability": true, "meansTested": true, "autoGrantedWhen": ["certified"], "cityOnly": true },
+      "documents": ["申請表", "身分證正本", "租約或借住證明", "台北富邦或郵局存摺封面影本"],
+      "apply": {
+        "counter": "district_social",
+        "call1999": "1609～1613",
+        "how": "到戶籍所在地的區公所社會課申請。",
+        "autoNote": "已經是低收入戶或中低收入戶的人，社會局會主動核發，不用申請。"
+      },
+      "proxy": { "allowed": true, "bring": ["代申請人（家人）的身分證明文件影本"] },
+      "notes": ["全家平均每人每月收入要在 39,960 元以下（115 年），也要看存款和房地產。"],
+      "exclusiveWith": ["elder-allowance"],
+      "owner": "臺北市政府社會局（受理：戶籍地區公所社會課）",
+      "source": "https://dosw.gov.taipei/cp.aspx?n=C764A5808F9A3B08",
+      "verified": "2026-11-07"
+    },
+    {
+      "id": "low-income-status",
+      "title": "低收、中低收入戶",
+      "summary": "家裡收入不高，可以申請低收入戶或中低收入戶。有了這個身分，很多補助會更容易拿到。",
+      "amount": "低收入戶每月有生活扶助；中低收入戶有健保自付保費補助 50%",
+      "rule": { "income": ["notCertified", "unknown"], "meansTested": true, "cityOnly": true },
+      "documents": ["申請表", "身分證正本", "戶口名簿影本（含詳細記事）", "租約或借住證明", "本人的郵局或台北富邦存摺封面影本"],
+      "apply": { "counter": "district_social", "call1999": "1609～1613", "how": "到戶籍所在地的區公所社會課申請。" },
+      "proxy": { "allowed": true, "bring": ["代申請人（家人）的身分證明文件影本"] },
+      "notes": ["全家平均每人每月收入：低收入戶 20,744 元以下、中低收入戶 29,635 元以下（115 年），也要看存款和房地產。"],
+      "owner": "臺北市政府社會局（受理：戶籍地區公所社會課）",
+      "source": "https://dosw.gov.taipei/cp.aspx?n=E6D700BD37E78592",
+      "verified": "2026-11-07"
+    },
+    {
+      "id": "ltc-care",
+      "title": "長照服務",
+      "summary": "家裡有人需要照顧，可以申請長照：有人到家裡幫忙照顧、復健。家人也可以幫忙打 1966。",
+      "amount": "依失能等級，每月 10,020～36,180 元的服務額度",
+      "rule": { "needsCare": true },
+      "documents": ["申請人的基本資料", "被照顧的人的基本資料"],
+      "apply": { "service": "ltc-1966", "how": "打 1966，照管專員會到家裡評估。住院時也可以找醫院的出院準備小組。" },
+      "proxy": { "allowed": true, "bring": ["家人可以直接打 1966 申請"] },
+      "notes": [
+        "被照顧的人要 65 歲以上、原住民 55 歲以上、有身心障礙證明，或是失智症；並經評估為長照第 2 級以上。",
+        "自己要付的比例：第一類 0%、第二類 5%、第三類（一般戶）16%。"
+      ],
+      "owner": "臺北市政府衛生局（臺北市長期照顧管理中心）",
+      "source": "https://1966.gov.tw/LTC/cp-6533-70777-207.html",
+      "verified": "2026-11-07"
+    },
+    {
+      "id": "ltc-respite",
+      "title": "喘息服務",
+      "summary": "照顧的家人累了，可以申請喘息服務，讓專人暫時接手照顧。",
+      "amount": "每年 32,340 元或 48,510 元的服務額度，依失能等級",
+      "rule": { "needsCare": true },
+      "documents": ["申請人的基本資料", "被照顧的人的基本資料"],
+      "apply": { "service": "ltc-1966", "how": "打 1966 申請，和長照服務一起評估。" },
+      "proxy": { "allowed": true, "bring": ["家人可以直接打 1966 申請"] },
+      "notes": ["要是由家人照顧的人。自己要付的比例：第一類 0%、第二類 5%、第三類 16%。"],
+      "owner": "臺北市政府衛生局（臺北市長期照顧管理中心）",
+      "source": "https://1966.gov.tw/LTC/cp-6533-70777-207.html",
+      "verified": "2026-11-07"
+    },
+    {
+      "id": "ltc-assistive-home",
+      "title": "長照輔具與無障礙",
+      "summary": "需要長照的人，買輔具或在家裡裝扶手、斜坡，可以申請補助。",
+      "amount": "每 3 年 4 萬元（115 年 7 月起可以改選 6 萬元的智慧科技輔具組）",
+      "rule": { "needsCare": true },
+      "documents": ["申請人的基本資料", "被照顧的人的基本資料"],
+      "apply": { "service": "ltc-1966", "how": "先打 1966 評估，再由輔具中心辦理。" },
+      "proxy": { "allowed": true, "bring": ["家人可以直接打 1966 申請"] },
+      "notes": ["自己要付的比例：第一類 0%、第二類 10%、第三類 30%。"],
+      "owner": "衛生福利部；臺北市政府社會局輔具中心評估",
+      "source": "https://1966.gov.tw/LTC/cp-6533-70777-207.html",
+      "verified": "2026-11-07"
+    },
+    {
+      "id": "home-repair",
+      "title": "房子修繕補助",
+      "summary": "65 歲以上、家裡收入不高的長輩，修房子（例如浴室、防滑）可以申請補助。",
+      "amount": "每年每人最高 10 萬元（115 年度）",
+      "rule": { "ageMin": 65, "meansTested": true, "cityOnly": true },
+      "documents": ["申請表", "估價單", "施工前照片", "權狀影本", "屋主同意書", "租屋的人：租約或借用同意書"],
+      "apply": { "call1999": "1680", "how": "先打 1999 問。一定要核准以後才能施工。" },
+      "proxy": { "allowed": null, "bring": [] },
+      "notes": [
+        "低收、中低收入戶，或是符合老人生活津貼、身障生活補助資格的人都可以申請。",
+        "屋齡未滿 20 年的，最高 8 萬元。核准前就施工的不補助。"
+      ],
+      "owner": "臺北市政府社會局老人福利科",
+      "source": "https://dosw.gov.taipei/cp.aspx?n=12347C47E1B178D4",
+      "verified": "2026-11-07"
+    },
+    {
+      "id": "disability-assistive",
+      "title": "身障輔具補助",
+      "summary": "有身心障礙證明的人，買輔具可以申請補助，也可以線上申請。",
+      "amount": "共 242 項，每 2 年最多 4 項，金額依項目不同",
+      "rule": { "disability": true, "cityOnly": true, "boost": ["vision", "hearing"] },
+      "documents": ["申請書", "身分證", "3 個月內的診斷證明", "3 個月內的輔具評估報告"],
+      "apply": {
+        "online": { "url": "https://welfare.gov.taipei/assistive/", "label": "線上申請輔具補助" },
+        "call1999": "1358、1617、6964",
+        "how": "一定要先核定再買。可以線上預約評估、線上申請。"
+      },
+      "proxy": { "allowed": true, "bring": ["委託書或切結書", "受託人（家人）的身分證"] },
+      "notes": ["核定後 6 個月內要購買並請款。"],
+      "owner": "臺北市政府社會局（3 區輔具中心）",
+      "source": "https://dosw.gov.taipei/cp.aspx?n=49304F9B0793FFEF",
+      "verified": "2026-11-07"
+    },
+    {
+      "id": "love-card",
+      "title": "愛心卡",
+      "summary": "有身心障礙證明的人可以辦愛心卡，每月 600 點，可以坐公車、捷運。陪伴的人可以一起辦陪伴卡。",
+      "amount": "每月 600 點（115 年 7 月起）",
+      "rule": { "disability": true, "cityOnly": true },
+      "documents": ["身分證正本", "身心障礙證明正本", "2 吋彩色照片 1 張"],
+      "apply": { "counter": "any_district", "call1999": "1546", "how": "帶證件到任何一個區公所臨櫃辦，不限戶籍區。" },
+      "proxy": { "allowed": true, "bring": ["委任書", "代辦人（家人）的身分證"] },
+      "notes": ["陪伴卡要和愛心卡一起申請。卡片限本人使用。"],
+      "owner": "臺北市政府社會局（各區公所發卡）",
+      "source": "https://dosw.gov.taipei/cp.aspx?n=98EA840859DF5D7F",
+      "verified": "2026-11-07"
+    },
+    {
+      "id": "disability-parking",
+      "title": "身障停車證",
+      "summary": "評估為行動不便的身障者，可以申請身障專用停車位識別證，用家人的車也可以申請。",
+      "amount": "可以停身障專用停車位",
+      "rule": { "disability": true, "cityOnly": true, "boost": ["other"] },
+      "documents": ["申請表", "身心障礙證明影本", "駕照影本", "行照影本", "用家人的車：全戶戶口名簿影本"],
+      "apply": {
+        "call1999": "1358、1617、6964",
+        "how": "到市政府 1 樓社會局 39 號櫃檯（週一到週五 8:30–17:30，大約 1 小時辦好），或用郵寄申請。"
+      },
+      "proxy": { "allowed": true, "bring": ["委託書", "委託人與受託人的身分證影本"] },
+      "notes": ["需求評估的結果要寫「行動不便」。停車證的問題請在下午 1 點半以後打電話。"],
+      "owner": "臺北市政府社會局身心障礙者福利科",
+      "source": "https://dosw.gov.taipei/cp.aspx?n=411918B6262745BE",
+      "verified": "2026-11-07"
+    },
+    {
+      "id": "vehicle-tax",
+      "title": "牌照稅免稅",
+      "summary": "身障者的車可以免牌照稅，每人一輛。車子在自己名下的，稅捐處會主動辦理。",
+      "amount": "每人 1 輛，最多免 11,230 元",
+      "rule": { "disability": true, "cityOnly": true },
+      "documents": ["身心障礙證明（臨櫃）", "申請書（郵寄或傳真）"],
+      "apply": {
+        "phone": { "number": "0800000321", "label": "稅捐處" },
+        "how": "車子在自己名下的不用申請。用家人的車才要申請：到稅捐處各分處、監理所的派駐股，或郵寄、傳真。"
+      },
+      "proxy": { "allowed": null, "bring": [] },
+      "notes": ["可以用配偶或二親等內親屬的車，條件請先打電話問。"],
+      "owner": "臺北市稅捐稽徵處",
+      "source": "https://tpctax.gov.taipei/News_Content.aspx?n=F0B90218C3A055E2&s=8E5F248BC782FCF0",
+      "verified": "2026-11-07"
+    },
+    {
+      "id": "disability-insurance",
+      "title": "身障健保費補助",
+      "summary": "有身心障礙證明的人，健保費會自動減免，不用申請。",
+      "amount": "重度以上全額、中度一半、輕度四分之一",
+      "rule": { "disability": true, "autoGranted": true, "cityOnly": true },
+      "documents": [],
+      "apply": {
+        "autoNote": "健保、勞保、農保由投保單位每月自動減免。",
+        "call1999ByDistrict": {
+          "士林區": "1546", "北投區": "1546", "南港區": "1546",
+          "中正區": "1552", "松山區": "1552", "信義區": "1552",
+          "萬華區": "1547", "中山區": "1547", "大安區": "1547", "大同區": "1547",
+          "文山區": "1545", "內湖區": "1545"
+        }
+      },
+      "proxy": { "allowed": true, "bring": [] },
+      "notes": [],
+      "owner": "臺北市政府社會局身心障礙者福利科",
+      "source": "https://dosw.gov.taipei/cp.aspx?n=5F79B48807F7B363",
+      "verified": "2026-11-07"
+    },
+    {
+      "id": "elder-nhi-premium",
+      "title": "老人健保費補助",
+      "summary": "65 歲以上（原住民 55 歲以上）的健保費，社會局會主動審核補助，不用申請。",
+      "amount": "每人每月最多 826 元",
+      "rule": { "ageMin": 65, "ageMinNative": 55, "autoGranted": true, "cityOnly": true },
+      "documents": [],
+      "apply": {
+        "autoNote": "社會局會主動審核，直接繳給健保署。被停補的人可以申請恢復。",
+        "call1999": "6966～6968"
+      },
+      "proxy": { "allowed": true, "bring": [] },
+      "notes": ["要設籍並住在臺北市滿 1 年、所得稅率未達 20%。"],
+      "owner": "臺北市政府社會局老人福利科",
+      "source": "https://dosw.gov.taipei/News_Content.aspx?n=91F35523B74F69AC&sms=87415A8B9CE81B16&s=510B6406475080F8",
+      "verified": "2026-11-07"
+    },
+    {
+      "id": "mohw-extra-2026",
+      "title": "加發生活補助",
+      "summary": "今年政府每個月加發生活補助，不用申請，會自動入帳。",
+      "amount": "每人每月：低收入戶 1,000 元、中低收入戶 750 元（到 116 年 1 月）",
+      "rule": { "income": ["certified"], "autoGranted": true, "validUntil": "2027-01-31" },
+      "documents": [],
+      "apply": { "autoNote": "會自動入帳，不用申請。", "service": "welfare-1957" },
+      "proxy": { "allowed": true, "bring": [] },
+      "notes": ["領老人生活津貼、身障生活補助的人，每月加發 500 元。"],
+      "owner": "衛生福利部",
+      "source": "https://dosw.gov.taipei/News_Content.aspx?n=91F35523B74F69AC&sms=87415A8B9CE81B16&s=961603E807808524",
+      "verified": "2026-11-07"
+    }
+  ]
+}
