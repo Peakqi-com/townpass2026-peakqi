@@ -105,8 +105,9 @@ export function ServiceCard({ service, headingLevel = 2 }: { service: Service; h
         ))}
       </div>
 
+      {/* 不加 role="alert"：上面已經 say() 過，加了會被報讀軟體唸兩次 */}
       {failed && (
-        <p role="alert" className="text-elder-body font-bold text-alarm">
+        <p className="text-elder-body font-bold text-alarm">
           打不開。請試試下面其他的方式，或請家人幫忙。
         </p>
       )}

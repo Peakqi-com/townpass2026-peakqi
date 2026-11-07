@@ -158,8 +158,9 @@ export function VisionScreen() {
     <PageShell title="捷運電梯、有聲號誌">
       {status === "loading" && <p className="text-elder-body text-text-second">正在讀取捷運資料…</p>}
       {status === "locating" && <p className="text-elder-body text-text-second">正在找您附近的捷運站…</p>}
+      {/* 不加 role="alert"：讀取失敗時已經 say() 過，加了會唸兩次 */}
       {status === "error" && (
-        <p role="alert" className="text-elder-body font-bold text-text-primary">
+        <p className="text-elder-body font-bold text-text-primary">
           捷運資料暫時讀不到。請稍後再試，或到車站詢問處請站務人員協助。
         </p>
       )}

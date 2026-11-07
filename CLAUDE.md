@@ -108,6 +108,22 @@ src/
 - 每個可互動元素都要有**可見文字**當名稱；圖示一律 `aria-hidden`（`Icon` 元件已處理）。狀態用 `aria-pressed`。
 - DOM 順序＝視覺順序；每頁一個 h1；區塊用 h2／h3，讓視障者可以用標題跳讀。
 - 只用單指點一下，不用長按、滑動、雙指。語音一律「點一下開始、再點一下停止」，開始收音時只震動不出聲（避免錄到報讀軟體的聲音）。
+- **不要唸兩次**：
+  - 換畫面時焦點移到新標題，報讀軟體會自己唸標題。這時寫成 `if (!a11y.screenReader) say(...)`。
+  - 已經 `say()` 的訊息，畫面上的同一句不要再加 `role="alert"` 或 `aria-live`。
+  - 不要從 App 端呼叫原生的無障礙通知：Android 已經棄用 `announceForAccessibility`（會打斷 TalkBack 正在唸的內容），官方建議改用 live region。我們的 live region 就是 `ElderProvider` 裡那一個 `role="status"`。
+
+**報讀軟體機制：原生 App 和網頁的對照**（第三方報讀軟體走同一套系統無障礙 API，不需要個別支援）
+
+| 機制 | Android | iOS | 網頁（我們的做法） |
+|---|---|---|---|
+| 無障礙標籤 | `contentDescription` | `accessibilityLabel` | 按鈕上的可見文字；必要時 `aria-label`；`img` 一定要有 `alt` |
+| 添加焦點 | `importantForAccessibility` | `isAccessibilityElement` | 只用原生的 `<button>`、`<a>`、`<input>`；裝飾圖示 `aria-hidden`；不要在 `div` 上綁 `onClick` |
+| 焦點順序 | `nextFocusForward` | `accessibilityElements` | DOM 順序＝視覺順序；不用正數 `tabindex`；不用 CSS `order` 改變順序 |
+| 無障礙通知 | `announceForAccessibility`（已棄用） | `UIAccessibilityPostNotification` | `say()`／`announce()` 寫進 live region（`role="status"`） |
+| 偵測報讀軟體 | 觸控探索開啟（含第三方報讀軟體） | VoiceOver 開啟 | App 的 `a11y_state` Handler 回傳 `screenReader` |
+
+**檢查**：每完成一頁，用 `scripts/a11y-check.js` 在三種模式下各跑一次（貼到 Chrome DevTools 的 Console，用法寫在檔案開頭）；最後仍要用實機開 VoiceOver／TalkBack 聽一次。
 
 **內容**
 - 視障者用報讀軟體時習慣 3～5 倍速聆聽、會跳著聽：**重點放在標題和第一句**，不要開場白。自己唸（TTS）的速度用 `rate`，不要寫死。
