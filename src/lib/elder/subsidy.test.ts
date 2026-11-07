@@ -1,11 +1,18 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
+  AGE_BRACKETS,
+  callScript,
   callTargetFor,
   callTargets,
   districtFor,
   findSubsidies,
+  hasPhoneChannel,
+  nativeMatters,
+  otherSubject,
+  personForOther,
   prepSheet,
+  selfSubject,
   SUBSIDIES,
   DISTRICTS,
   RELATED,
@@ -261,4 +268,133 @@ test("假牙補助：沒有低收、中低收證明時標「要看家裡收入�
   assert.equal(denture.apply.call1999, "1576");
   assert.equal(denture.apply.counter, undefined);
   assert.equal(denture.proxy.allowed, null, "官方沒寫代辦規定");
+});
+
+/* ---------- 幫誰看：幫另一半或家人看（年紀用選的級距） ---------- */
+
+test("年紀級距：由資料裡的年齡門檻產生（未滿 55／55～64／65 以上）", () => {
+  assert.deepEqual(
+    AGE_BRACKETS.map((b) => b.label),
+    ["未滿 55 歲", "55～64 歲", "65 歲以上"],
+  );
+  // 每一個年齡門檻都剛好是某個級距的下限，級距內不會跨過門檻
+  for (const s of SUBSIDIES) {
+    for (const min of [s.rule.ageMin, s.rule.ageMinNative]) {
+      if (min !== undefined) assert.ok(AGE_BRACKETS.some((b) => b.min === min), `${s.id} 的門檻 ${min}`);
+    }
+  }
+});
+
+test("級距判斷和實際年齡一致：級距內任何一個歲數，列出的補助都一樣", () => {
+  const answers: SubsidyAnswers = { disability: "no", income: "unknown", care: "no" };
+  for (const b of AGE_BRACKETS) {
+    for (const native of ["yes", "no"] as const) {
+      const byBracket = findSubsidies(personForOther({ age: b.id, native }, true), answers, TODAY);
+      const ids = (r: typeof byBracket) => [...r.apply, ...r.auto].map((m) => m.subsidy.id).sort();
+      for (let age = Math.max(b.min, 40); age < (b.max ?? 100); age++) {
+        const exact = findSubsidies({ age, nativePeople: native === "yes", citizen: true }, answers, TODAY);
+        assert.deepEqual(ids(byBracket), ids(exact), `${b.label}、${age} 歲、原住民：${native}`);
+      }
+    }
+  }
+});
+
+test("幫家人看：65 歲以上列出老人生活津貼；未滿 55 不列；行政區、市民身分沿用使用者的（同一戶）", () => {
+  const answers: SubsidyAnswers = { disability: "no", income: "unknown", care: "no" };
+  const senior = personForOther({ age: "65-up", native: "no" }, true);
+  assert.equal(senior.citizen, true);
+  assert.ok(applyIds(senior, answers).includes("elder-allowance"));
+  assert.ok(autoIds(senior, answers).includes("elder-nhi-premium"));
+  const youngOther = personForOther({ age: "under-55", native: "no" }, true);
+  assert.ok(!applyIds(youngOther, answers).includes("elder-allowance"));
+  assert.ok(!applyIds(youngOther, answers).includes("denture"));
+  assert.equal(personForOther({ age: "65-up", native: "no" }, false).citizen, false);
+});
+
+test("幫家人看：年紀「不知道」時，年齡門檻的補助先不列，並提示", () => {
+  const p = personForOther({ age: "unknown", native: "unknown" }, true);
+  assert.equal(p.age, null);
+  const r = findSubsidies(p, none, TODAY);
+  assert.ok(!r.apply.some((m) => m.subsidy.id === "elder-allowance"));
+  assert.ok(r.hints.includes("age"));
+  assert.ok(!r.hints.includes("native"), "年紀不知道時，問原住民也沒用");
+});
+
+test("原住民題只在會影響結果的級距問（55～64 歲）", () => {
+  assert.equal(nativeMatters("under-55"), false);
+  assert.equal(nativeMatters("55-64"), true);
+  assert.equal(nativeMatters("65-up"), false);
+  assert.equal(nativeMatters("unknown"), false);
+});
+
+test("幫家人看、55～64 歲：原住民列出老人健保費補助；不是不列；不知道時提示可能多哪幾項", () => {
+  assert.ok(autoIds(personForOther({ age: "55-64", native: "yes" }, true), none).includes("elder-nhi-premium"));
+  assert.ok(!autoIds(personForOther({ age: "55-64", native: "no" }, true), none).includes("elder-nhi-premium"));
+  const r = findSubsidies(personForOther({ age: "55-64", native: "unknown" }, true), none, TODAY);
+  assert.ok(!r.auto.some((m) => m.subsidy.id === "elder-nhi-premium"), "不確定時先不列");
+  assert.ok(r.hints.includes("native"));
+  assert.ok(r.nativeExtra.includes("老人健保費補助"));
+});
+
+test("幫自己看：不會出現原住民提示（台北通帶入）", () => {
+  const r = findSubsidies({ age: 60, nativePeople: false, citizen: true }, none, TODAY);
+  assert.ok(!r.hints.includes("native"));
+  assert.deepEqual(r.nativeExtra, []);
+});
+
+/* ---------- 打電話時的第一句話 ---------- */
+
+const allowance = SUBSIDIES.find((s) => s.id === "elder-allowance")!;
+const ltc = SUBSIDIES.find((s) => s.id === "ltc-care")!;
+const zhongshan = districtFor("中山區");
+
+test("callScript：幫自己問，帶出補助名稱、行政區、年紀", () => {
+  assert.equal(
+    callScript(allowance, selfSubject(72), zhongshan),
+    "您好，我想問「老人生活津貼」怎麼申請。我住在中山區，今年 72 歲。",
+  );
+});
+
+test("callScript：幫家人問，用「我家人」，年紀用級距", () => {
+  assert.equal(
+    callScript(allowance, otherSubject("65-up"), zhongshan),
+    "您好，我想幫我家人問「老人生活津貼」怎麼申請。我家人住在中山區，今年 65 歲以上。",
+  );
+  assert.equal(
+    callScript(allowance, otherSubject("under-55"), zhongshan),
+    "您好，我想幫我家人問「老人生活津貼」怎麼申請。我家人住在中山區，今年未滿 55 歲。",
+  );
+});
+
+test("callScript：不知道年紀或行政區時就不說", () => {
+  assert.equal(callScript(ltc, selfSubject(null), null), "您好，我想問「長照服務」怎麼申請。");
+  assert.equal(
+    callScript(ltc, otherSubject("unknown"), zhongshan),
+    "您好，我想幫我家人問「長照服務」怎麼申請。我家人住在中山區。",
+  );
+  assert.equal(callScript(ltc, selfSubject(80), null), "您好，我想問「長照服務」怎麼申請。我今年 80 歲。");
+});
+
+test("hasPhoneChannel：要申請的補助都有電話可以問；只有線上申請的沒有", () => {
+  for (const s of SUBSIDIES) if (!s.rule.autoGranted) assert.ok(hasPhoneChannel(s), s.id);
+  assert.ok(!hasPhoneChannel({ ...allowance, apply: { online: { url: "https://example.gov.tw/", label: "線上申請" } } }));
+});
+
+test("prepSheet：附上打電話時的第一句話", () => {
+  const m = findSubsidies(elder, none, TODAY).apply.find((x) => x.subsidy.id === "elder-allowance")!;
+  const text = prepSheet(m, zhongshan, selfSubject(86));
+  assert.ok(text.includes("打電話時可以先說：您好，我想問「老人生活津貼」怎麼申請。我住在中山區，今年 86 歲。"));
+  assert.ok(!text.includes("幫家人看"));
+});
+
+test("prepSheet：幫家人看時寫明是幫家人看、當作同一戶，代辦改成「代辦的人」", () => {
+  const p = personForOther({ age: "65-up", native: "no" }, true);
+  const m = findSubsidies(p, { disability: "no", income: "unknown", care: "no" }, TODAY).apply.find(
+    (x) => x.subsidy.id === "elder-allowance",
+  )!;
+  const text = prepSheet(m, zhongshan, otherSubject("65-up"));
+  assert.ok(text.includes("幫家人看的（65 歲以上，當作和您住在同一戶）"));
+  assert.ok(text.includes("可以幫家人代辦，代辦的人另外要帶："));
+  assert.ok(text.includes("我想幫我家人問「老人生活津貼」怎麼申請"));
+  assert.ok(!text.includes("符合"), "不說「符合」");
 });
