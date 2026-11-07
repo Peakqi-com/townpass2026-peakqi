@@ -1,10 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="400" viewBox="0 0 1180 400" font-family="'PingFang TC','Noto Sans TC','Microsoft JhengHei',system-ui,sans-serif" role="img" aria-label="⑧ 公車還有幾分鐘到（M16）">
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="420" viewBox="0 0 1180 420" font-family="'PingFang TC','Noto Sans TC','Microsoft JhengHei',system-ui,sans-serif" role="img" aria-label="⑧ 公車還有幾分鐘到（M16）">
 <title>⑧ 公車還有幾分鐘到（M16）</title>
 <defs>
   <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#738995"/></marker>
   <marker id="arrow-start" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M10,0 L0,5 L10,10 z" fill="#738995"/></marker>
 </defs>
-<rect x="1" y="1" width="1178" height="398" rx="20" fill="white" stroke="#E3E7E9" stroke-width="2"/>
+<rect x="1" y="1" width="1178" height="418" rx="20" fill="white" stroke="#E3E7E9" stroke-width="2"/>
 <rect x="1" y="1" width="1178" height="6" rx="3" fill="#5AB4C5"/>
 <text x="32.0" y="38.0" font-size="20" font-weight="700" fill="#30383D" text-anchor="start" dominant-baseline="central">⑧ 公車還有幾分鐘到（M16）</text><text x="32.0" y="64.0" font-size="13" font-weight="400" fill="#738995" text-anchor="start" dominant-baseline="central">家人選好站牌，長輩首頁直接看；斷網時顯示「查不到時間」，不會把舊時間當新的</text>
 <rect x="40" y="86" width="1100" height="124" rx="18" fill="#F1F3F4" fill-opacity="0.55" stroke="#CAD1D5" stroke-width="1.5" stroke-dasharray="6 5"/>
@@ -24,7 +24,7 @@
 <text x="540.0" y="172.5" font-size="12.5" font-weight="400" fill="#356C77" text-anchor="middle" dominant-baseline="central">最多 2 組，臺北、新北都可以</text>
 <rect x="760.0" y="131.5" width="240.0" height="61.0" rx="12.0" fill="#5AB4C5" stroke="#5AB4C5" stroke-width="2"/>
 <text x="880.0" y="153.0" font-size="15" font-weight="700" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central">編進設定碼（QR）</text>
-<text x="880.0" y="172.5" font-size="12.5" font-weight="400" fill="#EDF8FA" text-anchor="middle" dominant-baseline="central">只存路線與站牌代號</text>
+<text x="880.0" y="172.5" font-size="12.5" font-weight="400" fill="#EDF8FA" text-anchor="middle" dominant-baseline="central">路線、站牌代號與站牌位置</text>
 <rect x="65.0" y="291.5" width="270.0" height="61.0" rx="12.0" fill="#EDF8FA" stroke="#5AB4C5" stroke-width="2"/>
 <text x="200.0" y="313.0" font-size="15" font-weight="700" fill="#30383D" text-anchor="middle" dominant-baseline="central">掃 QR 存在手機裡</text>
 <text x="200.0" y="332.5" font-size="12.5" font-weight="400" fill="#356C77" text-anchor="middle" dominant-baseline="central">首頁出現公車卡片</text>
@@ -37,4 +37,5 @@
 <text x="880.0" y="341.5" font-size="12.5" font-weight="400" fill="#EDF8FA" text-anchor="middle" dominant-baseline="central">按「再查一次」會唸出來</text>
 <rect x="564.5" y="217.0" width="151.0" height="22" rx="11" fill="white" stroke="#E3E7E9"/>
 <text x="640.0" y="228.0" font-size="12.5" font-weight="600" fill="#5E6D76" text-anchor="middle" dominant-baseline="central">長輩的手機對準 QR 掃描</text>
+<text x="40.0" y="398.0" font-size="12.5" font-weight="400" fill="#738995" text-anchor="start" dominant-baseline="central">公車卡片上還有「帶我走到站牌」：用設定碼裡的站牌位置，在手機上算步行路線，見 ⑨。</text>
 </svg>

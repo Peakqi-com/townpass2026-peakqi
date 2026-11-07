@@ -16,7 +16,7 @@
 <path d="M250.0,131.5 L250.0,191.5" fill="none" stroke="#91A0A8" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow)"/>
 <path d="M400.0,222.0 L460.0,222.0" fill="none" stroke="#91A0A8" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow)"/>
 <path d="M610.0,252.5 L610.0,360.5" fill="none" stroke="#91A0A8" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow)"/>
-<path d="M610.0,439.5 L610.0,466.0 L170.0,466.0 L170.0,475.5" fill="none" stroke="#91A0A8" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M610.0,439.5 L610.0,466.0 L170.0,466.0 L170.0,477.5" fill="none" stroke="#91A0A8" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow)"/>
 <path d="M610.0,466.0 L420.0,466.0 L420.0,475.5" fill="none" stroke="#91A0A8" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow)"/>
 <path d="M610.0,466.0 L680.0,466.0 L680.0,477.5" fill="none" stroke="#91A0A8" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow)"/>
 <path d="M805.0,504.0 L870.0,504.0 L870.0,462.0 L890.0,462.0" fill="none" stroke="#91A0A8" stroke-width="1.8" stroke-linejoin="round" marker-end="url(#arrow)"/>
@@ -42,10 +42,11 @@
 <text x="610.0" y="382.0" font-size="15" font-weight="700" fill="#30383D" text-anchor="middle" dominant-baseline="central">前端頁面 M1～M16</text>
 <text x="610.0" y="401.5" font-size="12.5" font-weight="400" fill="#356C77" text-anchor="middle" dominant-baseline="central">根目錄・Next.js 16</text>
 <text x="610.0" y="419.5" font-size="12.5" font-weight="400" fill="#356C77" text-anchor="middle" dominant-baseline="central">React 19・Tailwind 4・Vercel 東京</text>
-<rect x="60.0" y="475.5" width="220.0" height="79.0" rx="12.0" fill="#EDF8FA" stroke="#5AB4C5" stroke-width="2"/>
-<text x="170.0" y="497.0" font-size="15" font-weight="700" fill="#30383D" text-anchor="middle" dominant-baseline="central">services.json</text>
-<text x="170.0" y="516.5" font-size="12.5" font-weight="400" fill="#356C77" text-anchor="middle" dominant-baseline="central">M3 服務清單 31 筆</text>
-<text x="170.0" y="534.5" font-size="12.5" font-weight="400" fill="#356C77" text-anchor="middle" dominant-baseline="central">打包在前端，斷網可用</text>
+<rect x="45.0" y="477.5" width="250.0" height="97.0" rx="12.0" fill="#EDF8FA" stroke="#5AB4C5" stroke-width="2"/>
+<text x="170.0" y="499.0" font-size="15" font-weight="700" fill="#30383D" text-anchor="middle" dominant-baseline="central">前端內建資料（斷網可用）</text>
+<text x="170.0" y="518.5" font-size="12.5" font-weight="400" fill="#356C77" text-anchor="middle" dominant-baseline="central">services.json：服務清單 31 筆</text>
+<text x="170.0" y="536.5" font-size="12.5" font-weight="400" fill="#356C77" text-anchor="middle" dominant-baseline="central">walk/：步行路網（OSM）</text>
+<text x="170.0" y="554.5" font-size="12.5" font-weight="400" fill="#356C77" text-anchor="middle" dominant-baseline="central">開發時下載一次，不呼叫路線服務</text>
 <rect x="310.0" y="475.5" width="220.0" height="79.0" rx="12.0" fill="#EDF8FA" stroke="#5AB4C5" stroke-width="2"/>
 <text x="420.0" y="497.0" font-size="15" font-weight="700" fill="#30383D" text-anchor="middle" dominant-baseline="central">bridge.ts・elder.ts</text>
 <text x="420.0" y="516.5" font-size="12.5" font-weight="400" fill="#356C77" text-anchor="middle" dominant-baseline="central">呼叫 App 能力</text>

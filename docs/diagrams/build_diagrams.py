@@ -220,7 +220,7 @@ def architecture():
 
     d.group(40, 330, 780, 266, "②「用得了」微服務")
     pages = d.box(610, 400, ["前端頁面 M1～M16", "根目錄・Next.js 16", "React 19・Tailwind 4・Vercel 東京"], "ours", w=330)
-    data = d.box(170, 515, ["services.json", "M3 服務清單 31 筆", "打包在前端，斷網可用"], "ours", w=220)
+    data = d.box(170, 526, ["前端內建資料（斷網可用）", "services.json：服務清單 31 筆", "walk/：步行路網（OSM）", "開發時下載一次，不呼叫路線服務"], "ours", w=250)
     bridge = d.box(420, 515, ["bridge.ts・elder.ts", "呼叫 App 能力", "一般瀏覽器改用 mock"], "ours", w=220)
     api = d.box(680, 526, ["後端 Route Handlers", "/api/opendata：白名單代理", "Big5・ODS・TWD97・CDN 快取", "/api/bus：公車預估到站"], "ours", w=250)
     od = d.db(1000, 462, ["data.taipei", "開放資料 37 個來源"], w=220)
@@ -453,19 +453,39 @@ def flow_followup():
 
 
 def flow_bus():
-    d = Diagram(1180, 400, "⑧ 公車還有幾分鐘到（M16）", "家人選好站牌，長輩首頁直接看；斷網時顯示「查不到時間」，不會把舊時間當新的")
+    d = Diagram(1180, 420, "⑧ 公車還有幾分鐘到（M16）", "家人選好站牌，長輩首頁直接看；斷網時顯示「查不到時間」，不會把舊時間當新的")
     d.group(40, 86, 1100, 124, "家人的手機", "gray")
     d.group(40, 246, 1100, 124, "長輩的手機")
     f1 = d.box(200, 162, ["「我是家人」→ 幫長輩設定", "輸入路線名稱：/api/bus/routes"], "ours", w=270)
     f2 = d.box(540, 162, ["選方向、選站牌：/api/bus/stops", "最多 2 組，臺北、新北都可以"], "ours", w=290)
-    f3 = d.box(880, 162, ["編進設定碼（QR）", "只存路線與站牌代號"], "result", w=240)
+    f3 = d.box(880, 162, ["編進設定碼（QR）", "路線、站牌代號與站牌位置"], "result", w=240)
     e1 = d.box(200, 322, ["掃 QR 存在手機裡", "首頁出現公車卡片"], "ours", w=270)
     e2 = d.box(540, 322, ["/api/bus/eta", "每 30 秒，畫面看得到時才查"], "ours", w=290)
     e3 = d.box(880, 322, ["還有 7 分鐘", "307 往撫遠街・南京三民路口", "按「再查一次」會唸出來"], "result", w=280)
     for a, b in [(f1, f2), (f2, f3), (e1, e2), (e2, e3)]:
         d.edge([a.side("r"), b.side("l")])
     d.edge([(f3.right, 162), (1080, 162), (1080, 228), (200, 228), e1.side("t")], "長輩的手機對準 QR 掃描", (640, 228), dashed=True)
+    d.note(40, 398, "公車卡片上還有「帶我走到站牌」：用設定碼裡的站牌位置，在手機上算步行路線，見 ⑨。", "start")
     d.save("flow-8-bus.svg")
+
+
+def flow_walk():
+    d = Diagram(1180, 440, "⑨ 帶我走到站牌（M16 延伸）", "路線在手機上算，不呼叫路線規劃服務；路網打開服務時就預先下載，斷網也能用")
+    s1 = d.box(140, 160, ["首頁公車卡片", "「帶我走到站牌」"], "official", w=230, step=1)
+    s2 = d.box(410, 160, ["取得現在位置", "台北通 location", "WebView watchPosition"], "ours", w=260, step=2)
+    s3 = d.box(690, 160, ["在手機上算步行路線", "A*・OSM 路網（會場周邊）", "樓梯成本加重"], "ours", w=270, step=3)
+    s4 = d.box(990, 160, ["比較走路與公車", "長輩以 0.8 公尺／秒估算", "趕不上就說等下一班"], "result", w=270, step=4)
+    for a, b in [(s1, s2), (s2, s3), (s3, s4)]:
+        d.edge([a.side("r"), b.side("l")])
+    d.group(40, 236, 1100, 148, "走路時（位置一更新就檢查）")
+    g1 = d.box(230, 332, ["轉彎、過馬路前 40 公尺先提醒", "到了說「現在右轉」＋震動"], "ours", w=320)
+    g2 = d.box(590, 332, ["過馬路處 30 公尺內有有聲號誌", "「聽到嗶嗶聲再走」（M10 資料）"], "ours", w=320)
+    g3 = d.box(950, 332, ["偏離路線超過 35 公尺", "連續 2 次就重新找路"], "warn", w=320)
+    d.edges.append(f'<path d="M{s4.cx},{s4.bottom} V282 M230,282 H950" fill="none" stroke="{C["gray400"]}" stroke-width="1.8"/>')
+    for g in (g1, g2, g3):
+        d.edge([(g.cx, 282), g.side("t")])
+    d.note(40, 408, "範圍外會說明並給直線距離；「模擬走一次」讓位置沿路線自動前進（桌上測試、決選舞台用）。路線只是參考：過馬路一定要看號誌、走斑馬線。", "start")
+    d.save("flow-9-walk.svg")
 
 
 if __name__ == "__main__":
@@ -480,3 +500,4 @@ if __name__ == "__main__":
     flow_benefit()
     flow_followup()
     flow_bus()
+    flow_walk()
