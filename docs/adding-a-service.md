@@ -137,6 +137,10 @@ export function callApp<T = unknown>(name: string, data: unknown = null, mock?: 
 2. **Listener 會跑過所有 Handler**：`name` 相同的 Handler 會全部執行，所以自訂名稱絕對不能和上表重複。
 3. **`launch_map`、`phone_call`、`1999agree` 收到 `null` 時**：回覆 `false` 之後沒有 `return`，接著會丟例外。網頁端一定要傳有效的 data。自己寫的 Handler **回覆錯誤後要記得 `return`**。
 4. 回覆不保證一定會來（例如 `notify`、`open_link` 成功時不回覆）。網頁端要設 timeout，不能無限等待。
+5. **iOS 回覆會吃掉反斜線**（2026-11-07 iPhone 實機確認）：flutter_inappwebview_ios 1.1.2 把回覆包成 `'…'` 字串直接執行 JavaScript，只跳脫單引號。`data` 是含引號的字串時（例如 `qr_code_scan` 掃到的 JSON），網頁收到的 `{"name":"qr_code_scan","data":"{"kind":…}"}` 不是合法 JSON。本服務的 `src/lib/townpass/bridge.ts` 用 `parseReply` 在 `JSON.parse` 失敗時照固定格式拆出 `name` 與 `data`。
+6. **iOS 掃 QR 只讀得到 Byte 段**：mobile_scanner 7.4.2 在 iOS 用自己的 `BarcodePayloadParser` 讀 QR，遇到 Numeric／Alphanumeric 段就停。`qrcode` 套件預設會把連續數字（電話號碼）切成 Numeric 段，結果內容在那裡被截斷。要讓 iOS 掃的 QR，產生時整段用 Byte 模式（本服務的 `src/lib/elder/familyQr.ts`）。
+
+這兩項都是官方城市通 App 用的套件行為，所以本服務在網頁端處理，不改 App。
 
 ---
 

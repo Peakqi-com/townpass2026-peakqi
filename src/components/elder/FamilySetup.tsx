@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { toDataURL } from "qrcode";
+import { byteModeSegments } from "@/lib/elder/familyQr";
 import { HOME_BUTTONS } from "@/lib/elder/home";
 import {
   FAMILY_LIMITS,
@@ -85,7 +86,8 @@ export function FamilySetup() {
     if (!checked.ok) return fail(checked.reason);
 
     try {
-      const image = await toDataURL(encodeFamilyConfig(checked.config), {
+      // 整段用 Byte 模式：iOS 的掃碼套件讀不到 Numeric 段，會把設定碼截斷（見 familyQr.ts）
+      const image = await toDataURL(byteModeSegments(encodeFamilyConfig(checked.config)), {
         errorCorrectionLevel: "M",
         margin: 4,
         width: 480,
