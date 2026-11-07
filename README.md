@@ -474,7 +474,7 @@ docker build -t townpass2026-peakqi . && docker run -p 8080:8080 --env-file .env
 
 | 面向 | 本作品的做法 |
 |---|---|
-| 安全（個資保護、防攻擊、能被監督） | 語音只在手機裡辨識；補助篩選的答案只存在手機；家人設定用 QR code 直接傳遞，不經過伺服器。麥克風只開放本服務網域；`open_external` 只允許 4 種 scheme；開放資料代理採白名單 |
+| 安全（個資保護、防攻擊、能被監督） | 語音只在手機裡辨識；補助篩選的答案只存在手機；家人設定用 QR code 直接傳遞，不經過伺服器；手機的位置座標只在手機上計算最近的捷運站與號誌，不送到伺服器。送到本服務後端的只有資料集名稱、行政區名稱、公車路線與站牌代號（不含姓名、生日、座標），Vercel 的請求紀錄可能留下這些查詢參數；「原始碼與授權」連結讓任何人都能檢查。麥克風只開放本服務網域；`open_external` 只允許 4 種 scheme；開放資料代理採白名單 |
 | 創新（新想法、能持續改） | 一個入口照顧三類人（模式只改變行為、不改內容）；服務清單是開源 JSON，局處可以自行補「長輩的說法」 |
 | 有感（解決需求、可擴充） | 依需求而不是機關找服務；一按就撥號或開官方頁面；主動告訴長輩「你有這個權益」 |
 | 參與（方便表達意見、參與社區） | 附近共餐、關懷據點、長青學苑；家人與里辦志工可以協助設定 |
@@ -504,6 +504,17 @@ docker build -t townpass2026-peakqi . && docker run -p 8080:8080 --env-file .env
 
 ## 授權
 
-本專案採 [GNU AGPL-3.0](LICENSE) 授權。修改後的城市通 App（[Peakqi-com/TownPass](https://github.com/Peakqi-com/TownPass)）沿用原專案的 GPL-3.0。
+本專案以 [GNU AGPL-3.0-or-later](LICENSE) 授權（SPDX：`AGPL-3.0-or-later`）。修改後的城市通 App（[Peakqi-com/TownPass](https://github.com/Peakqi-com/TownPass)）沿用原專案的 GPL-3.0。
 
-<!-- 待補：主辦單位在競賽須知（115.08.27 版）指定的授權聲明全文。指引只寫「附上主辦指定的授權聲明」，沒有附原文；向主辦取得後貼在這裡，不要自行改寫。 -->
+依《競賽須知》（115.08.27 版）捌、一、(二)，載明主辦指定的 AGPL 授權條款（`< >` 欄位依 GNU 慣例填入程式名稱、年份、作者，其餘照抄原文）：
+
+```text
+用得了（台北通長輩模式）：在台北通裡，讓長輩、視障者、聽障者都用得了市府服務的微服務。
+Copyright (C) 2026 AI城市起風 × 奇鋒國際 PEAKQI
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation,either version 3 of the License, or (at your option) any later version.
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details. You should have received a copy of the GNU Affero General Public License along with this program. If not, see < https://www.gnu.org/licenses/>.
+```
+
+- **原始碼取得**（AGPL 第 13 條）：服務的「選模式」頁最下方有「原始碼與授權」連結，指向本 repo。
+- **不屬於 AGPL 範圍的資料**：`src/data/antifraud.json`、`src/data/services.json` 裡引用的官方文字與開放資料，依各機關的「政府資料開放授權條款－第 1 版」或政府網站資料開放宣告使用，出處見「資料來源」。
+- 得獎公布後，本 repo 依須知捌、一、(一) 保持公開至少一年。

@@ -3,10 +3,16 @@
 import { useRouter } from "next/navigation";
 import type { IconName } from "@/lib/elder/home";
 import { haptic, speak } from "@/lib/townpass/elder";
+import { openLink } from "@/lib/townpass/bridge";
 import { RATE_LABEL, RATE_VALUE, type ElderMode, type SpeechRate } from "@/lib/elder/profile";
 import { Icon } from "./Icon";
 import { useElder } from "./ElderProvider";
 import { useFocusOnMount } from "./useFocusOnMount";
+
+/** AGPL-3.0 第 13 條：透過網路使用的人，要能取得對應的原始碼 */
+const SOURCE_URL = "https://github.com/Peakqi-com/townpass2026-peakqi";
+/** Vercel 建置時提供（自動公開的系統環境變數）；本機或 Docker 沒有就不顯示 */
+const COMMIT = process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA?.slice(0, 7);
 
 const OPTIONS: { mode: ElderMode; title: string; detail: string; icon: IconName }[] = [
   { mode: "normal", title: "我看得到，也聽得到", detail: "按下按鈕時會震動，並唸出名稱。", icon: "smile" },
@@ -92,6 +98,19 @@ export function ModePicker({ afterSelect }: { afterSelect?: `/${string}` }) {
           </div>
         </section>
       )}
+
+      <footer className="mt-4 flex flex-col gap-1 border-t-2 border-divider pt-4">
+        <button
+          type="button"
+          onClick={() => openLink(SOURCE_URL)}
+          className="min-h-12 self-start text-left text-elder-body font-bold text-primary-700 underline underline-offset-4 outline-offset-2 focus-visible:outline focus-visible:outline-[6px] focus-visible:outline-grayscale-900"
+        >
+          原始碼與授權（AGPL-3.0）
+        </button>
+        <p className="text-elder-body text-text-second">
+          這個服務是開放原始碼，任何人都可以查看與修改{COMMIT ? `（版本 ${COMMIT}）` : ""}。
+        </p>
+      </footer>
     </main>
   );
 }
