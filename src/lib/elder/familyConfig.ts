@@ -11,11 +11,13 @@
  *     "town": "中山區",
  *     "buses": [{ "city": "tpe", "routeId": 16111, "stopId": 15276, "label": "307 往撫遠街・南京三民路口" }] }
  *   buses（M16 常坐的公車）是選填欄位，後來才加的：舊版的長輩手機會把它當成不認得的欄位丟掉，所以不用升版本。
+ *   buses[].lat／lng（站牌位置，「帶我走到站牌」用）也是選填，理由相同。
  *
  * 安全：掃到的內容一律當成不可信（任何人都能印一張 QR 貼在公布欄）。
  * 先限制長度再解析；每個欄位都檢查型別與範圍；多出來的欄位直接丟掉，只存我們認得的欄位。
  */
 import type { BusCity } from "../bus/bus.ts";
+import { isInTaipeiArea, type LatLng } from "../opendata/geo.ts";
 import { HOME_BUTTONS, type HomeButton } from "./home.ts";
 
 export const FAMILY_CONFIG_KIND = "elder-family";
@@ -71,6 +73,9 @@ export interface FamilyBus {
   stopId: number;
   /** 首頁顯示的名稱，斷網時也看得到，例如「307 往撫遠街・南京三民路口」 */
   label: string;
+  /** 站牌位置（選填，後來才加）：「帶我走到站牌」用，存在設定碼裡所以斷網也能導航。舊的設定碼沒有 */
+  lat?: number;
+  lng?: number;
 }
 
 export interface FamilyConfig {
@@ -116,14 +121,22 @@ export function checkContact(
 /** 檢查一組公車。失敗原因接在「第 N 組公車」後面 */
 export function checkBus(value: unknown): { ok: true; bus: FamilyBus } | { ok: false; reason: string } {
   if (typeof value !== "object" || value === null || Array.isArray(value)) return { ok: false, reason: "格式不對" };
-  const { city, routeId, stopId, label } = value as Record<string, unknown>;
+  const { city, routeId, stopId, label, lat, lng } = value as Record<string, unknown>;
   if (city !== "tpe" && city !== "ntpc") return { ok: false, reason: "的縣市不對" };
   const positiveInt = (n: unknown) => typeof n === "number" && Number.isInteger(n) && n > 0 && n < 1e10;
   if (!positiveInt(routeId) || !positiveInt(stopId)) return { ok: false, reason: "的路線或站牌不對" };
   const trimmed = typeof label === "string" ? label.trim() : "";
   if (trimmed.length === 0 || [...trimmed].length > FAMILY_LIMITS.maxBusLabel) return { ok: false, reason: "的名稱太長或是空的" };
   if (HIDDEN_CHARS.test(trimmed)) return { ok: false, reason: "的名稱有不能用的字" };
-  return { ok: true, bus: { city, routeId: routeId as number, stopId: stopId as number, label: trimmed } };
+  const bus: FamilyBus = { city, routeId: routeId as number, stopId: stopId as number, label: trimmed };
+  if (lat !== undefined || lng !== undefined) {
+    const position = { lat, lng } as Partial<LatLng>;
+    if (!isInTaipeiArea(position)) return { ok: false, reason: "的站牌位置不對" };
+    // 小數 6 位約 10 公分，夠用，也讓設定碼短一點
+    bus.lat = Number(position.lat.toFixed(6));
+    bus.lng = Number(position.lng.toFixed(6));
+  }
+  return { ok: true, bus };
 }
 
 /**
@@ -183,7 +196,9 @@ export function encodeFamilyConfig(config: FamilyConfig): string {
     buttons,
     contacts: contacts.map(({ name, phone }) => ({ name, phone })),
     town,
-    ...(buses && buses.length > 0 ? { buses: buses.map(({ city, routeId, stopId, label }) => ({ city, routeId, stopId, label })) } : {}),
+    ...(buses && buses.length > 0
+      ? { buses: buses.map(({ city, routeId, stopId, label, lat, lng }) => ({ city, routeId, stopId, label, lat, lng })) }
+      : {}),
   });
 }
 

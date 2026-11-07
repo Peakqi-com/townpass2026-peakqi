@@ -300,7 +300,7 @@ TownPass 用 `flutter_inappwebview` **6.1.5**（`pubspec.lock`），`TPWebView` 
 **能做到的範圍**：相機畫面＋方向箭頭＋語音／震動，例如「目的地在你右前方，大約 80 公尺」。
 
 **做不到的範圍**：
-- 沿著馬路逐步導航（「前面路口右轉」）：要有路線規劃服務，不在 CLAUDE.md 允許清單（見 §6.3）。
+- 沿著馬路逐步導航（「前面路口右轉」）：原本以為要有路線規劃服務（不在允許清單）。**2026-11-07 改成自己做，已實作**：開發時把 OSM 步行路網下載成 `public/walk/tianmu.json`，在手機上用 A* 算路線，不呼叫任何外部服務、斷網也能用。整合在 M16「帶我走到站牌」，見 `elder-mode-spec.md` 流程 ⑧-2。相機畫面（AR）仍然不做。
 - 辨識真實物體（「這是醫院大門」）：需要 ML 模型，而且推論必須在裝置端。
 
 **WebView 現況**（✅ 原始碼：`townpass/lib/util/tp_web_view.dart`、本機 flutter_inappwebview_android 1.1.3、flutter_inappwebview_ios 1.1.2、mobile_scanner 7.4.2）：
@@ -377,7 +377,7 @@ TownPass 用 `flutter_inappwebview` **6.1.5**（`pubspec.lock`），`TPWebView` 
 | flutter_tts | App 端 TTS | MIT（pub.dev ✅） | **需隊伍確認**（屬於「pub.dev 上 MIT 的套件」類別，但 CLAUDE.md 要求新增依賴前先問） |
 | speech_to_text | App 端語音辨識 | BSD-3-Clause（pub.dev ✅） | **需隊伍確認**，而且要確認裝置端辨識是否符合規則 |
 | flutter_map | 地圖 | BSD-3 | **需隊伍確認**；建議改用網頁端 Leaflet |
-| 路線規劃服務（例如 OSRM、GraphHopper、openrouteservice） | §5.7 沿路逐步導航 | 未查證 | **需隊伍確認**；§5.7 目前不做 |
+| 路線規劃服務（例如 OSRM、GraphHopper、openrouteservice） | §5.7 沿路逐步導航 | 未查證 | **不需要**：2026-11-07 改成自己寫 A*＋預先下載的 OSM 路網（ODbL），見 §5.7 |
 | 地理編碼服務（例如 TGOS、Nominatim） | §5.7 把只有地址的設施轉成座標 | 未查證 | **需隊伍確認**；§5.7 目前不做 |
 | permission_handler | §5.7 Android 相機執行期授權 | 未查證 | 可改用 `MainActivity.kt` 自己寫，不需要新套件 |
 

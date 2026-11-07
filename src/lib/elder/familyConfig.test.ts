@@ -212,13 +212,22 @@ test("公車：最多 2 組；縣市只能是臺北或新北；代碼要是正�
   assert.deepEqual(check([BUS])?.buses, [BUS]);
 });
 
+test("公車的站牌位置：選填；有的話要在大臺北範圍內，存成小數 6 位", () => {
+  const check = (bus: unknown) => decodeFamilyConfig(tamper({ buses: [bus] }))?.buses?.[0];
+  assert.deepEqual(check({ ...BUS, lat: 25.05148353485096, lng: 121.5602663380149 }), { ...BUS, lat: 25.051484, lng: 121.560266 });
+  assert.deepEqual(check(BUS), BUS);
+  assert.equal(check({ ...BUS, lat: 0, lng: 0 }), undefined);
+  assert.equal(check({ ...BUS, lat: 25.05 }), undefined);
+  assert.equal(check({ ...BUS, lat: "25.05", lng: "121.56" }), undefined);
+});
+
 test("公車：2 組公車加上最大的設定，設定碼仍在長度上限內", () => {
   const big: FamilyConfig = {
     v: 1,
     buttons: HOME_BUTTONS.map((b) => b.id),
     contacts: [1, 2, 3].map(() => ({ name: "一二三四五六七八九十", phone: "123456789012345" })),
     town: "大安區",
-    buses: [1, 2].map(() => ({ ...BUS, label: "公".repeat(40) })),
+    buses: [1, 2].map(() => ({ ...BUS, label: "公".repeat(40), lat: 25.051484, lng: 121.560266 })),
   };
   const text = encodeFamilyConfig(big);
   assert.ok(text.length <= FAMILY_LIMITS.maxInput, `長度 ${text.length}`);

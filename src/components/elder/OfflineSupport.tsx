@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useOffline } from "next/offline";
 import { useEffect } from "react";
 import { offlineRoutes } from "@/lib/elder/routes";
+import { preloadWalkData } from "@/lib/elder/walkData";
 
 /**
  * 斷網時還能用（評審可能關掉網路測試）。
@@ -13,6 +14,7 @@ import { offlineRoutes } from "@/lib/elder/routes";
  * 2. next.config.ts 開了 experimental.useOffline：斷網時點到沒預載的頁面不會跳到瀏覽器的錯誤頁，
  *    而是停在原地，網路恢復後自動重試。
  * 3. 斷網時在頁首顯示提示，說明哪些東西暫時查不到。
+ * 4. 預先下載步行路網（public/walk/），「帶我走到站牌」斷網也能算路線。
  *
  * 限制：斷網後「重新打開」服務仍然開不了（要 Service Worker，iOS 的 WebView 不支援）。
  * Demo 時要先在有網路時打開服務，再關網路。
@@ -25,6 +27,8 @@ export function OfflineSupport() {
     // 等首頁畫完再預載，不和第一次載入搶網路
     const timer = setTimeout(() => {
       for (const route of offlineRoutes()) router.prefetch(route);
+      // 「帶我走到站牌」的路網和有聲號誌，斷網後也要能算路線
+      preloadWalkData();
     }, 1500);
     return () => clearTimeout(timer);
   }, [router]);

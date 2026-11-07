@@ -24,6 +24,7 @@ export const PAGE_ROUTES = [
   "/shelter",
   "/care",
   "/health/places",
+  "/walk",
 ] as const;
 
 /**

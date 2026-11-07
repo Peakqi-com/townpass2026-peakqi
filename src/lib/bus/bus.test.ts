@@ -28,7 +28,7 @@ test("parseRoutes：同一個 Id 有多筆（聯營、附屬路線）時只留�
   assert.deepEqual(r307[0], { city: "tpe", id: 16111, name: "307", departure: "板橋", destination: "撫遠街" });
 });
 
-test("parseStops：goBack 是字串，轉成 0／1；座標不需要", () => {
+test("parseStops：goBack 是字串，轉成 0／1", () => {
   const nanjing = stops.filter((s) => s.name === "南京三民路口");
   assert.deepEqual(
     nanjing.map((s) => [s.id, s.goBack, s.seq]),
@@ -37,6 +37,12 @@ test("parseStops：goBack 是字串，轉成 0／1；座標不需要", () => {
       [15304, 1, 74],
     ],
   );
+});
+
+test("parseStops：站牌位置用 showLat／showLon（WGS84）", () => {
+  const stop = stops.find((s) => s.id === 15276);
+  assert.equal(stop?.lat, 25.05148353485096);
+  assert.equal(stop?.lng, 121.5602663380149);
 });
 
 test("normalizeRouteQuery：全形數字、空白、「號公車」「路」都整理掉", () => {

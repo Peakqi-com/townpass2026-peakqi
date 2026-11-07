@@ -81,10 +81,12 @@ export function BusPicker({ buses, onChange }: { buses: FamilyBus[]; onChange: (
     say("長輩在哪一站上車？可以打站名找");
   };
 
-  const pickStop = (route: BusRoute, direction: BusDirectionView, stop: { id: number; name: string }) => {
+  const pickStop = (route: BusRoute, direction: BusDirectionView, stop: BusDirectionView["stops"][number]) => {
     const label = busLabel(route.name, direction.label, stop.name);
     announce(label);
-    onChange([...buses, { city: route.city, routeId: route.id, stopId: stop.id, label }]);
+    // 站牌位置一起存進設定碼，長輩的「帶我走到站牌」才不用再查網路
+    const position = stop.lat !== undefined && stop.lng !== undefined ? { lat: stop.lat, lng: stop.lng } : {};
+    onChange([...buses, { city: route.city, routeId: route.id, stopId: stop.id, label, ...position }]);
     reset();
     setMessage(`加好了：${label}`);
     say(`加好了：${label}`);

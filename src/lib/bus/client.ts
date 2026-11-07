@@ -7,7 +7,8 @@ import type { FamilyBus } from "../elder/familyConfig.ts";
 export interface BusDirectionView {
   goBack: 0 | 1;
   label: string;
-  stops: { id: number; name: string; seq: number }[];
+  /** lat／lng：站牌位置，家人選好後存進設定碼，「帶我走到站牌」斷網也能用 */
+  stops: { id: number; name: string; seq: number; lat?: number; lng?: number }[];
 }
 
 export interface BusEtaItem {

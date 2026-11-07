@@ -484,7 +484,7 @@ docker build -t townpass2026-peakqi . && docker run -p 8080:8080 --env-file .env
 | 臺北市老人服務中心 | 社會局 | [78dfc9a2…](https://data.taipei/dataset/detail?id=78dfc9a2-36e2-4ef5-beaa-a74633ba3d26) | M9 附近吃飯、上課 | 使用中 |
 | 臺北市預估到站時間(公車)、新北市預估到站時間 | 交通局公運處 | [f11a5af0…](https://data.taipei/dataset/detail?id=f11a5af0-7b37-48ef-98cc-f6f102ed43c6)、[1e26ecf6…](https://data.taipei/dataset/detail?id=1e26ecf6-d5b4-494b-b94f-bee64938dd64) | M16 公車幾分鐘到 | 使用中 |
 | 臺北市路線、新北市路線 | 交通局公運處 | [6a03b03d…](https://data.taipei/dataset/detail?id=6a03b03d-90d1-4d9e-a952-c940fd869772)、[1f5998d2…](https://data.taipei/dataset/detail?id=1f5998d2-d9e4-4d9f-8cbb-fe2d29b99c3c) | M16 找路線 | 使用中 |
-| 臺北市站牌、新北市站牌 | 交通局公運處 | [62bc76da…](https://data.taipei/dataset/detail?id=62bc76da-6e6b-46ee-8976-c1945092d504)、[010244b7…](https://data.taipei/dataset/detail?id=010244b7-c4ed-4b03-9436-c6cbe634d483) | M16 選站牌 | 使用中 |
+| 臺北市站牌、新北市站牌 | 交通局公運處 | [62bc76da…](https://data.taipei/dataset/detail?id=62bc76da-6e6b-46ee-8976-c1945092d504)、[010244b7…](https://data.taipei/dataset/detail?id=010244b7-c4ed-4b03-9436-c6cbe634d483) | M16 選站牌；站牌位置（`showLat`／`showLon`）給「帶我走到站牌」 | 使用中 |
 | 臺北市可供避難收容處所一覽表 | 教育局 | [aaf97773…](https://data.taipei/dataset/detail?id=aaf97773-3631-40e2-b3cc-da87bf2ce1d5) | M13 避難所（.ods，419 處；不傳個人姓名與電話） | 使用中 |
 | 臺北市失智症篩檢、確診評估及關懷服務計畫合約醫院 | 衛生局 | [1417e9ae…](https://data.taipei/dataset/detail?id=1417e9ae-4c86-4f74-88a2-d7031712db44) | M14 失智篩檢（全市 11 家） | 使用中 |
 | 臺北市長照喘息服務特約單位 | 衛生局 | [959c34b2…](https://data.taipei/dataset/detail?id=959c34b2-9698-4d99-8987-d389efe18c04) | M14 喘息服務（巷弄式、社區式、居家式） | 使用中 |
@@ -494,6 +494,8 @@ docker build -t townpass2026-peakqi . && docker run -p 8080:8080 --env-file .env
 | 臺北市公費肺炎鏈球菌疫苗合約醫療院所名單 | 衛生局 | [92934ab2…](https://data.taipei/dataset/detail?id=92934ab2-3509-4a6b-9cee-9ac556ca2f65) | M15 肺炎鏈球菌疫苗 | 使用中 |
 | 臺北市五癌篩檢醫療院所 | 衛生局 | [ae20d75c…](https://data.taipei/dataset/detail?id=ae20d75c-dffb-4d4f-85e1-9c512189005c) | M15 癌症篩檢 | 使用中 |
 | 臺北市假牙補助醫療院所名單 | 社會局 | [76b8b514…](https://data.taipei/dataset/detail?id=76b8b514-e793-4cca-8dcf-065d5af4b760) | M15、M12 假牙補助 | 使用中 |
+
+**步行路網（M16「帶我走到站牌」）**：[OpenStreetMap](https://www.openstreetmap.org/) 的道路與人行道，© OpenStreetMap contributors，授權 [ODbL 1.0](https://opendatacommons.org/licenses/odbl/1-0/)（不是政府資料開放授權條款）。開發時用 `scripts/build-walk-graph.ts` 從 Overpass API 下載會場周邊（北緯 25.100～25.122、東經 121.515～121.540）一次，轉成 `public/walk/tianmu.json`；執行時不呼叫任何路線規劃服務，路線在手機上算。畫面上有標註出處。
 
 服務清單（M3）裡的電話、網址、補助資格與金額，是隊員從市府官網整理後寫入的，每筆都附 `source` 與 `verified`（查證日期）。
 

@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     const directions = directionsOf(route, await loadStops(city)).map((d) => ({
       goBack: d.goBack,
       label: d.label,
-      stops: d.stops.map(({ id, name, seq }) => ({ id, name, seq })),
+      stops: d.stops.map(({ id, name, seq, lat, lng }) => ({ id, name, seq, lat, lng })),
     }));
     return Response.json(
       { source: BUS_DATASETS.stop, route, directions },

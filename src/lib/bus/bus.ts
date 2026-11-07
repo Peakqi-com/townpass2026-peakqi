@@ -11,6 +11,8 @@
  * - 臺北、新北兩份資料的 RouteID、StopID 沒有交集，要記是哪一市
  */
 
+import { isInTaipeiArea } from "../opendata/geo.ts";
+
 export type BusCity = "tpe" | "ntpc";
 
 export interface BusRoute {
@@ -31,6 +33,9 @@ export interface BusStop {
   seq: number;
   /** 0 去程、1 返程 */
   goBack: 0 | 1;
+  /** 站牌位置（WGS84，showLat／showLon）；座標不合理時沒有。「帶我走到站牌」用 */
+  lat?: number;
+  lng?: number;
 }
 
 export interface BusEstimate {
@@ -80,7 +85,14 @@ export function parseStops(file: unknown, city: BusCity): BusStop[] {
     const goBack = num(s.goBack);
     const seq = num(s.seqNo);
     if (!Number.isInteger(id) || !Number.isInteger(routeId) || (goBack !== 0 && goBack !== 1)) continue;
-    stops.push({ city, id, routeId, name: str(s.nameZh), seq: Number.isFinite(seq) ? seq : 0, goBack });
+    const stop: BusStop = { city, id, routeId, name: str(s.nameZh), seq: Number.isFinite(seq) ? seq : 0, goBack };
+    // showLat／showLon 是站牌實際的位置（公運處說明文件 V6.3）；沒有時退回 latitude／longitude
+    const position = { lat: num(s.showLat ?? s.latitude), lng: num(s.showLon ?? s.longitude) };
+    if (isInTaipeiArea(position)) {
+      stop.lat = position.lat;
+      stop.lng = position.lng;
+    }
+    stops.push(stop);
   }
   return stops;
 }

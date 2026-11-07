@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getBusEta, type BusEtaItem } from "@/lib/bus/client";
 import type { FamilyBus } from "@/lib/elder/familyConfig";
@@ -88,6 +89,16 @@ export function BusCard({ buses }: { buses: readonly FamilyBus[] }) {
               <p className="text-elder-title font-bold text-text-primary">
                 {state.status === "loading" ? "正在查…" : state.status === "error" ? "查不到時間" : (item?.text ?? "查不到時間")}
               </p>
+              {/* 舊的設定碼沒有站牌位置，就不顯示 */}
+              {bus.lat !== undefined && (
+                <Link
+                  href={`/walk?bus=${i}`}
+                  onClick={() => announce("帶我走到站牌")}
+                  className="mt-1 flex min-h-14 items-center justify-center rounded-xl border-4 border-grayscale-800 bg-white px-4 text-elder-body font-bold text-text-primary outline-offset-2 focus-visible:outline focus-visible:outline-[6px] focus-visible:outline-grayscale-900 active:outline active:outline-[6px] active:outline-grayscale-900"
+                >
+                  帶我走到站牌
+                </Link>
+              )}
             </li>
           );
         })}
