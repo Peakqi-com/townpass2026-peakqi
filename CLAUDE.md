@@ -107,6 +107,8 @@ fvm flutter clean                                         # Android build 出問
 - 沒有 FVM 的話，把指令開頭的 `fvm` 拿掉，並確認 `flutter --version` 是 3.47.6。
 
 **文件的圖**：架構圖、流程圖改 `docs/diagrams/build_diagrams.py` 後重跑 `python3 docs/diagrams/build_diagrams.py`；README 開頭的橫幅、按鈕、徽章、數字卡片、三種模式圖改 `docs/readme/build_readme_art.py` 後重跑。不要手改 SVG。README 素材一律存進 repo，不用 capsule-render、shields 等外部產圖服務；動畫寫在 SVG 內（README 的 `<style>` 會被 GitHub 濾掉），沒有動畫時畫面也要完整。
+- 流程圖動畫在 `docs/diagrams/build_flow_motion.py`：靜止畫面停在 `hero=True` 那一格，這一格上疊的通知、大字卡不可加 `HID`（初始隱藏），否則減少動態效果時看不到。
+- 檢查動畫：用 Playwright 直接開 SVG 檔（不要用 `<img>`），`document.getAnimations().forEach(a=>{a.pause();a.currentTime=毫秒})` 停在各時間點截圖；`reduced_motion="reduce"` 看靜止畫面。Windows 上指令用 `python`（`python3` 可能是商店空殼）。
 
 ## 2. 專案結構與常改的位置
 
