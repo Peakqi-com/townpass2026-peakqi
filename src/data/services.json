@@ -217,7 +217,7 @@
     "phrases": ["家人", "兒子", "女兒", "孫子", "孫女", "打給", "老伴"],
     "audience": ["elder", "vision", "hearing"],
     "action": { "type": "page", "target": "/family" },
-    "owner": "長輩模式",
+    "owner": "用得了",
     "source": "https://townpass2026-peakqi.vercel.app/",
     "verified": "2026-11-07"
   },
@@ -230,7 +230,7 @@
     "phrases": ["詐騙", "是不是詐騙", "要我轉帳", "要我匯款", "說我中獎", "要我去atm", "解除分期", "分期付款", "檢察官", "監管帳戶", "洗錢", "穩賺不賠", "猜猜我是誰", "要我給密碼", "驗證碼", "奇怪的電話"],
     "audience": ["elder", "vision", "hearing"],
     "action": { "type": "page", "target": "/antifraud" },
-    "owner": "長輩模式（提醒文字取自內政部警政署 165 全民防騙網）",
+    "owner": "用得了（提醒文字取自內政部警政署 165 全民防騙網）",
     "source": "https://165.npa.gov.tw/#/article/1/1710",
     "verified": "2026-11-07"
   },
@@ -258,7 +258,7 @@
     "phrases": ["救命", "緊急", "跌倒了", "救護車", "很嚴重", "火災", "求助", "幫幫我"],
     "audience": ["elder", "vision", "hearing"],
     "action": { "type": "page", "target": "/help" },
-    "owner": "長輩模式",
+    "owner": "用得了",
     "source": "https://townpass2026-peakqi.vercel.app/",
     "verified": "2026-11-07"
   },

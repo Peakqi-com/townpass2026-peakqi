@@ -5,7 +5,7 @@ import "./globals.css";
 
 // 在城市通 App 內，AppBar 會顯示這個 title（除非 App 端設定了 forceWebViewTitle）。
 export const metadata: Metadata = {
-  title: "長輩模式",
+  title: "用得了",
   description: "說一句話，城市就聽懂。長輩、視障者、聽障者用同一個入口，依需求找到市府服務。",
 };
 

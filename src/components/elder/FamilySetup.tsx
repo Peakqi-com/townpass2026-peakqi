@@ -226,12 +226,12 @@ function QrResult({ config, image }: { config: FamilyConfig; image: string }) {
         設定碼做好了
       </h2>
       <p className="text-elder-body text-text-primary">
-        用長輩的手機：長輩模式 →「打給家人」→「家人幫我設定」，對準這張碼。
+        用長輩的手機：用得了 →「打給家人」→「家人幫我設定」，對準這張碼。
       </p>
       {/* eslint-disable-next-line @next/next/no-img-element -- data: URL，不需要 next/image 最佳化 */}
       <img
         src={image}
-        alt="長輩模式設定碼"
+        alt="用得了的設定碼"
         width={480}
         height={480}
         className="mx-auto aspect-square w-full max-w-[20rem]"

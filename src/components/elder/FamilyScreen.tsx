@@ -50,7 +50,7 @@ export function FamilyScreen() {
     }
     const next = decodeFamilyConfig(text);
     if (!next) {
-      note.fail("這不是長輩模式的設定碼。請家人重新做一張設定碼。");
+      note.fail("這不是「用得了」的設定碼。請家人重新做一張設定碼。");
       return;
     }
     save(next);
@@ -107,7 +107,7 @@ export function FamilyScreen() {
           </h2>
           <p className="text-elder-body text-text-second">請家人幫忙設定，只要掃一下就好：</p>
           <ol className="flex list-decimal flex-col gap-2 pl-8 text-elder-body text-text-primary">
-            <li>家人在他的手機打開台北通的「長輩模式」，按「打給家人」。</li>
+            <li>家人在他的手機打開台北通的「用得了」，按「打給家人」。</li>
             <li>家人按最下面的「我是家人，幫長輩設定」，做出一張設定碼。</li>
             <li>您按下面的「家人幫我設定」，對準家人手機上的設定碼。</li>
           </ol>

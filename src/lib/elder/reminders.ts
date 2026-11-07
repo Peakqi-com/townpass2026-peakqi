@@ -22,7 +22,7 @@ const MIN_LEAD_MS = 5 * 60 * 1000;
  * 都來不及就回傳 null（畫面不顯示提醒按鈕）。截止日 11/13 與 profile.ts 的 doubleNinthGift 相同（社會局公告）。
  */
 export function giftReminder(now: Date): Reminder | null {
-  const body = "還沒申請的話，打開台北通的長輩模式就能線上申請匯款，也可以到區公所申請。";
+  const body = "還沒申請的話，打開台北通的「用得了」就能線上申請匯款，也可以到區公所申請。";
   const candidates = [
     { at: "2026-11-12T09:00:00+08:00", title: "重陽禮金明天截止" },
     { at: "2026-11-13T09:00:00+08:00", title: "重陽禮金今天截止" },
