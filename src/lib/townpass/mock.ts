@@ -13,7 +13,7 @@ export const mockAccount: TownPassAccount = {
   idNo: "A123456789",
   email: "ist83903@bcaoo.com",
   phoneNo: "0932166777",
-  birthday: "1988/12/12",
+  birthday: "1940/03/01",
   memberType: "personal",
   verifyLevel: "3",
   addresses: [

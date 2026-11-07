@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { ElderProvider } from "@/components/elder/ElderProvider";
+import { OfflineSupport } from "@/components/elder/OfflineSupport";
 import "./globals.css";
 
 // 在城市通 App 內，AppBar 會顯示這個 title（除非 App 端設定了 forceWebViewTitle）。
@@ -19,7 +20,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="zh-Hant-TW" className="h-full antialiased">
       <body className="flex min-h-full flex-col bg-white">
-        <ElderProvider>{children}</ElderProvider>
+        <ElderProvider>
+          <OfflineSupport />
+          {children}
+        </ElderProvider>
       </body>
     </html>
   );
