@@ -328,5 +328,20 @@
     "owner": "臺北市立圖書館",
     "source": "https://tpml.gov.taipei/News_Content.aspx?n=4F66F55F388033A7&sms=CFFFC938B352678A&s=A614C026B08DC5FA",
     "verified": "2026-11-07"
+  },
+  {
+    "id": "emergency-119",
+    "title": "119 消防救護",
+    "speak": "119 消防、救護車",
+    "description": "失火、受傷、生病很嚴重，打 119。聽不清楚的人可以用簡訊報案。",
+    "category": "help",
+    "phrases": ["119", "消防車", "失火", "著火", "火警"],
+    "audience": ["elder", "vision", "hearing"],
+    "action": { "type": "phone_call", "target": "119", "label": "撥 119" },
+    "alt_channels": [{ "type": "page", "target": "/help", "label": "用簡訊報 119" }],
+    "confirm": true,
+    "owner": "臺北市政府消防局",
+    "source": "https://www-ws.gov.taipei/001/Upload/691/relfile/61747/8937655/b275fc3e-70f8-4e5b-83da-f7fdb9a77e18.pdf",
+    "verified": "2026-11-07"
   }
 ]
