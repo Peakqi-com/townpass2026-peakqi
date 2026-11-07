@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { Source } from "@/lib/elder/hearing";
 import { useElder } from "../ElderProvider";
+import { FailNote, useFailNote } from "../FailNote";
 
 /**
  * M8 聽不清楚三頁（/text、/help、/card/clinic）共用的小元件。
@@ -64,20 +65,26 @@ export async function copyText(text: string): Promise<boolean> {
 /** 「複製」按鈕：結果用 say 說出來（報讀軟體會唸、畫面有大字） */
 export function CopyButton({ text, label, done = "複製好了，可以貼到 LINE 或簡訊。" }: { text: string; label: string; done?: string }) {
   const { announce, say } = useElder();
+  const note = useFailNote();
   const [copied, setCopied] = useState(false);
   return (
-    <button
-      type="button"
-      onClick={async () => {
-        announce(label);
-        const ok = await copyText(text);
-        setCopied(ok);
-        say(ok ? done : "沒辦法複製。請照著畫面上的字輸入，或請家人幫忙。");
-      }}
-      className={SECONDARY_BUTTON}
-    >
-      {copied ? `✓ ${label}（已複製）` : label}
-    </button>
+    <>
+      <button
+        type="button"
+        onClick={async () => {
+          announce(label);
+          note.clear();
+          const ok = await copyText(text);
+          setCopied(ok);
+          if (ok) say(done);
+          else note.fail("沒辦法複製。請照著畫面上的字輸入，或請家人幫忙。");
+        }}
+        className={SECONDARY_BUTTON}
+      >
+        {copied ? `✓ ${label}（已複製）` : label}
+      </button>
+      <FailNote message={note.at()} />
+    </>
   );
 }
 

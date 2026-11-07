@@ -6,6 +6,7 @@ import { buildInterpreterRequest, dateInputValue, leadTimeNotice, smsUri, type I
 import { getService } from "@/lib/elder/services";
 import { openExternal } from "@/lib/townpass/elder";
 import { useElder } from "../ElderProvider";
+import { FailNote, useFailNote } from "../FailNote";
 import { PageShell } from "../PageShell";
 import { ServiceAction } from "../ServiceButton";
 import { useRunAction } from "../useRunAction";
@@ -132,7 +133,8 @@ const SIGN_SMS = "0963047723";
 
 /** 一鍵預約手語翻譯或同步聽打：產生申請文字，送出由使用者自己按 */
 function InterpreterRequest() {
-  const { user, now, announce, say } = useElder();
+  const { user, now, announce } = useElder();
+  const note = useFailNote();
   const run = useRunAction();
   const signService = getService("sign-language");
 
@@ -224,16 +226,19 @@ function InterpreterRequest() {
         type="button"
         onClick={async () => {
           announce("用簡訊傳給承辦單位");
-          if (!(await openExternal(smsUri(SIGN_SMS, text)))) say("打不開簡訊。請複製後貼到 LINE。");
+          note.clear();
+          if (!(await openExternal(smsUri(SIGN_SMS, text)))) note.fail("打不開簡訊。請複製後貼到 LINE。", "sms");
         }}
         className={SECONDARY_BUTTON}
       >
         用簡訊傳給 0963-047-723
       </button>
+      <FailNote message={note.at("sms")} />
       {signService && (
         <ServiceAction
           onPress={async () => {
-            if (!(await run(signService, signService.action))) say("打不開。請改用 LINE 或簡訊。");
+            note.clear();
+            if (!(await run(signService, signService.action))) note.fail("打不開。請改用 LINE 或簡訊。", "online");
           }}
           label="線上申辦（要登入）"
           icon="text"
@@ -241,6 +246,7 @@ function InterpreterRequest() {
           className="bg-elder-hearing text-on-elder-hearing"
         />
       )}
+      <FailNote message={note.at("online")} />
       <p className="text-elder-body text-text-second">LINE ID 也是 0963-047-723。按簡訊只會打開簡訊 App，要您自己按送出。</p>
       {SIGN && <SourceList sources={SIGN.sources} owner={SIGN.owner} />}
     </section>

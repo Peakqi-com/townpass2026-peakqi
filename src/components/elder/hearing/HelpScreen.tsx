@@ -16,6 +16,7 @@ import { getService } from "@/lib/elder/services";
 import { getLocation } from "@/lib/townpass/bridge";
 import { openExternal } from "@/lib/townpass/elder";
 import { useElder } from "../ElderProvider";
+import { FailNote, useFailNote } from "../FailNote";
 import { PageShell } from "../PageShell";
 import { ServiceAction } from "../ServiceButton";
 import { ServiceCard } from "../ServiceCard";
@@ -35,6 +36,7 @@ const KINDS: { kind: Exclude<EmergencyKind, "police">; label: string }[] = [
 export function HelpScreen() {
   const { mode, a11y, user, now, announce, say } = useElder();
   const run = useRunAction();
+  const note = useFailNote();
   const hearing = mode === "hearing";
   const emergency = getService("emergency-119");
   const antifraud = getService("antifraud-165");
@@ -58,16 +60,17 @@ export function HelpScreen() {
   const locate = async () => {
     announce("帶入我現在的位置");
     setLocating(true);
+    note.clear();
     try {
       const pos = await getLocation();
       if (pos && formatPosition(pos)) {
         setPosition({ latitude: pos.latitude, longitude: pos.longitude });
         say("找到位置了，已經放進簡訊。");
       } else {
-        say("拿不到位置。請自己填地址或附近的地標。");
+        note.fail("拿不到位置。請自己填地址或附近的地標。", "locate");
       }
     } catch {
-      say("拿不到位置。請自己填地址或附近的地標。");
+      note.fail("拿不到位置。請自己填地址或附近的地標。", "locate");
     } finally {
       setLocating(false);
     }
@@ -75,7 +78,8 @@ export function HelpScreen() {
 
   const openSms = async (number: string, body: string) => {
     announce(`打開簡訊，傳給 ${formatMobile(number)}`);
-    if (!(await openExternal(smsUri(number, body)))) say("打不開簡訊。請把內容複製起來，或請旁人幫忙。");
+    note.clear();
+    if (!(await openExternal(smsUri(number, body)))) note.fail("打不開簡訊。請把內容複製起來，或請旁人幫忙。", number);
   };
 
   const call119 = emergency && (
@@ -167,6 +171,7 @@ export function HelpScreen() {
           <button type="button" onClick={locate} disabled={locating} className={SECONDARY_BUTTON}>
             {locating ? "正在找位置…" : position ? "✓ 已帶入位置（再按一次更新）" : "帶入我現在的位置"}
           </button>
+          <FailNote message={note.at("locate")} />
           {position && <p className="text-elder-body text-text-primary">GPS：{formatPosition(position)}</p>}
           {user?.residentAddress && (
             <button
@@ -174,6 +179,7 @@ export function HelpScreen() {
               onClick={() => {
                 announce("我在家");
                 setAddress(user.residentAddress);
+                note.clear();
                 say("已經填入家裡地址。");
               }}
               className={SECONDARY_BUTTON}
@@ -232,6 +238,7 @@ export function HelpScreen() {
             <button type="button" onClick={() => openSms(n.number, message)} className={SECONDARY_BUTTON}>
               打開簡訊，傳給 {formatMobile(n.number)}
             </button>
+            <FailNote message={note.at(n.number)} />
             <SourceList sources={n.sources} />
           </div>
         ))}
@@ -258,6 +265,7 @@ export function HelpScreen() {
         <button type="button" onClick={() => openSms(SMS_110.number, message110)} className={SECONDARY_BUTTON}>
           打開簡訊，傳給 {formatMobile(SMS_110.number)}
         </button>
+        <FailNote message={note.at(SMS_110.number)} />
         <SourceList sources={SMS_110.sources} />
       </section>
 

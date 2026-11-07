@@ -8,6 +8,7 @@ import { CATEGORY_STYLE, ServiceCard } from "./ServiceCard";
 import { Icon } from "./Icon";
 import { PageShell } from "./PageShell";
 import { useElder } from "./ElderProvider";
+import { FailNote, useFailNote } from "./FailNote";
 
 /** 點選用的分類（不用說、也不用打字的路） */
 const BROWSE: { category: Category; label: string }[] = [
@@ -35,6 +36,7 @@ type ListenState = "idle" | "starting" | "listening";
  */
 export function FindScreen() {
   const { mode, say } = useElder();
+  const note = useFailNote();
   const hearing = mode === "hearing";
   const [text, setText] = useState("");
   const [query, setQuery] = useState<string | null>(null);
@@ -65,6 +67,7 @@ export function FindScreen() {
     }
     // 開始收音前只震動、不出聲，避免把提示音或報讀軟體的聲音錄進去
     haptic("medium");
+    note.clear();
     setListen("starting");
     session.current = startListening({
       onListening: () => setListen("listening"),
@@ -77,7 +80,7 @@ export function FindScreen() {
       onError: (code) => {
         session.current = null;
         setListen("idle");
-        say(LISTEN_ERRORS[code] ?? "沒有聽清楚。請再說一次，或改用打字。");
+        note.fail(LISTEN_ERRORS[code] ?? "沒有聽清楚。請再說一次，或改用打字。");
       },
     });
   };
@@ -138,6 +141,7 @@ export function FindScreen() {
                 ? "準備中…"
                 : "按一下開始，說完再按一次停止。聲音只在手機裡辨識，不會上傳。"}
           </p>
+          <FailNote message={note.at()} />
         </div>
       )}
 

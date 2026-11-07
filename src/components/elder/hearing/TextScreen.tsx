@@ -5,6 +5,7 @@ import { smsUri } from "@/lib/elder/messages";
 import { getService } from "@/lib/elder/services";
 import { openExternal } from "@/lib/townpass/elder";
 import { useElder } from "../ElderProvider";
+import { FailNote, useFailNote } from "../FailNote";
 import { PageShell } from "../PageShell";
 import { ServiceAction, ServiceLink } from "../ServiceButton";
 import { useRunAction } from "../useRunAction";
@@ -49,7 +50,8 @@ export function TextScreen() {
 }
 
 function ChannelCard({ channel }: { channel: TextChannel }) {
-  const { announce, say } = useElder();
+  const { announce } = useElder();
+  const note = useFailNote();
   const run = useRunAction();
   const service = channel.serviceId ? getService(channel.serviceId) : undefined;
   const action = service && (channel.serviceAction === "alt" ? service.alt_channels?.[0] : service.action);
@@ -83,20 +85,23 @@ function ChannelCard({ channel }: { channel: TextChannel }) {
               type="button"
               onClick={async () => {
                 announce(`傳簡訊給 ${c.value}`);
-                if (!(await openExternal(smsUri(c.sms!, "")))) say("打不開簡訊。請改用 LINE，或請家人幫忙。");
+                note.clear();
+                if (!(await openExternal(smsUri(c.sms!, "")))) note.fail("打不開簡訊。請改用 LINE，或請家人幫忙。", `${c.kind}-${c.value}`);
               }}
               className={SECONDARY_BUTTON}
             >
               傳簡訊給 {c.value}
             </button>
           )}
+          <FailNote message={note.at(`${c.kind}-${c.value}`)} />
         </div>
       ))}
 
       {service && action && (
         <ServiceAction
           onPress={async () => {
-            if (!(await run(service, action))) say("打不開。請試試其他方式，或請家人幫忙。");
+            note.clear();
+            if (!(await run(service, action))) note.fail("打不開。請試試其他方式，或請家人幫忙。", "action");
           }}
           label={action.label ?? service.title}
           icon="text"
@@ -104,6 +109,7 @@ function ChannelCard({ channel }: { channel: TextChannel }) {
           className="bg-elder-hearing text-on-elder-hearing"
         />
       )}
+      <FailNote message={note.at("action")} />
 
       {channel.notes.map((n) => (
         <p key={n} className="text-elder-body text-text-second">

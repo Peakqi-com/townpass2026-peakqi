@@ -20,6 +20,7 @@ import { Icon } from "./Icon";
 import { PageShell } from "./PageShell";
 import { ServiceAction } from "./ServiceButton";
 import { useElder } from "./ElderProvider";
+import { FailNote, useFailNote } from "./FailNote";
 import { useFocusAfterRender } from "./useFocusAfterRender";
 
 /** 一次顯示幾筆（長輩一次看太多會找不到；報讀軟體也比較好跳讀） */
@@ -44,6 +45,7 @@ interface Result {
  */
 export function CommunityScreen() {
   const { mode, user, ready, announce, say, a11y } = useElder();
+  const note = useFailNote();
   const hearing = mode === "hearing";
   const home = userHome(user);
   const [chosen, setChosen] = useState<TaipeiDistrict | null>(null);
@@ -125,24 +127,28 @@ export function CommunityScreen() {
 
   const startCall = (place: Place, phone: Phone) => {
     announce(`打給${place.name}`);
+    note.clear();
     focusLater("call");
     setCalling({ place, phone });
   };
 
   const cancelCall = () => {
     if (calling) focusLater(calling.place.key);
+    note.clear();
     setCalling(null);
   };
 
   const goThere = async (place: Place) => {
     announce("怎麼去");
-    if (!(await openExternal(osmSearchUrl(place)))) say("地圖打不開。可以把地址給家人或計程車司機看。");
+    note.clear();
+    if (!(await openExternal(osmSearchUrl(place)))) note.fail("地圖打不開。可以把地址給家人或計程車司機看。", place.key);
   };
 
   const openSite = async (place: Place) => {
     if (!place.url) return;
     announce("看網站");
-    if (!(await openExternal(place.url))) say("網站打不開。請改打電話，或請家人幫忙。");
+    note.clear();
+    if (!(await openExternal(place.url))) note.fail("網站打不開。請改打電話，或請家人幫忙。", place.key);
   };
 
   if (calling) {
@@ -167,9 +173,11 @@ export function CommunityScreen() {
             row
             className="bg-grayscale-800 text-white"
             onPress={async () => {
-              if (!(await phoneCall(phone.dial))) say("這支手機不能撥電話。請改用其他方式，或請家人幫忙。");
+              note.clear();
+              if (!(await phoneCall(phone.dial))) note.fail("這支手機不能撥電話。請改用其他方式，或請家人幫忙。", "call");
             }}
           />
+          <FailNote message={note.at("call")} />
           <ServiceAction label="不打了，回到列表" icon="home" row className={PLAIN} onPress={cancelCall} />
           <p className="text-h3 text-text-second">
             電話來自政府開放資料{result?.source ? `〈${result.source.title}〉` : ""}，可能已經改號，請以現場為準。
@@ -326,6 +334,7 @@ export function CommunityScreen() {
                       看網站
                     </button>
                   )}
+                  <FailNote message={note.at(place.key)} />
 
                   {result.source && (
                     <p className="text-h3 text-text-second">

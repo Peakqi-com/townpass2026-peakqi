@@ -3,6 +3,7 @@
 import { phoneCall } from "@/lib/townpass/bridge";
 import { formatPhone, type Service } from "@/lib/elder/services";
 import { useElder } from "./ElderProvider";
+import { FailNote, useFailNote } from "./FailNote";
 import { PageShell } from "./PageShell";
 import { ServiceAction } from "./ServiceButton";
 import { useRunAction } from "./useRunAction";
@@ -12,7 +13,8 @@ import { useRunAction } from "./useRunAction";
  * 聽不清楚模式把服務清單的 alt_channels（文字管道）排在最前面；沒有文字管道就明白說出來。
  */
 export function CallConfirm({ service, number }: { service: Service; number: string }) {
-  const { mode, say } = useElder();
+  const { mode } = useElder();
+  const note = useFailNote();
   const run = useRunAction();
   const hearing = mode === "hearing";
   const alts = service.alt_channels ?? [];
@@ -21,7 +23,8 @@ export function CallConfirm({ service, number }: { service: Service; number: str
     <ServiceAction
       key="call"
       onPress={async () => {
-        if (!(await phoneCall(number))) say("這支手機不能撥電話。請改用其他方式，或請家人幫忙。");
+        note.clear();
+        if (!(await phoneCall(number))) note.fail("這支手機不能撥電話。請改用其他方式，或請家人幫忙。");
       }}
       label={`撥打 ${formatPhone(number)}`}
       speak={`撥打 ${service.title}`}
@@ -33,7 +36,10 @@ export function CallConfirm({ service, number }: { service: Service; number: str
   const texts = alts.map((alt) => (
     <ServiceAction
       key={alt.label}
-      onPress={() => void run(service, alt)}
+      onPress={async () => {
+        note.clear();
+        if (!(await run(service, alt))) note.fail("打不開。請試試其他方式，或請家人幫忙。");
+      }}
       label={alt.label}
       icon="text"
       row
@@ -50,6 +56,7 @@ export function CallConfirm({ service, number }: { service: Service; number: str
         </p>
       )}
       <div className="flex flex-col gap-4">{hearing ? [...texts, call] : [call, ...texts]}</div>
+      <FailNote message={note.at()} />
       <p className="text-h3 text-text-second">
         {service.owner}・
         <a href={service.source} className="underline underline-offset-2">

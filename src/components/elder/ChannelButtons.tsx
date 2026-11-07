@@ -2,6 +2,7 @@
 
 import type { Action, Service } from "@/lib/elder/services";
 import { useElder } from "./ElderProvider";
+import { FailNote, useFailNote } from "./FailNote";
 import { ServiceAction, ServiceLink } from "./ServiceButton";
 import { useRunAction } from "./useRunAction";
 
@@ -42,7 +43,8 @@ function toneOf(c: Channel): string {
 }
 
 export function ChannelButtons({ channels }: { channels: Channel[] }) {
-  const { mode, say } = useElder();
+  const { mode } = useElder();
+  const note = useFailNote();
   const run = useRunAction();
 
   const list = [...channels];
@@ -68,7 +70,8 @@ export function ChannelButtons({ channels }: { channels: Channel[] }) {
           <ServiceAction
             key={`${c.action.type}-${i}`}
             onPress={async () => {
-              if (!(await run(c.service, c.action))) say("打不開。請試試其他方式，或請家人幫忙。");
+              note.clear();
+              if (!(await run(c.service, c.action))) note.fail("打不開。請試試其他方式，或請家人幫忙。");
             }}
             label={c.label}
             speak={c.speak}
@@ -78,6 +81,7 @@ export function ChannelButtons({ channels }: { channels: Channel[] }) {
           />
         ),
       )}
+      <FailNote message={note.at()} />
     </div>
   );
 }
